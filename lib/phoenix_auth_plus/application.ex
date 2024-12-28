@@ -9,7 +9,9 @@ defmodule PhoenixAuthPlus.Application do
   def start(_type, _args) do
     children = [
       PhoenixAuthPlusWeb.Telemetry,
+      # Start the UserTokenCleaner
       PhoenixAuthPlus.Repo,
+      {PhoenixAuthPlus.UserTokenCleaner, interval_minutes: 10},
       {DNSCluster, query: Application.get_env(:phoenix_auth_plus, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhoenixAuthPlus.PubSub},
       # Start the Finch HTTP client for sending emails

@@ -1,6 +1,12 @@
 defmodule PhoenixAuthPlusWeb.Router do
   use PhoenixAuthPlusWeb, :router
 
+  (
+    alias PhoenixAuthPlusWeb.SessionHooks.AssignUser
+    alias PhoenixAuthPlusWeb.SessionHooks.RequireUser
+    import PhoenixAuthPlusWeb.Session, only: [fetch_current_user: 2]
+  )
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +14,7 @@ defmodule PhoenixAuthPlusWeb.Router do
     plug :put_root_layout, html: {PhoenixAuthPlusWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -18,6 +25,34 @@ defmodule PhoenixAuthPlusWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
+
+  # HTTP controller routes
+  scope "/", PhoenixAuthPlusWeb do
+    pipe_through :browser
+
+    post "/session", Session, :create
+    delete "/session", Session, :delete
+  end
+
+  # Unprotected LiveViews
+  live_session :guest, on_mount: [AssignUser] do
+    scope "/", PhoenixAuthPlusWeb do
+      pipe_through :browser
+
+      live "/sign-up", RegistrationLive
+      live "/sign-in", AuthenticationLive
+    end
+  end
+
+  # Protected LiveViews
+  live_session :authenticated, on_mount: [AssignUser, RequireUser] do
+    scope "/", PhoenixAuthPlusWeb do
+      pipe_through :browser
+
+      # Example
+      # live "/room/:room_id", RoomLive
+    end
   end
 
   # Other scopes may use custom stacks.
