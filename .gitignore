@@ -17,7 +17,7 @@ erl_crash.dump
 *.ez
 
 # Ignore package tarball (built via "mix hex.build").
-phoenix_auth_plus-*.tar
+phoenix_auth_extended-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/

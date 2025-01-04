@@ -1,6 +1,6 @@
-defmodule PhoenixAuthPlus do
+defmodule PhoenixAuthExtended do
   @moduledoc """
-  Documentation for `PhoenixAuthPlus`.
+  Documentation for `PhoenixAuthExtended`.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule PhoenixAuthPlus do
 
   ## Examples
 
-      iex> PhoenixAuthPlus.hello()
+      iex> PhoenixAuthExtended.hello()
       :world
 
   """
