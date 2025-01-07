@@ -68,10 +68,7 @@ if Code.ensure_loaded?(Igniter) do
 
     @impl Igniter.Mix.Task
     def info(argv, _composing_task) do
-      required =
-        argv
-        |> parse_auth_flags()
-        |> get_required_options()
+      {opts, _} = OptionParser.parse!(argv, switches: @auth_options)
 
       %Igniter.Mix.Task.Info{
         group: :phoenix_auth_extended,
@@ -82,7 +79,7 @@ if Code.ensure_loaded?(Igniter) do
         composes: ["pax.gen.base"],
         schema: @auth_options,
         defaults: [
-          basic: !has_any_auth_flag?(argv),
+          basic: Enum.empty?(opts),
           passkey: false,
           oauth: false,
           basic_identifier: "email",
@@ -93,90 +90,34 @@ if Code.ensure_loaded?(Igniter) do
           p: :passkey,
           o: :oauth
         ],
-        required: required
+        required: required_options(opts)
       }
     end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      igniter =
-        igniter
-        |> validate_auth_options()
-        |> Igniter.compose_task("pax.gen.base", [igniter.args.positional[:entity_name]])
-
-      IO.inspect(igniter.args)
       igniter
+      |> validate_options()
+      |> Igniter.compose_task("pax.gen.base", igniter.args.argv)
     end
 
     # Private helpers
 
-    defp has_any_auth_flag?(argv) do
-      {opts, _} =
-        OptionParser.parse!(argv, strict: [basic: :boolean, passkey: :boolean, oauth: :boolean])
-
-      Keyword.get(opts, :basic) || Keyword.get(opts, :passkey) || Keyword.get(opts, :oauth)
-    end
-
-    defp parse_auth_flags(argv) do
-      {opts, _} = OptionParser.parse!(argv, strict: @auth_options)
-      flags = Map.new(opts)
-
-      if not Map.has_key?(flags, :basic) and
-           not Map.has_key?(flags, :passkey) and
-           not Map.has_key?(flags, :oauth) do
-        Map.put(flags, :basic, true)
-      else
-        flags
-      end
-    end
-
-    defp get_required_options(flags) do
+    defp required_options(options) do
       []
-      |> add_basic_required(flags)
-      |> add_oauth_required(flags)
+      |> add_if(Keyword.get(options, :basic), [:basic_identifier])
+      |> add_if(Keyword.get(options, :oauth), [:oauth_provider, :oauth_scopes])
     end
 
-    defp add_basic_required(required, %{basic: true}) do
-      [:basic_identifier | required]
-    end
+    defp add_if(list, true, value), do: list ++ value
+    defp add_if(list, _condition, _value), do: list
 
-    defp add_basic_required(required, _), do: required
-
-    defp add_oauth_required(required, %{oauth: true}) do
-      [:oauth_provider, :oauth_scopes | required]
-    end
-
-    defp add_oauth_required(required, _), do: required
-
-    defp validate_auth_options(igniter) do
-      case igniter.args.options do
-        %{basic_identifier: identifier} when identifier not in ["email", "username"] ->
-          raise_invalid_option("basic-identifier must be either 'email' or 'username'")
-
-        %{oauth_provider: provider, oauth_scopes: _scopes} = opts when not is_nil(provider) ->
-          validate_oauth_options(opts)
-          igniter
-
-        _ ->
-          igniter
-      end
-    end
-
-    defp validate_oauth_options(%{oauth_provider: provider, oauth_scopes: scopes}) do
-      unless provider =~ ~r/^[a-z0-9_]+$/ do
-        raise_invalid_option(
-          "oauth-provider must contain only lowercase letters, numbers, and underscores"
-        )
+    defp validate_options(igniter) do
+      if Keyword.get(igniter.args.options, :basic_identifier) not in ["email", "username"] do
+        Mix.raise("Invalid option: basic-identifier must be either 'email' or 'username'")
       end
 
-      unless scopes =~ ~r/^[a-zA-Z0-9:,_\s]+$/ do
-        raise_invalid_option("oauth-scopes must be a comma-separated list of valid scope strings")
-      end
-    end
-
-    @spec raise_invalid_option(String.t()) :: no_return()
-    defp raise_invalid_option(message) do
-      Mix.raise("Invalid option: #{message}")
+      igniter
     end
   end
 else
