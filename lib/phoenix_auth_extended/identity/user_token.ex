@@ -14,8 +14,8 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   @session_validity_in_days 60
 
   schema "users_tokens" do
-    field :token, :binary
-    field :context, :string
+    field :value, :binary
+    field :type, :string, default: "session"
     field :sent_to, :string
     belongs_to :user, PhoenixAuthExtended.Identity.User
 
@@ -43,7 +43,7 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   """
   def build_session_token(user) do
     token = :crypto.strong_rand_bytes(@rand_size)
-    {token, %UserToken{token: token, context: "session", user_id: user.id}}
+    {token, %UserToken{value: token, type: "session", user_id: user.id}}
   end
 
   @doc """
@@ -87,8 +87,8 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
 
     {Base.url_encode64(token, padding: false),
      %UserToken{
-       token: hashed_token,
-       context: context,
+       value: hashed_token,
+       type: context,
        sent_to: sent_to,
        user_id: user.id
      }}
@@ -163,7 +163,7 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   Returns the token struct for the given token value and context.
   """
   def by_token_and_context_query(token, context) do
-    from UserToken, where: [token: ^token, context: ^context]
+    from UserToken, where: [value: ^token, type: ^context]
   end
 
   @doc """

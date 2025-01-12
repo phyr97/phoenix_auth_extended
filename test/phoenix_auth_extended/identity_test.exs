@@ -186,7 +186,7 @@ defmodule PhoenixAuthExtended.IdentityTest do
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
-      assert user_token = Repo.get_by(UserToken, token: :crypto.hash(:sha256, token))
+      assert user_token = Repo.get_by(UserToken, value: :crypto.hash(:sha256, token))
       assert user_token.user_id == user.id
       assert user_token.sent_to == user.email
       assert user_token.context == "change:current@example.com"
@@ -317,15 +317,15 @@ defmodule PhoenixAuthExtended.IdentityTest do
 
     test "generates a token", %{user: user} do
       token = Identity.generate_user_session_token(user)
-      assert user_token = Repo.get_by(UserToken, token: token)
+      assert user_token = Repo.get_by(UserToken, value: token)
       assert user_token.context == "session"
 
       # Creating the same token for another user should fail
       assert_raise Ecto.ConstraintError, fn ->
         Repo.insert!(%UserToken{
-          token: user_token.token,
+          value: user_token.token,
           user_id: user_fixture().id,
-          context: "session"
+          type: "session"
         })
       end
     end
@@ -374,7 +374,7 @@ defmodule PhoenixAuthExtended.IdentityTest do
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
-      assert user_token = Repo.get_by(UserToken, token: :crypto.hash(:sha256, token))
+      assert user_token = Repo.get_by(UserToken, value: :crypto.hash(:sha256, token))
       assert user_token.user_id == user.id
       assert user_token.sent_to == user.email
       assert user_token.context == "confirm"
@@ -427,7 +427,7 @@ defmodule PhoenixAuthExtended.IdentityTest do
         end)
 
       {:ok, token} = Base.url_decode64(token, padding: false)
-      assert user_token = Repo.get_by(UserToken, token: :crypto.hash(:sha256, token))
+      assert user_token = Repo.get_by(UserToken, value: :crypto.hash(:sha256, token))
       assert user_token.user_id == user.id
       assert user_token.sent_to == user.email
       assert user_token.context == "reset_password"
