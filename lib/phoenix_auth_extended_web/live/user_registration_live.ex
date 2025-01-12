@@ -35,7 +35,12 @@ defmodule PhoenixAuthExtendedWeb.UserRegistrationLive do
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
+          <div class="flex flex-col gap-2 w-full">
+            <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
+            <.button_link navigate={~p"/users/register_with_passkey"} class="w-full">
+              <.icon name="hero-key" class="h-4 w-4" /> Register with passkey
+            </.button_link>
+          </div>
         </:actions>
       </.simple_form>
     </div>

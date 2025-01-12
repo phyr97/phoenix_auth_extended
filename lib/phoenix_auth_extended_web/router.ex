@@ -53,6 +53,7 @@ defmodule PhoenixAuthExtendedWeb.Router do
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{PhoenixAuthExtendedWeb.UserAuth, :redirect_if_user_is_authenticated}] do
       live "/users/register", UserRegistrationLive, :new
+      live "/users/register_with_passkey", PasskeyRegistrationLive, :new
       live "/users/log_in", UserLoginLive, :new
       live "/users/reset_password", UserForgotPasswordLive, :new
       live "/users/reset_password/:token", UserResetPasswordLive, :edit
