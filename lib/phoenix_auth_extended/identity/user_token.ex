@@ -13,7 +13,9 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   @change_email_validity_in_days 7
   @session_validity_in_days 60
 
-  schema "users_tokens" do
+  @primary_key {:id, Ecto.ULID, autogenerate: true}
+  @foreign_key_type Ecto.ULID
+  schema "user_tokens" do
     field :value, :binary
     field :type, :string, default: "session"
     field :sent_to, :string
@@ -174,6 +176,6 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   end
 
   def by_user_and_contexts_query(user, [_ | _] = contexts) do
-    from t in UserToken, where: t.user_id == ^user.id and t.context in ^contexts
+    from t in UserToken, where: t.user_id == ^user.id and t.type in ^contexts
   end
 end

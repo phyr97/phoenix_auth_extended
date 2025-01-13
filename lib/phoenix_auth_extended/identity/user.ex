@@ -5,6 +5,8 @@ defmodule PhoenixAuthExtended.Identity.User do
 
   alias PhoenixAuthExtended.Identity.UserToken
 
+  @primary_key {:id, Ecto.ULID, autogenerate: true}
+  @foreign_key_type Ecto.ULID
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
