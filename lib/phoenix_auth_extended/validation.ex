@@ -4,7 +4,7 @@ defmodule PhoenixAuthExtended.Validation do
   def validate_password(changeset, field, opts) do
     changeset
     |> validate_required(field)
-    |> validate_length(field, min: 12, max: 72)
+    |> validate_length(field, min: 8, max: 72)
     # Examples of additional password validation:
     # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")

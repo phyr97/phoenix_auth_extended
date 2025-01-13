@@ -17,13 +17,25 @@ defmodule PhoenixAuthExtended.Identity.User do
   end
 
   @doc false
-  def passkey_changeset(user, attrs) do
+  def passkey_changeset(user, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
     user
     |> cast(attrs, fields)
     |> validate_email(:email, unique: true)
     # |> cast_assoc(:keys)
+    |> cast_assoc(:tokens)
+  end
+
+  def basic_changeset(user, attrs, opts \\ [unique: true, hash_password: true]) do
+    regular_fields = __MODULE__.__schema__(:fields) -- [:hashed_password]
+    virtual_fields = __MODULE__.__schema__(:virtual_fields)
+    fields = regular_fields ++ virtual_fields
+
+    user
+    |> cast(attrs, fields)
+    |> validate_email(:email, opts)
+    |> validate_password(:password, opts)
     |> cast_assoc(:tokens)
   end
 
