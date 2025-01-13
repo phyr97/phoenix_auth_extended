@@ -82,7 +82,7 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
             check_uvpa_available={false}
             display_text="Create an account"
             class={[
-              "mt-4 phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
+              "mt-4 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
               "text-sm font-semibold leading-6 text-white active:text-white/80",
               "flex gap-2 items-center justify-center w-full",
               "disabled:cursor-not-allowed disabled:opacity-25"
