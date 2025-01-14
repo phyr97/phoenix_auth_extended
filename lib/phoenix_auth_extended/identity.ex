@@ -63,22 +63,40 @@ defmodule PhoenixAuthExtended.Identity do
   ## User registration
 
   @doc """
-  Registers a user.
+  Registers a user with either basic credentials or passkeys.
 
   ## Examples
 
-      iex> register_user(%{field: value})
+      iex> register_user(%{email: "test@example.com", password: "secret"})
       {:ok, %User{}}
 
-      iex> register_user(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> register_user(%{keys: [%{credential_id: "abc", public_key: "xyz"}]})
+      {:ok, %User{}}
 
+      iex> register_user(%{email: "invalid"})
+      {:error, %Ecto.Changeset{}}
   """
   def register_user(attrs) do
     %User{}
-    |> User.basic_changeset(attrs)
+    |> change_user(attrs)
     |> Repo.insert()
   end
+
+  @doc """
+  Creates a changeset for a user based on the provided attributes.
+  Uses passkey_changeset if keys are present, otherwise basic_changeset.
+
+  ## Examples
+
+      iex> change_user(user, %{email: "test@example.com"})
+      %Ecto.Changeset{...}
+
+      iex> change_user(user, %{keys: [%{credential_id: "abc"}]})
+      %Ecto.Changeset{...}
+  """
+  def change_user(user, attrs, opts \\ [])
+  def change_user(user, %{keys: _} = attrs, opts), do: User.passkey_changeset(user, attrs, opts)
+  def change_user(user, attrs, opts), do: User.basic_changeset(user, attrs, opts)
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.

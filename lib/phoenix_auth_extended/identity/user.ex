@@ -13,6 +13,8 @@ defmodule PhoenixAuthExtended.Identity.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+
+    has_many :keys, UserKey, preload_order: [desc: :last_used_at]
     has_many :tokens, UserToken, preload_order: [desc: :inserted_at]
 
     timestamps(type: :utc_datetime)
@@ -25,7 +27,7 @@ defmodule PhoenixAuthExtended.Identity.User do
     user
     |> cast(attrs, fields)
     |> validate_email(:email, unique: true)
-    # |> cast_assoc(:keys)
+    |> cast_assoc(:keys)
     |> cast_assoc(:tokens)
   end
 

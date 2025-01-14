@@ -145,7 +145,7 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
     %{form: form} = socket.assigns
     user_attrs = %{email: form[:email].value, keys: [params[:key]]}
 
-    with {:ok, %User{id: user_id}} <- Identity.create(user_attrs),
+    with {:ok, %User{id: user_id}} <- Identity.register_user(user_attrs),
          {:ok, %UserToken{value: token_value}} <- Identity.create_token(%{user_id: user_id}) do
       encoded_token = Base.encode64(token_value, padding: false)
       token_attrs = %{"value" => encoded_token}
