@@ -132,6 +132,14 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   defp days_for_context("reset_password"), do: @reset_password_validity_in_days
 
   @doc """
+  Returns the validity period in days for a given token type.
+  """
+  def validity_days("session"), do: @session_validity_in_days
+  def validity_days("confirm"), do: @confirm_validity_in_days
+  def validity_days("reset_password"), do: @reset_password_validity_in_days
+  def validity_days("change:" <> _), do: @change_email_validity_in_days
+
+  @doc """
   Checks if the token is valid and returns its underlying lookup query.
 
   The query returns the user found by the token, if any.

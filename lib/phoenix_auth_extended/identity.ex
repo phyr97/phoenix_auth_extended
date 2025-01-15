@@ -245,11 +245,25 @@ defmodule PhoenixAuthExtended.Identity do
   end
 
   @doc """
-  Gets the user with the given signed token.
+  Retrieves a `User` by querying a valid token.
   """
-  def get_user_by_session_token(token) do
-    {:ok, query} = UserToken.verify_session_token_query(token)
+
+  def get_user_by_token(token, type \\ "session") when is_binary(token) do
+    validity_days = UserToken.validity_days(type)
+
+    query =
+      from token in by_token_and_type_query(token, "session"),
+        join: user in assoc(token, :user),
+        where: token.inserted_at > ago(^validity_days, "day"),
+        order_by: [desc: token.inserted_at],
+        limit: 1,
+        select: user
+
     Repo.one(query)
+  end
+
+  def by_token_and_type_query(token, type) do
+    from UserToken, where: [value: ^token, type: ^type]
   end
 
   @doc """
