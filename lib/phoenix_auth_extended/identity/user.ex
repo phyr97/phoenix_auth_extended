@@ -3,6 +3,7 @@ defmodule PhoenixAuthExtended.Identity.User do
   import Ecto.Changeset
   import PhoenixAuthExtended.Validation
 
+  alias PhoenixAuthExtended.Identity.UserKey
   alias PhoenixAuthExtended.Identity.UserToken
 
   @primary_key {:id, Ecto.ULID, autogenerate: true}
@@ -21,12 +22,12 @@ defmodule PhoenixAuthExtended.Identity.User do
   end
 
   @doc false
-  def passkey_changeset(user, attrs, opts \\ []) do
+  def passkey_changeset(user, attrs, opts \\ [unique: true]) do
     fields = __MODULE__.__schema__(:fields)
 
     user
     |> cast(attrs, fields)
-    |> validate_email(:email, unique: true)
+    |> validate_email(:email, opts)
     |> cast_assoc(:keys)
     |> cast_assoc(:tokens)
   end

@@ -8,7 +8,7 @@ defmodule PhoenixAuthExtended.Repo.Migrations.CreateUsers do
       add :id, :binary_id, primary_key: true
 
       add :email, :citext, null: false
-      add :hashed_password, :string, null: false
+      add :hashed_password, :string
       add :confirmed_at, :utc_datetime
 
       timestamps(type: :utc_datetime)

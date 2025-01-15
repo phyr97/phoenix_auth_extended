@@ -145,17 +145,18 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
     %{form: form} = socket.assigns
     user_attrs = %{email: form[:email].value, keys: [params[:key]]}
 
-    with {:ok, %User{id: user_id}} <- Identity.register_user(user_attrs),
-         {:ok, %UserToken{value: token_value}} <- Identity.create_token(%{user_id: user_id}) do
-      encoded_token = Base.encode64(token_value, padding: false)
-      token_attrs = %{"value" => encoded_token}
+    case Identity.register_user(user_attrs) do
+      {:ok, %User{} = user} ->
+        token = Identity.generate_user_session_token(user)
+        encoded_token = Base.encode64(token, padding: false)
+        token_attrs = %{"value" => encoded_token}
 
-      {
-        :noreply,
-        socket
-        |> assign(:token_form, to_form(token_attrs, as: "token"))
-      }
-    else
+        {
+          :noreply,
+          socket
+          # |> assign(:token_form, to_form(token_attrs, as: "token"))
+        }
+
       {:error, changeset} ->
         Logger.error(registration_error: {__MODULE__, changeset.changes, changeset.errors})
 
