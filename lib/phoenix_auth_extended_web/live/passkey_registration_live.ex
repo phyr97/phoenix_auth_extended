@@ -151,20 +151,12 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
         encoded_token = Base.encode64(token, padding: false)
         token_attrs = %{"value" => encoded_token}
 
-        {
-          :noreply,
-          socket
-          # |> assign(:token_form, to_form(token_attrs, as: "token"))
-        }
+        {:noreply, assign(socket, :token_form, to_form(token_attrs, as: "token"))}
 
       {:error, changeset} ->
         Logger.error(registration_error: {__MODULE__, changeset.changes, changeset.errors})
 
-        {
-          :noreply,
-          socket
-          |> assign(:form, to_form(changeset))
-        }
+        {:noreply, assign(socket, :form, to_form(changeset))}
     end
   end
 

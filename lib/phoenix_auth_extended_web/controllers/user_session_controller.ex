@@ -1,6 +1,7 @@
 defmodule PhoenixAuthExtendedWeb.UserSessionController do
   use PhoenixAuthExtendedWeb, :controller
 
+  alias PhoenixAuthExtended.Identity.User
   alias PhoenixAuthExtended.Identity
   alias PhoenixAuthExtendedWeb.UserAuth
 
@@ -31,6 +32,24 @@ defmodule PhoenixAuthExtendedWeb.UserSessionController do
       |> put_flash(:error, "Invalid email or password")
       |> put_flash(:email, String.slice(email, 0, 160))
       |> redirect(to: ~p"/users/log_in")
+    end
+  end
+
+  defp create(conn, %{"token" => token_params}, info) do
+    %{"value" => value} = token_params
+    decoded_value = Base.decode64!(value, padding: false)
+
+    case Identity.get_user_by_token(decoded_value) do
+      %User{} = user ->
+        conn
+        |> put_flash(:info, info)
+        |> UserAuth.log_in_user(user)
+
+      nil ->
+        conn
+        |> UserAuth.renew_session()
+        |> put_flash(:error, "Please sign in.")
+        |> redirect(to: ~p"/users/log_in")
     end
   end
 

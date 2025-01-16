@@ -6,15 +6,14 @@
   --%>
 
 <.simple_form
-  :let={f}
   :if={@form}
   for={@form}
   method="post"
   id="token-form"
-  action={~p"/session"}
+  action={~p"/users/log_in?_action=registered"}
   phx-mounted={JS.dispatch("click", to: "#token-form button[type='submit']")}
   class="hidden"
 >
-  <.input type="text" field={f[:value]} label="Value" />
+  <.input type="text" field={@form[:value]} label="Value" />
   <.button type="submit">Go</.button>
 </.simple_form>
