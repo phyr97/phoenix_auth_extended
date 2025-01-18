@@ -263,7 +263,8 @@ defmodule PhoenixAuthExtendedWeb.CoreComponents do
       href={@href}
       class={[
         "rounded-lg hover:bg-zinc-100 py-2 px-3 border border-zinc-900",
-        "text-sm font-semibold leading-6 text-zinc-900 active:text-zinc-700 flex items-center justify-center gap-1",
+        "text-sm font-semibold leading-6 text-zinc-900 active:text-zinc-700",
+        "flex items-center justify-center gap-1",
         @class
       ]}
       {@rest}

@@ -8,11 +8,8 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
   require Logger
 
   alias PhoenixAuthExtended.Identity
-  alias PhoenixAuthExtended.Identity.{User, UserToken}
-
-  alias WebauthnComponents.SupportComponent
-  alias WebauthnComponents.RegistrationComponent
-  alias WebauthnComponents.WebauthnUser
+  alias PhoenixAuthExtended.Identity.User
+  alias WebauthnComponents.{RegistrationComponent, SupportComponent, WebauthnUser}
 
   def mount(_params, _user_id, %{assigns: %{current_user: %User{}}} = socket) do
     {
@@ -37,7 +34,6 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
       socket
       |> assign(:page_title, "Sign Up")
       |> assign(:form, build_form())
-      |> assign(:show_registration?, true)
       |> assign(:webauthn_user, webauthn_user)
       |> assign(:token_form, nil)
     }
@@ -88,7 +84,6 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
               "disabled:cursor-not-allowed disabled:opacity-25"
             ]}
           />
-
           <:actions>
             <.button_link navigate={~p"/users/register"} class="w-full">
               <.icon name="hero-arrow-uturn-left" class="h-4 w-4" /> Back to normal registration
@@ -96,7 +91,6 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
           </:actions>
         </.simple_form>
       </div>
-
       <PhoenixAuthExtendedWeb.PasskeyComponents.guidance />
       <PhoenixAuthExtendedWeb.PasskeyComponents.token_form form={@token_form} />
     </section>
