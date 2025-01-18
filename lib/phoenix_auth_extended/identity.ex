@@ -239,9 +239,9 @@ defmodule PhoenixAuthExtended.Identity do
   Generates a session token.
   """
   def generate_user_session_token(user) do
-    {token, user_token} = UserToken.build_session_token(user)
-    Repo.insert!(user_token)
-    token
+    user
+    |> UserToken.build_session_token()
+    |> Repo.insert()
   end
 
   @doc """
@@ -381,5 +381,19 @@ defmodule PhoenixAuthExtended.Identity do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  # Passkeys
+  @doc """
+  Retrieves a `User` by querying an associated `:key_id`.
+  """
+  def get_by_key_id(key_id) when is_binary(key_id) do
+    query =
+      from user in User,
+        join: key in assoc(user, :keys),
+        preload: [:keys],
+        where: key.key_id == ^key_id
+
+    Repo.one(query)
   end
 end

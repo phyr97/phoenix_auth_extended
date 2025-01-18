@@ -4,11 +4,13 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
 
   See `WebauthnComponents` for details on Passkey authentication.
   """
+
   use PhoenixAuthExtendedWeb, :live_view
   require Logger
 
   alias PhoenixAuthExtended.Identity
   alias PhoenixAuthExtended.Identity.User
+  alias PhoenixAuthExtended.Identity.UserToken
   alias WebauthnComponents.{RegistrationComponent, SupportComponent, WebauthnUser}
 
   def mount(_params, _user_id, %{assigns: %{current_user: %User{}}} = socket) do
@@ -139,14 +141,13 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
     %{form: form} = socket.assigns
     user_attrs = %{email: form[:email].value, keys: [params[:key]]}
 
-    case Identity.register_user(user_attrs) do
-      {:ok, %User{} = user} ->
-        token = Identity.generate_user_session_token(user)
-        encoded_token = Base.encode64(token, padding: false)
-        token_attrs = %{"value" => encoded_token}
+    with {:ok, %User{} = user} <- Identity.register_user(user_attrs),
+         {:ok, %UserToken{value: token}} <- Identity.generate_user_session_token(user) do
+      encoded_token = Base.encode64(token, padding: false)
+      token_attrs = %{"value" => encoded_token}
 
-        {:noreply, assign(socket, :token_form, to_form(token_attrs, as: "token"))}
-
+      {:noreply, assign(socket, :token_form, to_form(token_attrs, as: "token"))}
+    else
       {:error, changeset} ->
         Logger.error(registration_error: {__MODULE__, changeset.changes, changeset.errors})
 

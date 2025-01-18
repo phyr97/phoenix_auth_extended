@@ -1,6 +1,11 @@
 defmodule PhoenixAuthExtendedWeb.UserLoginLive do
+  alias PhoenixAuthExtended.Identity.User
   use PhoenixAuthExtendedWeb, :live_view
 
+  require Logger
+
+  alias PhoenixAuthExtended.Identity
+  alias PhoenixAuthExtended.Identity.UserToken
   alias WebauthnComponents.{AuthenticationComponent, SupportComponent}
 
   def mount(_params, _session, socket) do
@@ -69,5 +74,90 @@ defmodule PhoenixAuthExtendedWeb.UserLoginLive do
       </div>
     </div>
     """
+  end
+
+  def handle_event(event, params, socket) do
+    Logger.warning(unhandled_event: {__MODULE__, event, params})
+    {:noreply, socket}
+  end
+
+  def handle_info({:passkeys_supported, supported?}, socket) do
+    if supported? do
+      {:noreply, socket}
+    else
+      {
+        :noreply,
+        socket
+        |> put_flash(:error, "Passkeys are not supported in this browser.")
+      }
+    end
+  end
+
+  def handle_info({:find_credential, [key_id: key_id]}, socket) do
+    case Identity.get_by_key_id(key_id) do
+      %User{keys: keys} = user ->
+        send_update(AuthenticationComponent, id: "authentication-component", user_keys: keys)
+
+        {
+          :noreply,
+          socket
+          |> assign(:user, user)
+        }
+
+      nil ->
+        {
+          :noreply,
+          socket
+          |> put_flash(:error, "Failed to sign in")
+          |> assign(:token_form, nil)
+        }
+    end
+  end
+
+  def handle_info({:authentication_successful, _auth_data}, socket) do
+    case Identity.generate_user_session_token(socket.assigns.user) do
+      {:ok, %UserToken{value: token_value}} ->
+        encoded_token = Base.encode64(token_value, padding: false)
+        token_attrs = %{"value" => encoded_token}
+
+        {:noreply, assign(socket, :token_form, to_form(token_attrs, as: "token"))}
+
+      {:error, changeset} ->
+        Logger.warning(authentication_error: {__MODULE__, changeset})
+
+        {
+          :noreply,
+          socket
+          |> put_flash(:error, "Failed to sign in")
+          |> assign(:token_form, nil)
+        }
+    end
+  end
+
+  def handle_info({:authentication_failure, message: message}, socket) do
+    Logger.error(authentication_error: {__MODULE__, message})
+
+    {
+      :noreply,
+      socket
+      |> put_flash(:error, "Failed to sign in")
+      |> assign(:token_form, nil)
+    }
+  end
+
+  def handle_info(
+        {:error,
+         %{"message" => message, "name" => "NoUserVerifyingPlatformAuthenticatorAvailable"}},
+        socket
+      ) do
+    socket
+    |> assign(:token_form, nil)
+    |> put_flash(:error, message)
+    |> then(&{:noreply, &1})
+  end
+
+  def handle_info(message, socket) do
+    Logger.warning(unhandled_message: {__MODULE__, message})
+    {:noreply, socket}
   end
 end

@@ -45,7 +45,7 @@ defmodule PhoenixAuthExtended.Identity.UserToken do
   """
   def build_session_token(user) do
     token = :crypto.strong_rand_bytes(@rand_size)
-    {token, %UserToken{value: token, type: "session", user_id: user.id}}
+    %UserToken{value: token, type: "session", user_id: user.id}
   end
 
   @doc """
