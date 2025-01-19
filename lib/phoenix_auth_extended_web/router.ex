@@ -59,6 +59,8 @@ defmodule PhoenixAuthExtendedWeb.Router do
       live "/users/reset_password/:token", UserResetPasswordLive, :edit
     end
 
+    get "/oauth/:provider", OAuthController, :request
+    get "/oauth/:provider/callback", OAuthController, :callback
     post "/users/log_in", UserSessionController, :create
   end
 

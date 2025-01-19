@@ -69,6 +69,19 @@ defmodule PhoenixAuthExtendedWeb.UserLoginLive do
             "disabled:cursor-not-allowed disabled:opacity-25"
           ]}
         />
+
+        <.link
+          navigate={~p"/oauth/github"}
+          class={[
+            "mt-4 rounded-lg border border-zinc-900 hover:bg-zinc-100 py-2 px-3",
+            "text-sm font-semibold leading-6 text-zinc-900 active:text-zinc-700",
+            "flex gap-2 items-center justify-center w-full",
+            "disabled:cursor-not-allowed disabled:opacity-25"
+          ]}
+        >
+          Log in with GitHub
+        </.link>
+
         <PhoenixAuthExtendedWeb.PasskeyComponents.guidance />
         <PhoenixAuthExtendedWeb.PasskeyComponents.token_form form={@token_form} />
       </div>
