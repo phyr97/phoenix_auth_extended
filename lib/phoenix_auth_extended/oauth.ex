@@ -3,13 +3,13 @@ defmodule PhoenixAuthExtended.OAuth do
   Multi-Provider OAuth Handler für die Auth-Generator Integration.
   """
 
-  @spec request(atom()) :: {:ok, map()} | {:error, term()}
+  @spec request(String.t()) :: {:ok, map()} | {:error, term()}
   def request(provider) do
     config = config!(provider)
     config[:strategy].authorize_url(config)
   end
 
-  @spec callback(atom(), map(), map()) :: {:ok, map()} | {:error, term()}
+  @spec callback(String.t(), map(), map()) :: {:ok, map()} | {:error, term()}
   def callback(provider, params, session_params) do
     config = config!(provider)
 
@@ -19,6 +19,8 @@ defmodule PhoenixAuthExtended.OAuth do
   end
 
   defp config!(provider) do
+    provider = String.to_existing_atom(provider)
+
     config =
       Application.get_env(:phoenix_auth_extended, :oauth_providers)[provider] ||
         raise "No provider configuration for #{provider}"

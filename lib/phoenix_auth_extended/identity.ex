@@ -45,6 +45,22 @@ defmodule PhoenixAuthExtended.Identity do
   end
 
   @doc """
+  Gets a user by provider and provider_uid.
+
+  ## Examples
+
+      iex> get_user_by_provider("google", "12345")
+      %User{}
+
+      iex> get_user_by_provider("github", "unknown_uid")
+      nil
+
+  """
+  def get_user_by_provider(provider, uid) when is_binary(provider) and is_binary(uid) do
+    Repo.get_by(User, provider: provider, provider_uid: uid)
+  end
+
+  @doc """
   Gets a single user.
 
   Raises `Ecto.NoResultsError` if the User does not exist.
@@ -59,6 +75,27 @@ defmodule PhoenixAuthExtended.Identity do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+
+  @doc """
+  Gets or creates a user by OAuth credentials.
+
+  ## Examples
+
+      iex> get_or_create_user(%{email: "user@example", provider: "github", provider_uid: "123"})
+      {:ok, %User{}}
+
+      iex> get_or_create_user(%{email: "invalid"})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def get_or_create_user(attrs) do
+    %{provider: provider, provider_uid: uid} = attrs
+
+    case get_user_by_provider(provider, uid) do
+      nil -> register_user(attrs)
+      user -> {:ok, user}
+    end
+  end
 
   ## User registration
 
@@ -96,6 +133,7 @@ defmodule PhoenixAuthExtended.Identity do
   """
   def change_user(user, attrs, opts \\ [])
   def change_user(user, %{keys: _} = attrs, opts), do: User.passkey_changeset(user, attrs, opts)
+  def change_user(user, %{provider: _} = attrs, opts), do: User.oauth_changeset(user, attrs, opts)
   def change_user(user, attrs, opts), do: User.basic_changeset(user, attrs, opts)
 
   @doc """
