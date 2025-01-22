@@ -23,9 +23,36 @@ defmodule PhoenixAuthExtended.Identity.User do
   end
 
   @doc """
-  Creates a changeset for passkey authentication.
+  Creates a changeset for basic email/password authentication.
+
+  ## Options
+
+    * `:validate_email` - Validates email uniqueness, defaults to true
+    * `:validate_email_change` - Requires email to change, defaults to false
+    * `:hash_password` - Hashes the password and stores it in hashed_password, defaults to true
+    * `:maybe_validate_password` - Validates the password, defaults to true
   """
-  def passkey_changeset(user, attrs, opts \\ [unique: true]) do
+  def basic_changeset(user, attrs, opts \\ []) do
+    regular_fields = __MODULE__.__schema__(:fields) -- [:hashed_password]
+    virtual_fields = __MODULE__.__schema__(:virtual_fields)
+    fields = regular_fields ++ virtual_fields
+
+    user
+    |> cast(attrs, fields)
+    |> validate_email(:email, opts)
+    |> maybe_validate_password(:password, opts)
+    |> cast_assoc(:tokens)
+  end
+
+  @doc """
+  Creates a changeset for passkey authentication.
+
+  ## Options
+
+    * `:validate_email` - Validates email uniqueness, defaults to true
+    * `:validate_email_change` - Requires email to change, defaults to false
+  """
+  def passkey_changeset(user, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
     user
@@ -37,8 +64,13 @@ defmodule PhoenixAuthExtended.Identity.User do
 
   @doc """
   Creates a changeset for OAuth authentication.
+
+  ## Options
+
+    * `:validate_email` - Validates email uniqueness, defaults to true
+    * `:validate_email_change` - Requires email to change, defaults to false
   """
-  def oauth_changeset(user, attrs, opts \\ [unique: true]) do
+  def oauth_changeset(user, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
     user
@@ -48,25 +80,25 @@ defmodule PhoenixAuthExtended.Identity.User do
   end
 
   @doc """
-  Creates a changeset for basic email/password authentication.
-  """
-  def basic_changeset(user, attrs, opts \\ [unique: true, hash_password: true]) do
-    regular_fields = __MODULE__.__schema__(:fields) -- [:hashed_password]
-    virtual_fields = __MODULE__.__schema__(:virtual_fields)
-    fields = regular_fields ++ virtual_fields
-
-    user
-    |> cast(attrs, fields)
-    |> validate_email(:email, opts)
-    |> validate_password(:password, opts)
-    |> cast_assoc(:tokens)
-  end
-
-  @doc """
-  Confirms the account by setting `confirmed_at`.
+  Confirms the account by setting `confirmed_at` to the current time.
   """
   def confirm_changeset(user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
     change(user, confirmed_at: now)
+  end
+
+  @doc """
+  Validates the current password.
+
+  Adds an error to the changeset if the provided password is invalid.
+  """
+  def validate_current_password(changeset, password) do
+    changeset = cast(changeset, %{current_password: password}, [:current_password])
+
+    if valid_password?(changeset.data, password) do
+      changeset
+    else
+      add_error(changeset, :current_password, "is not valid")
+    end
   end
 end

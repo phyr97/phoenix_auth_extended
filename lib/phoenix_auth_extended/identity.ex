@@ -162,7 +162,7 @@ defmodule PhoenixAuthExtended.Identity do
 
   """
   def change_user_email(user, attrs \\ %{}) do
-    User.basic_changeset(user, attrs, validate_email: false)
+    User.basic_changeset(user, attrs, validate_email: false, validate_email_change: true)
   end
 
   @doc """
@@ -180,9 +180,10 @@ defmodule PhoenixAuthExtended.Identity do
   """
   def apply_user_email(user, password, attrs) do
     user
-    |> User.basic_changeset(attrs)
-    |> Validation.validate_current_password(password)
+    |> User.basic_changeset(attrs, validate_email_change: true, validate_password: false)
+    |> User.validate_current_password(password)
     |> Ecto.Changeset.apply_action(:update)
+    |> dbg()
   end
 
   @doc """
@@ -201,12 +202,13 @@ defmodule PhoenixAuthExtended.Identity do
     else
       _ -> :error
     end
+    |> dbg()
   end
 
   defp user_email_multi(user, email, context) do
     changeset =
       user
-      |> User.basic_changeset(%{email: email})
+      |> User.basic_changeset(%{email: email}, validate_password: false)
       |> User.confirm_changeset()
 
     Ecto.Multi.new()
@@ -260,7 +262,7 @@ defmodule PhoenixAuthExtended.Identity do
     changeset =
       user
       |> User.basic_changeset(attrs)
-      |> Validation.validate_current_password(password)
+      |> User.validate_current_password(password)
 
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, changeset)

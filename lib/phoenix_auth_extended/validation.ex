@@ -1,15 +1,21 @@
 defmodule PhoenixAuthExtended.Validation do
   import Ecto.Changeset
 
-  def validate_password(changeset, field, opts) do
-    changeset
-    |> validate_required(field)
-    |> validate_length(field, min: 8, max: 72)
-    # Examples of additional password validation:
-    # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
-    # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
-    # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
-    |> maybe_hash_password(field, opts)
+  def maybe_validate_password(changeset, field, opts) do
+    maybe_validate_password? = Keyword.get(opts, :validate_password, true)
+
+    if maybe_validate_password? do
+      changeset
+      |> validate_required(field)
+      |> validate_length(field, min: 8, max: 72)
+      # Examples of additional password validation:
+      # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
+      # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
+      # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
+      |> maybe_hash_password(field, opts)
+    else
+      changeset
+    end
   end
 
   defp maybe_hash_password(changeset, field, opts) do
@@ -26,19 +32,6 @@ defmodule PhoenixAuthExtended.Validation do
       |> delete_change(field)
     else
       changeset
-    end
-  end
-
-  @doc """
-  Validates the current password otherwise adds an error to the changeset.
-  """
-  def validate_current_password(changeset, password) do
-    changeset = cast(changeset, %{current_password: password}, [:current_password])
-
-    if valid_password?(changeset.data, password) do
-      changeset
-    else
-      add_error(changeset, :current_password, "is not valid")
     end
   end
 
@@ -64,13 +57,25 @@ defmodule PhoenixAuthExtended.Validation do
     |> validate_format(field, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(field, max: 160)
     |> maybe_validate_unique_email(field, opts)
+    |> maybe_validate_email_change(field, opts)
   end
 
   defp maybe_validate_unique_email(changeset, field, opts) do
-    if Keyword.get(opts, :unique, true) do
+    if Keyword.get(opts, :validate_email, true) do
       changeset
       |> unsafe_validate_unique(field, PhoenixAuthExtended.Repo)
       |> unique_constraint(field)
+    else
+      changeset
+    end
+  end
+
+  defp maybe_validate_email_change(changeset, field, opts) do
+    validate_email_change = Keyword.get(opts, :validate_email_change, false)
+    changed = Ecto.Changeset.changed?(changeset, field)
+
+    if validate_email_change and not changed do
+      add_error(changeset, field, "did not change")
     else
       changeset
     end
