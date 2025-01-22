@@ -4,9 +4,10 @@ defmodule PhoenixAuthExtended.Identity do
   """
 
   import Ecto.Query, warn: false
-  alias PhoenixAuthExtended.Repo
 
   alias PhoenixAuthExtended.Identity.{User, UserToken, UserNotifier}
+  alias PhoenixAuthExtended.Repo
+  alias PhoenixAuthExtended.Validation
 
   ## Database getters
 
@@ -41,7 +42,7 @@ defmodule PhoenixAuthExtended.Identity do
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: email)
-    if User.valid_password?(user, password), do: user
+    if Validation.valid_password?(user, password), do: user
   end
 
   @doc """
@@ -161,7 +162,7 @@ defmodule PhoenixAuthExtended.Identity do
 
   """
   def change_user_email(user, attrs \\ %{}) do
-    User.email_changeset(user, attrs, validate_email: false)
+    User.basic_changeset(user, attrs, validate_email: false)
   end
 
   @doc """
@@ -179,8 +180,8 @@ defmodule PhoenixAuthExtended.Identity do
   """
   def apply_user_email(user, password, attrs) do
     user
-    |> User.email_changeset(attrs)
-    |> User.validate_current_password(password)
+    |> User.basic_changeset(attrs)
+    |> Validation.validate_current_password(password)
     |> Ecto.Changeset.apply_action(:update)
   end
 
@@ -205,7 +206,7 @@ defmodule PhoenixAuthExtended.Identity do
   defp user_email_multi(user, email, context) do
     changeset =
       user
-      |> User.email_changeset(%{email: email})
+      |> User.basic_changeset(%{email: email})
       |> User.confirm_changeset()
 
     Ecto.Multi.new()
@@ -240,7 +241,7 @@ defmodule PhoenixAuthExtended.Identity do
 
   """
   def change_user_password(user, attrs \\ %{}) do
-    User.password_changeset(user, attrs, hash_password: false)
+    User.basic_changeset(user, attrs, hash_password: false)
   end
 
   @doc """
@@ -258,8 +259,8 @@ defmodule PhoenixAuthExtended.Identity do
   def update_user_password(user, password, attrs) do
     changeset =
       user
-      |> User.password_changeset(attrs)
-      |> User.validate_current_password(password)
+      |> User.basic_changeset(attrs)
+      |> Validation.validate_current_password(password)
 
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, changeset)
@@ -412,7 +413,7 @@ defmodule PhoenixAuthExtended.Identity do
   """
   def reset_user_password(user, attrs) do
     Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, User.password_changeset(user, attrs))
+    |> Ecto.Multi.update(:user, User.basic_changeset(user, attrs))
     |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, :all))
     |> Repo.transaction()
     |> case do
