@@ -20,6 +20,7 @@ defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
         >
           <.input field={@email_form[:email]} type="email" label="Email" required />
           <.input
+            :if={not is_nil(@current_user.hashed_password)}
             field={@email_form[:current_password]}
             name="current_password"
             id="current_password_for_email"
@@ -56,6 +57,7 @@ defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
             label="Confirm new password"
           />
           <.input
+            :if={not is_nil(@current_user.hashed_password)}
             field={@password_form[:current_password]}
             name="current_password"
             type="password"
@@ -104,7 +106,8 @@ defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
   end
 
   def handle_event("validate_email", params, socket) do
-    %{"current_password" => password, "user" => user_params} = params
+    user_params = params["user"]
+    password = params["current_password"]
 
     email_form =
       socket.assigns.current_user
@@ -116,7 +119,8 @@ defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
   end
 
   def handle_event("update_email", params, socket) do
-    %{"current_password" => password, "user" => user_params} = params
+    user_params = params["user"]
+    password = params["current_password"]
     user = socket.assigns.current_user
 
     case Identity.apply_user_email(user, password, user_params) do
@@ -136,7 +140,8 @@ defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
   end
 
   def handle_event("validate_password", params, socket) do
-    %{"current_password" => password, "user" => user_params} = params
+    user_params = params["user"]
+    password = params["current_password"]
 
     password_form =
       socket.assigns.current_user
@@ -148,7 +153,8 @@ defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
   end
 
   def handle_event("update_password", params, socket) do
-    %{"current_password" => password, "user" => user_params} = params
+    user_params = params["user"]
+    password = params["current_password"]
     user = socket.assigns.current_user
 
     case Identity.update_user_password(user, password, user_params) do

@@ -183,7 +183,6 @@ defmodule PhoenixAuthExtended.Identity do
     |> User.basic_changeset(attrs, validate_email_change: true, validate_password: false)
     |> User.validate_current_password(password)
     |> Ecto.Changeset.apply_action(:update)
-    |> dbg()
   end
 
   @doc """

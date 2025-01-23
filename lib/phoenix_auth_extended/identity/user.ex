@@ -30,7 +30,7 @@ defmodule PhoenixAuthExtended.Identity.User do
     * `:validate_email` - Validates email uniqueness, defaults to true
     * `:validate_email_change` - Requires email to change, defaults to false
     * `:hash_password` - Hashes the password and stores it in hashed_password, defaults to true
-    * `:maybe_validate_password` - Validates the password, defaults to true
+    * `:validate_password` - Validates the password, defaults to true
   """
   def basic_changeset(user, attrs, opts \\ []) do
     regular_fields = __MODULE__.__schema__(:fields) -- [:hashed_password]
@@ -94,11 +94,17 @@ defmodule PhoenixAuthExtended.Identity.User do
   """
   def validate_current_password(changeset, password) do
     changeset = cast(changeset, %{current_password: password}, [:current_password])
+    user = changeset.data
 
-    if valid_password?(changeset.data, password) do
-      changeset
-    else
-      add_error(changeset, :current_password, "is not valid")
+    cond do
+      is_nil(user.hashed_password) ->
+        changeset
+
+      valid_password?(user, password) ->
+        changeset
+
+      true ->
+        add_error(changeset, :current_password, "is not valid")
     end
   end
 end
