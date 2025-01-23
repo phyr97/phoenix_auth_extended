@@ -1,0 +1,10 @@
+defmodule <%= inspect @repo %>.Migrations.<%= @migration_name %> do
+  use Ecto.Migration
+
+  def change do
+    create table(:<%= @entity_name %>s) do
+
+      timestamps(type: <%= inspect @timestamp_type %>)
+    end
+  end
+end

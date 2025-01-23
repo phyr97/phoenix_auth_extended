@@ -61,7 +61,8 @@ defmodule PhoenixAuthExtended.MixProject do
       {:bandit, "~> 1.5"},
       {:webauthn_components, path: "deps/webauthn_components"},
       {:assent, "~> 0.3.0"},
-      {:req, "~> 0.5.8"}
+      {:req, "~> 0.5.8"},
+      {:igniter, "~> 0.5", optional: true}
     ]
   end
 
