@@ -98,6 +98,7 @@ if Code.ensure_loaded?(Igniter) do
     def igniter(igniter) do
       igniter
       |> validate_options()
+      |> Igniter.assign(:auth_options, igniter.args.options)
       |> Igniter.compose_task("pax.gen.base", igniter.args.argv)
     end
 
