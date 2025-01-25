@@ -66,16 +66,13 @@ if Code.ensure_loaded?(Igniter) do
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      igniter = assign_base_info(igniter)
-      migration_file_name = build_migration_file_name(igniter)
-      entity_assigns = build_entity_migration_assigns(igniter)
+      entity_name = igniter.args.positional[:entity_name]
 
       igniter
-      |> Igniter.copy_template(
-        "priv/templates/migrations/entity.eex",
-        "priv/repo/migrations/#{migration_file_name}",
-        entity_assigns
-      )
+      |> Igniter.assign(:entity_name, entity_name)
+      |> assign_base_info()
+      |> generate_migration("entities.eex", "create_#{entity_name}_table")
+      |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table")
     end
 
     defp assign_base_info(igniter) do
@@ -89,22 +86,25 @@ if Code.ensure_loaded?(Igniter) do
       |> Igniter.assign(:app_repo, app_repo)
     end
 
-    defp build_migration_file_name(igniter) do
-      entity_name = igniter.args.positional[:entity_name]
-      migration_name = "create_#{entity_name}_table"
+    defp generate_migration(igniter, template_name, migration_name) do
       timestamp = NaiveDateTime.utc_now() |> Calendar.strftime("%Y%m%d%H%M%S")
-      "#{timestamp}_#{migration_name}.exs"
+      file_name_with_timestamp = "#{timestamp}_#{migration_name}.exs"
+      assigns = build_assigns(igniter, migration_name)
+
+      Igniter.copy_template(
+        igniter,
+        "priv/templates/migrations/#{template_name}",
+        "priv/repo/migrations/#{file_name_with_timestamp}",
+        assigns
+      )
     end
 
-    defp build_entity_migration_assigns(igniter) do
-      entity_name = igniter.args.positional[:entity_name]
-
-      [
-        repo: igniter.assigns.app_repo,
+    defp build_assigns(igniter, migration_name) do
+      %{
         timestamp_type: :utc_datetime,
-        migration_name: "create_#{entity_name}_table" |> Macro.camelize(),
-        entity_name: entity_name
-      ]
+        migration_name: migration_name |> Macro.camelize()
+      }
+      |> Map.merge(igniter.assigns)
     end
   end
 else
