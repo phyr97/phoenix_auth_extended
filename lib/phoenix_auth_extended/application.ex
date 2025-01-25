@@ -10,7 +10,8 @@ defmodule PhoenixAuthExtended.Application do
     children = [
       PhoenixAuthExtendedWeb.Telemetry,
       PhoenixAuthExtended.Repo,
-      {DNSCluster, query: Application.get_env(:phoenix_auth_extended, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:phoenix_auth_extended, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhoenixAuthExtended.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: PhoenixAuthExtended.Finch},
