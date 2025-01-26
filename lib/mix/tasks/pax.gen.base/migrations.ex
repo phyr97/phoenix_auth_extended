@@ -73,7 +73,15 @@ if Code.ensure_loaded?(Igniter) do
       |> assign_base_info()
       |> generate_migration("entities.eex", "create_#{entity_name}_table")
       |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table")
+      |> maybe_generate_passkey_migration()
     end
+
+    defp maybe_generate_passkey_migration(%{assigns: %{auth_options: %{passkey: true}}} = igniter) do
+      entity_name = igniter.assigns.entity_name
+      generate_migration(igniter, "entity_keys.eex", "create_#{entity_name}_keys_table")
+    end
+
+    defp maybe_generate_passkey_migration(igniter), do: igniter
 
     defp assign_base_info(igniter) do
       app = Mix.Project.config() |> Keyword.fetch!(:app)
@@ -105,6 +113,7 @@ if Code.ensure_loaded?(Igniter) do
         migration_name: migration_name |> Macro.camelize()
       }
       |> Map.merge(igniter.assigns)
+      |> Map.to_list()
     end
   end
 else
