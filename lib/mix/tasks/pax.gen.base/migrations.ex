@@ -2,18 +2,35 @@ defmodule Mix.Tasks.Pax.Gen.Base.Migrations.Docs do
   @moduledoc false
 
   def short_doc do
-    "A short description of your task"
+    "Generates database migrations for authentication"
   end
 
   def example do
-    "mix pax.gen.base.migrations --example arg"
+    "mix pax.gen.base.migrations User"
   end
 
   def long_doc do
     """
     #{short_doc()}
 
-    Longer explanation of your task
+    This task generates the necessary database migrations for authentication.
+    It creates the base tables required for entity management and authentication:
+
+    * Entity table (e.g., users)
+      - Stores the main entity information
+      - Uses binary_id (ULID) as primary key
+      - Includes timestamps
+
+    * Entity tokens table (e.g., user_tokens)
+      - Manages authentication tokens
+      - Handles email confirmation
+      - Supports password reset
+      - References the entity table
+
+    * Entity keys table (e.g., user_keys) - Only with passkey option
+      - Stores WebAuthn/FIDO2 credentials
+      - Manages passkey authentication
+      - References the entity table
 
     ## Example
 
@@ -21,9 +38,21 @@ defmodule Mix.Tasks.Pax.Gen.Base.Migrations.Docs do
     #{example()}
     ```
 
+    ## Generated Files
+
+    The task will create the following migration files:
+    * `priv/repo/migrations/[timestamp]_create_[entity]_table.exs`
+    * `priv/repo/migrations/[timestamp]_create_[entity]_tokens_table.exs`
+    * `priv/repo/migrations/[timestamp]_create_[entity]_keys_table.exs` (with passkey)
+
+    ## Arguments
+
+    * `entity_name` - The name of the entity (e.g., User)
+
     ## Options
 
-    * `--example-option` or `-e` - Docs for your option
+    This task inherits options from the parent auth generator:
+    * `--passkey` - Generates additional migration for WebAuthn/FIDO2 keys
     """
   end
 end
