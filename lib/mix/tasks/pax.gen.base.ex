@@ -68,6 +68,7 @@ if Code.ensure_loaded?(Igniter) do
     def igniter(igniter) do
       igniter
       |> Igniter.compose_task("pax.gen.base.migrations", [igniter.args.positional[:entity_name]])
+      |> Igniter.compose_task("pax.gen.base.hooks", [igniter.args.positional[:entity_name]])
     end
   end
 else
