@@ -68,8 +68,13 @@ if Code.ensure_loaded?(Igniter) do
     def igniter(igniter) do
       igniter
       |> Igniter.compose_task("pax.gen.base.migrations", [igniter.args.positional[:entity_name]])
-      |> Igniter.compose_task("pax.gen.base.hooks", [igniter.args.positional[:entity_name]])
+      |> maybe_add_hooks()
     end
+
+    defp maybe_add_hooks(%{assigns: %{auth_options: %{passkey: true}}} = igniter),
+      do: Igniter.compose_task(igniter, "pax.gen.base.hooks", [])
+
+    defp maybe_add_hooks(igniter), do: igniter
   end
 else
   defmodule Mix.Tasks.Pax.Gen.Base do
