@@ -2,18 +2,22 @@ defmodule Mix.Tasks.Pax.Gen.Base.Docs do
   @moduledoc false
 
   def short_doc do
-    "A short description of your task"
+    "Generates base authentication setup"
   end
 
   def example do
-    "mix pax.gen.base --example arg"
+    "mix pax.gen.base User"
   end
 
   def long_doc do
     """
     #{short_doc()}
 
-    Longer explanation of your task
+    This task sets up the base authentication structure by:
+    * Generating database migrations for authentication
+    * Adding required dependencies based on selected auth methods
+    * Configuring the application for authentication
+    * Setting up WebAuthn hooks (when passkey is enabled)
 
     ## Example
 
@@ -21,9 +25,16 @@ defmodule Mix.Tasks.Pax.Gen.Base.Docs do
     #{example()}
     ```
 
-    ## Options
+    ## Arguments
 
-    * `--example-option` or `-e` - Docs for your option
+    * `entity_name` - The name of the entity (e.g., User)
+
+    ## Generated/Modified Files
+
+    * Database migrations in `priv/repo/migrations`
+    * Dependencies in `mix.exs`
+    * Configuration in `config/config.exs`
+    * WebAuthn hooks in `assets/js/app.js` (when passkey enabled)
     """
   end
 end
@@ -69,6 +80,7 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> Igniter.compose_task("pax.gen.base.migrations", [igniter.args.positional[:entity_name]])
       |> Igniter.compose_task("pax.gen.base.config", [])
+      |> Igniter.compose_task("pax.gen.base.dependencies", [])
       |> maybe_add_hooks()
     end
 

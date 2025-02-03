@@ -16,20 +16,12 @@ defmodule Mix.Tasks.Pax.Gen.Base.Config.Docs do
     This task updates the configuration files for authentication.
     When OAuth is enabled, it will configure the OAuth provider settings.
 
-    ## OAuth Configuration
+    ## Configuration Details
 
-    If OAuth is enabled, the task will:
-    * Add provider-specific configuration (client_id, client_secret)
-    * Use built-in Assent strategies for supported providers
-    * Add placeholder configuration for custom providers
-
-    Supported OAuth providers:
-    * Github (Assent.Strategy.Github)
-    * Google (Assent.Strategy.Google)
-    * Facebook (Assent.Strategy.Facebook)
-    * Discord (Assent.Strategy.Discord)
-    * Twitter (Assent.Strategy.Twitter)
-    * And more...
+    * Sets up bcrypt configuration for password hashing
+    * Configures OAuth providers when OAuth is enabled
+    * Uses built-in Assent strategies for supported providers
+    * Provides guidance for custom OAuth provider setup
 
     ## Example
 
@@ -38,7 +30,8 @@ defmodule Mix.Tasks.Pax.Gen.Base.Config.Docs do
     ## Modified Files
 
     The task will modify:
-    * `config/config.exs` - OAuth provider configuration
+    * `config/test.exs` - bcrypt configuration
+    * `config/config.exs` - OAuth provider configuration (when OAuth enabled)
     """
   end
 end

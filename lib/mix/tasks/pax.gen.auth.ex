@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Pax.Gen.Auth.Docs do
   @moduledoc false
 
   def short_doc do
-    "Generates authentication boilerplate for different authentication methods"
+    "Generates authentication boilerplate with multiple authentication methods"
   end
 
   def example do
@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Pax.Gen.Auth.Docs do
     ## Authentication Methods
 
     * `--basic` - Email/Username + Password authentication
-    * `--passkey` - Passwordless WebAuthn/FIDO authentication
+    * `--passkey` - Passwordless WebAuthn/FIDO2 authentication
     * `--oauth` - OAuth2 provider authentication
 
     ## Basic Authentication Options
@@ -35,7 +35,6 @@ defmodule Mix.Tasks.Pax.Gen.Auth.Docs do
     Required environment variables will be generated with the provider name as prefix:
     * `PROVIDER_CLIENT_ID`
     * `PROVIDER_CLIENT_SECRET`
-    * `PROVIDER_SITE` (optional, for custom OAuth providers)
 
     ## Example
 
