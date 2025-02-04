@@ -81,6 +81,7 @@ if Code.ensure_loaded?(Igniter) do
       |> Igniter.compose_task("pax.gen.base.migrations", [igniter.args.positional[:entity_name]])
       |> Igniter.compose_task("pax.gen.base.config", [])
       |> Igniter.compose_task("pax.gen.base.dependencies", [])
+      |> Igniter.compose_task("pax.gen.base.router", [])
       |> maybe_add_hooks()
     end
 
