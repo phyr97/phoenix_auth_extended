@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Layout.Docs do
   @moduledoc false
 
   def short_doc do
-    "Configures the root layout for authentication"
+    "Configures application layouts for authentication"
   end
 
   def example do
@@ -13,11 +13,16 @@ defmodule Mix.Tasks.Pax.Gen.Base.Layout.Docs do
     """
     #{short_doc()}
 
-    This task updates the root layout template to add authentication-related UI elements:
-    * Adds a navigation bar with authentication links
-    * Shows user email when logged in
-    * Provides links for registration and login when logged out
-    * Adds settings and logout buttons for authenticated users
+    This task configures the application layouts for authentication by:
+    * Adding authentication UI elements to the root layout
+    * Setting up navigation for authenticated and guest users
+    * Configuring user menu and authentication status display
+
+    ## Layout Updates
+    * Adds navigation bar with authentication status
+    * Inserts conditional login/register links for guests
+    * Adds user menu with settings and logout for authenticated users
+    * Ensures proper responsive design for all elements
 
     ## Example
 
@@ -26,8 +31,18 @@ defmodule Mix.Tasks.Pax.Gen.Base.Layout.Docs do
     ## Modified Files
 
     The task will modify:
-    * `lib/your_app_web/components/layouts/root.html.heex`
+    * `lib/<app>_web/components/layouts/root.html.heex`
       - Adds authentication navigation bar
+      - Configures user menu structure
+      - Sets up responsive layout elements
+
+    ## Layout Features
+
+    The authentication navigation provides:
+    * User email display when logged in
+    * Settings and logout buttons for authenticated users
+    * Register and login links for guests
+    * Responsive design for all screen sizes
     """
   end
 end
