@@ -1,29 +1,24 @@
-defmodule Mix.Tasks.Pax.Gen.Context.Docs do
+defmodule Mix.Tasks.Pax.Gen.Context.OAuth.Docs do
   @moduledoc false
 
   def short_doc do
-    "Generates schema and migrations for authentication"
+    "Generates OAuth handler for authentication"
   end
 
   def example do
-    "mix pax.gen.context Accounts User"
+    "mix pax.gen.context.oauth Accounts User"
   end
 
   def long_doc do
     """
     #{short_doc()}
 
-    This task generates the schema and migrations for authentication:
+    This task generates the OAuth handler for multi-provider authentication:
 
-    * Creates migration files for:
-      - Base entity table (e.g. users)
-      - Token table (e.g. user_tokens)
-      - Keys table (when passkey option enabled)
-
-    * Generates Ecto schema files for:
-      - Main entity (e.g. User)
-      - Token schema
-      - Key schema (when passkey option enabled)
+    * OAuth Handler
+      - Manages OAuth provider configurations
+      - Handles OAuth callbacks
+      - Generates OAuth URLs
 
     ## Example
 
@@ -31,21 +26,21 @@ defmodule Mix.Tasks.Pax.Gen.Context.Docs do
     #{example()}
     ```
 
+    ## Generated Files
+
+    The task will create:
+    * `lib/your_app/[context]/oauth.ex`
+
     ## Arguments
 
     * `context_name` - The context module name (e.g., Accounts)
     * `entity_name` - The name of the entity (e.g., User)
-
-    ## Options
-
-    This task inherits options from the auth generator:
-    * `--passkey` - Generates additional schemas and migrations for WebAuthn/FIDO2
     """
   end
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Context do
+  defmodule Mix.Tasks.Pax.Gen.Context.OAuth do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -59,7 +54,7 @@ if Code.ensure_loaded?(Igniter) do
         installs: [],
         example: __MODULE__.Docs.example(),
         positional: [:context_name, :entity_name],
-        composes: ["pax.gen.context.migrations"],
+        composes: [],
         schema: [],
         defaults: [],
         aliases: [],
@@ -72,11 +67,7 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> Igniter.assign(igniter.args.positional)
       |> assign_base_info()
-      |> Igniter.compose_task("pax.gen.context.migrations", igniter.args.argv)
-      |> Igniter.compose_task("pax.gen.context.schemas", igniter.args.argv)
-      |> generate_context()
-      |> maybe_generate_notifier()
-      |> maybe_generate_oauth()
+      |> generate_oauth()
     end
 
     defp assign_base_info(igniter) do
@@ -90,10 +81,9 @@ if Code.ensure_loaded?(Igniter) do
       |> Igniter.assign(:app_camelized, app_camelized)
       |> Igniter.assign(:app_module, app_module)
       |> Igniter.assign(:context_module, context_module)
-      |> Igniter.assign(:timestamp_type, :utc_datetime)
     end
 
-    defp generate_context(igniter) do
+    defp generate_oauth(igniter) do
       assigns = igniter.assigns |> Map.to_list()
 
       context_path =
@@ -103,32 +93,18 @@ if Code.ensure_loaded?(Igniter) do
           String.downcase(igniter.assigns.context_name)
         ])
 
-      file_path = Path.join(context_path, "#{String.downcase(igniter.assigns.context_name)}.ex")
+      file_path = Path.join(context_path, "oauth.ex")
 
       igniter
       |> Igniter.copy_template(
-        "priv/templates/context.eex",
+        "priv/templates/schemas/oauth.eex",
         file_path,
         assigns
       )
     end
-
-    defp maybe_generate_notifier(
-           %{assigns: %{auth_options: %{basic_identifier: "email"}}} = igniter
-         ) do
-      Igniter.compose_task(igniter, "pax.gen.context.notifier", igniter.args.argv)
-    end
-
-    defp maybe_generate_notifier(igniter), do: igniter
-
-    defp maybe_generate_oauth(%{assigns: %{auth_options: %{oauth: true}}} = igniter) do
-      Igniter.compose_task(igniter, "pax.gen.context.o_auth", igniter.args.argv)
-    end
-
-    defp maybe_generate_oauth(igniter), do: igniter
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Context do
+  defmodule Mix.Tasks.Pax.Gen.Context.OAuth do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -136,7 +112,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.context' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.context.oauth' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)
