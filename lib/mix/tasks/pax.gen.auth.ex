@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Auth.Docs do
   end
 
   def example do
-    "mix pax.gen.auth User --basic --basic-identifier email"
+    "mix pax.gen.auth Accounts User --basic --basic-identifier email"
   end
 
   def long_doc do
@@ -15,6 +15,11 @@ defmodule Mix.Tasks.Pax.Gen.Auth.Docs do
 
     Generates authentication boilerplate code based on selected authentication methods.
     If no authentication method is specified, basic authentication will be used by default.
+
+    ## Arguments
+
+    * `context_name` - The context module name (e.g., Accounts)
+    * `schema_name` - The schema module name (e.g., User)
 
     ## Authentication Methods
 
@@ -40,9 +45,9 @@ defmodule Mix.Tasks.Pax.Gen.Auth.Docs do
 
     ```bash
     #{example()}
-    mix pax.gen.auth User --oauth --oauth-provider github --oauth-scopes "user:email,read:user"
-    mix pax.gen.auth User --passkey
-    mix pax.gen.auth User --basic --basic-identifier username --passkey
+    mix pax.gen.auth Accounts User --oauth --oauth-provider github --oauth-scopes "user:email,read:user"
+    mix pax.gen.auth Accounts User --passkey
+    mix pax.gen.auth Accounts User --basic --basic-identifier username --passkey
     ```
     """
   end
@@ -74,7 +79,7 @@ if Code.ensure_loaded?(Igniter) do
         adds_deps: [],
         installs: [],
         example: __MODULE__.Docs.example(),
-        positional: [:entity_name],
+        positional: [:context_name, :entity_name],
         composes: ["pax.gen.setup"],
         schema: @auth_options,
         defaults: [
@@ -98,7 +103,8 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> validate_options()
       |> Igniter.assign(:auth_options, igniter.args.options |> Map.new())
-      |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
+      # |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.schema", igniter.args.argv)
     end
 
     # Private helpers

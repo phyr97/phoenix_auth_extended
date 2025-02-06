@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Setup.Docs do
   end
 
   def example do
-    "mix pax.gen.setup User"
+    "mix pax.gen.setup Accounts User"
   end
 
   def long_doc do
@@ -27,6 +27,7 @@ defmodule Mix.Tasks.Pax.Gen.Setup.Docs do
 
     ## Arguments
 
+    * `context_name` - The context module name (e.g., Accounts)
     * `entity_name` - The name of the entity (e.g., User)
 
     ## Generated/Modified Files
@@ -60,7 +61,7 @@ if Code.ensure_loaded?(Igniter) do
         # An example invocation
         example: __MODULE__.Docs.example(),
         # a list of positional arguments, i.e `[:file]`
-        positional: [:entity_name],
+        positional: [:context_name, :entity_name],
         # Other tasks your task composes using `Igniter.compose_task`, passing in the CLI argv
         # This ensures your option schema includes options from nested tasks
         composes: [
