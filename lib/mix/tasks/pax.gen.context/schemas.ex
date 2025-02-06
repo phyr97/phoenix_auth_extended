@@ -87,6 +87,7 @@ if Code.ensure_loaded?(Igniter) do
       |> generate_schema("entity.eex", "#{entity_name}.ex")
       |> generate_schema("entity_token.eex", "#{entity_name}_token.ex")
       |> maybe_generate_key_schema()
+      |> maybe_generate_validation()
     end
 
     defp maybe_generate_key_schema(%{assigns: %{auth_options: %{passkey: true}}} = igniter) do
@@ -95,6 +96,18 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp maybe_generate_key_schema(igniter), do: igniter
+
+    defp maybe_generate_validation(%{assigns: %{auth_options: %{basic: true}}} = igniter) do
+      generate_schema(igniter, "validation.eex", "validation.ex")
+    end
+
+    defp maybe_generate_validation(
+           %{assigns: %{auth_options: %{basic_identifier: "email"}}} = igniter
+         ) do
+      generate_schema(igniter, "validation.eex", "validation.ex")
+    end
+
+    defp maybe_generate_validation(igniter), do: igniter
 
     defp assign_base_info(igniter) do
       app = Mix.Project.config() |> Keyword.fetch!(:app)
