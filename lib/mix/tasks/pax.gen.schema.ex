@@ -70,11 +70,9 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> Igniter.compose_task("pax.gen.schema.migrations", [igniter.args.positional[:entity_name]])
-      |> Igniter.compose_task("pax.gen.schema.schemas", [
-        igniter.args.positional[:context_name],
-        igniter.args.positional[:entity_name]
-      ])
+      |> Igniter.compose_task("pax.gen.schema.migrations", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.schema.schemas", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.schema.notifier", igniter.args.argv)
     end
   end
 else
