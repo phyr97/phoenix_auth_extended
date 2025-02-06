@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Hooks.Docs do
+defmodule Mix.Tasks.Pax.Gen.Setup.Hooks.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Hooks.Docs do
   end
 
   def example do
-    "mix pax.gen.base.hooks --app-js-path=assets/custom/app.js"
+    "mix pax.gen.setup.hooks --app-js-path=assets/custom/app.js"
   end
 
   def long_doc do
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Hooks.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base.Hooks do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Hooks do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -94,7 +94,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base.Hooks do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Hooks do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -102,7 +102,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.base.hooks' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.setup.hooks' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

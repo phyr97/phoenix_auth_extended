@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Router.Docs do
+defmodule Mix.Tasks.Pax.Gen.Setup.Router.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Router.Docs do
   end
 
   def example do
-    "mix pax.gen.base.router"
+    "mix pax.gen.setup.router"
   end
 
   def long_doc do
@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Router.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base.Router do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Router do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -162,7 +162,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base.Router do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Router do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -170,7 +170,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.base.router' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.setup.router' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

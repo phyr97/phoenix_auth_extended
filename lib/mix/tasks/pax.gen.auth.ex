@@ -75,7 +75,7 @@ if Code.ensure_loaded?(Igniter) do
         installs: [],
         example: __MODULE__.Docs.example(),
         positional: [:entity_name],
-        composes: ["pax.gen.base"],
+        composes: ["pax.gen.setup"],
         schema: @auth_options,
         defaults: [
           basic: Enum.empty?(opts),
@@ -98,7 +98,7 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> validate_options()
       |> Igniter.assign(:auth_options, igniter.args.options |> Map.new())
-      |> Igniter.compose_task("pax.gen.base", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
     end
 
     # Private helpers

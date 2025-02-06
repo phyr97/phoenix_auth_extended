@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Components.Docs do
+defmodule Mix.Tasks.Pax.Gen.Setup.Components.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Components.Docs do
   end
 
   def example do
-    "mix pax.gen.base.components"
+    "mix pax.gen.setup.components"
   end
 
   def long_doc do
@@ -45,7 +45,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Components.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base.Components do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Components do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -172,7 +172,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base.Components do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Components do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -180,7 +180,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.base.components' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.setup.components' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

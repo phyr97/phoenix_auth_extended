@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Layout.Docs do
+defmodule Mix.Tasks.Pax.Gen.Setup.Layout.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Layout.Docs do
   end
 
   def example do
-    "mix pax.gen.base.layout"
+    "mix pax.gen.setup.layout"
   end
 
   def long_doc do
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Layout.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base.Layout do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Layout do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -183,7 +183,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base.Layout do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Layout do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -191,7 +191,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.base.layout' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.setup.layout' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

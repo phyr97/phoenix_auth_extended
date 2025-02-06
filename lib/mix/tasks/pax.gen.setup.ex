@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Docs do
+defmodule Mix.Tasks.Pax.Gen.Setup.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Docs do
   end
 
   def example do
-    "mix pax.gen.base User"
+    "mix pax.gen.setup User"
   end
 
   def long_doc do
@@ -40,7 +40,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base do
+  defmodule Mix.Tasks.Pax.Gen.Setup do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
 
     @moduledoc __MODULE__.Docs.long_doc()
@@ -63,7 +63,14 @@ if Code.ensure_loaded?(Igniter) do
         positional: [:entity_name],
         # Other tasks your task composes using `Igniter.compose_task`, passing in the CLI argv
         # This ensures your option schema includes options from nested tasks
-        composes: ["pax.gen.base.migrations"],
+        composes: [
+          "pax.gen.setup.config",
+          "pax.gen.setup.dependencies",
+          "pax.gen.setup.router",
+          "pax.gen.setup.layout",
+          "pax.gen.setup.components",
+          "pax.gen.setup.hooks"
+        ],
         # `OptionParser` schema
         schema: [],
         # Default values for the options in the `schema`
@@ -78,22 +85,21 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> Igniter.compose_task("pax.gen.base.migrations", [igniter.args.positional[:entity_name]])
-      |> Igniter.compose_task("pax.gen.base.config", [])
-      |> Igniter.compose_task("pax.gen.base.dependencies", [])
-      |> Igniter.compose_task("pax.gen.base.router", [])
-      |> Igniter.compose_task("pax.gen.base.layout", [])
-      |> Igniter.compose_task("pax.gen.base.components", [])
+      |> Igniter.compose_task("pax.gen.setup.config", [])
+      |> Igniter.compose_task("pax.gen.setup.dependencies", [])
+      |> Igniter.compose_task("pax.gen.setup.router", [])
+      |> Igniter.compose_task("pax.gen.setup.layout", [])
+      |> Igniter.compose_task("pax.gen.setup.components", [])
       |> maybe_add_hooks()
     end
 
     defp maybe_add_hooks(%{assigns: %{auth_options: %{passkey: true}}} = igniter),
-      do: Igniter.compose_task(igniter, "pax.gen.base.hooks", [])
+      do: Igniter.compose_task(igniter, "pax.gen.setup.hooks", [])
 
     defp maybe_add_hooks(igniter), do: igniter
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base do
+  defmodule Mix.Tasks.Pax.Gen.Setup do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
 
     @moduledoc __MODULE__.Docs.long_doc()
@@ -102,7 +108,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.base' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.setup' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

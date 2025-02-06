@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Migrations.Docs do
+defmodule Mix.Tasks.Pax.Gen.Schema.Migrations.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Migrations.Docs do
   end
 
   def example do
-    "mix pax.gen.base.migrations User"
+    "mix pax.gen.setup.migrations User"
   end
 
   def long_doc do
@@ -58,7 +58,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Migrations.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base.Migrations do
+  defmodule Mix.Tasks.Pax.Gen.Schema.Migrations do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
 
     @moduledoc __MODULE__.Docs.long_doc()
@@ -146,7 +146,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base.Migrations do
+  defmodule Mix.Tasks.Pax.Gen.Schema.Migrations do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
 
     @moduledoc __MODULE__.Docs.long_doc()
@@ -155,7 +155,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.base.migrations' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.setup.migrations' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

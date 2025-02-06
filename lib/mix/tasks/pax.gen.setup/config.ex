@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Base.Config.Docs do
+defmodule Mix.Tasks.Pax.Gen.Setup.Config.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Config.Docs do
   end
 
   def example do
-    "mix pax.gen.base.config"
+    "mix pax.gen.setup.config"
   end
 
   def long_doc do
@@ -37,7 +37,7 @@ defmodule Mix.Tasks.Pax.Gen.Base.Config.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Base.Config do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Config do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -107,7 +107,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Base.Config do
+  defmodule Mix.Tasks.Pax.Gen.Setup.Config do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Installiere `igniter` zur Verwendung"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -115,7 +115,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      Die Task 'pax.gen.base.config' benötigt igniter. Bitte installiere igniter und versuche es erneut.
+      Die Task 'pax.gen.setup.config' benötigt igniter. Bitte installiere igniter und versuche es erneut.
 
       Weitere Informationen unter: https://hexdocs.pm/igniter/readme.html#installation
       """)
