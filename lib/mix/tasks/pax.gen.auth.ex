@@ -104,7 +104,7 @@ if Code.ensure_loaded?(Igniter) do
       |> validate_options()
       |> Igniter.assign(:auth_options, igniter.args.options |> Map.new())
       # |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
-      |> Igniter.compose_task("pax.gen.schema", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.context", igniter.args.argv)
     end
 
     # Private helpers

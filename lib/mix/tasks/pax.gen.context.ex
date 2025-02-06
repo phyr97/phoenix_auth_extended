@@ -1,37 +1,29 @@
-defmodule Mix.Tasks.Pax.Gen.Schema.Schemas.Docs do
+defmodule Mix.Tasks.Pax.Gen.Context.Docs do
   @moduledoc false
 
   def short_doc do
-    "Generates schema files for authentication"
+    "Generates schema and migrations for authentication"
   end
 
   def example do
-    "mix pax.gen.schema.schemas Accounts User"
+    "mix pax.gen.context Accounts User"
   end
 
   def long_doc do
     """
     #{short_doc()}
 
-    This task generates the Ecto schema files for authentication:
+    This task generates the schema and migrations for authentication:
 
-    * Entity schema (e.g., User)
-      - Basic fields for authentication
-      - Email/Username field based on configuration
-      - Password fields for basic auth
-      - OAuth fields when enabled
-      - Associations to tokens and keys
+    * Creates migration files for:
+      - Base entity table (e.g. users)
+      - Token table (e.g. user_tokens)
+      - Keys table (when passkey option enabled)
 
-    * Entity token schema (e.g., UserToken)
-      - Manages authentication tokens
-      - Handles session tokens
-      - Manages email confirmation tokens
-      - Handles password reset tokens
-
-    * Entity key schema (e.g., UserKey) - Only with passkey option
-      - Stores WebAuthn/FIDO2 credentials
-      - Manages passkey authentication
-      - References the entity schema
+    * Generates Ecto schema files for:
+      - Main entity (e.g. User)
+      - Token schema
+      - Key schema (when passkey option enabled)
 
     ## Example
 
@@ -39,23 +31,21 @@ defmodule Mix.Tasks.Pax.Gen.Schema.Schemas.Docs do
     #{example()}
     ```
 
-    ## Generated Files
-
-    The task will create:
-    * `lib/your_app/[context]/[entity].ex`
-    * `lib/your_app/[context]/[entity]_token.ex`
-    * `lib/your_app/[context]/[entity]_key.ex` (with passkey)
-
     ## Arguments
 
     * `context_name` - The context module name (e.g., Accounts)
     * `entity_name` - The name of the entity (e.g., User)
+
+    ## Options
+
+    This task inherits options from the auth generator:
+    * `--passkey` - Generates additional schemas and migrations for WebAuthn/FIDO2
     """
   end
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Schema.Schemas do
+  defmodule Mix.Tasks.Pax.Gen.Context do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -69,7 +59,7 @@ if Code.ensure_loaded?(Igniter) do
         installs: [],
         example: __MODULE__.Docs.example(),
         positional: [:context_name, :entity_name],
-        composes: [],
+        composes: ["pax.gen.context.migrations"],
         schema: [],
         defaults: [],
         aliases: [],
@@ -79,22 +69,14 @@ if Code.ensure_loaded?(Igniter) do
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      entity_name = igniter.args.positional[:entity_name]
-
       igniter
       |> Igniter.assign(igniter.args.positional)
       |> assign_base_info()
-      |> generate_schema("entity.eex", "#{entity_name}.ex")
-      |> generate_schema("entity_token.eex", "#{entity_name}_token.ex")
-      |> maybe_generate_key_schema()
+      |> Igniter.compose_task("pax.gen.context.migrations", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.context.schemas", igniter.args.argv)
+      |> generate_context()
+      |> maybe_generate_notifier()
     end
-
-    defp maybe_generate_key_schema(%{assigns: %{auth_options: %{passkey: true}}} = igniter) do
-      %{entity_name: entity_name} = igniter.assigns
-      generate_schema(igniter, "entity_key.eex", "#{entity_name}_key.ex")
-    end
-
-    defp maybe_generate_key_schema(igniter), do: igniter
 
     defp assign_base_info(igniter) do
       app = Mix.Project.config() |> Keyword.fetch!(:app)
@@ -110,7 +92,7 @@ if Code.ensure_loaded?(Igniter) do
       |> Igniter.assign(:timestamp_type, :utc_datetime)
     end
 
-    defp generate_schema(igniter, template_name, file_name) do
+    defp generate_context(igniter) do
       assigns = igniter.assigns |> Map.to_list()
 
       context_path =
@@ -120,18 +102,26 @@ if Code.ensure_loaded?(Igniter) do
           String.downcase(igniter.assigns.context_name)
         ])
 
-      file_path = Path.join(context_path, file_name)
+      file_path = Path.join(context_path, "#{String.downcase(igniter.assigns.context_name)}.ex")
 
       igniter
       |> Igniter.copy_template(
-        "priv/templates/schemas/#{template_name}",
+        "priv/templates/context.eex",
         file_path,
         assigns
       )
     end
+
+    defp maybe_generate_notifier(
+           %{assigns: %{auth_options: %{basic_identifier: "email"}}} = igniter
+         ) do
+      Igniter.compose_task(igniter, "pax.gen.context.notifier", igniter.args.argv)
+    end
+
+    defp maybe_generate_notifier(igniter), do: igniter
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Schema.Schemas do
+  defmodule Mix.Tasks.Pax.Gen.Context do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -139,7 +129,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.setup.schemas' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.context' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)

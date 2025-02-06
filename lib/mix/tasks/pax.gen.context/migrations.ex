@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Schema.Migrations.Docs do
+defmodule Mix.Tasks.Pax.Gen.Context.Migrations.Docs do
   @moduledoc false
 
   def short_doc do
@@ -58,7 +58,7 @@ defmodule Mix.Tasks.Pax.Gen.Schema.Migrations.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Schema.Migrations do
+  defmodule Mix.Tasks.Pax.Gen.Context.Migrations do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
 
     @moduledoc __MODULE__.Docs.long_doc()
@@ -146,7 +146,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Schema.Migrations do
+  defmodule Mix.Tasks.Pax.Gen.Context.Migrations do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
 
     @moduledoc __MODULE__.Docs.long_doc()

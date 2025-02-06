@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Pax.Gen.Schema.Notifier.Docs do
+defmodule Mix.Tasks.Pax.Gen.Context.Notifier.Docs do
   @moduledoc false
 
   def short_doc do
@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Pax.Gen.Schema.Notifier.Docs do
   end
 
   def example do
-    "mix pax.gen.schema.notifier Accounts User"
+    "mix pax.gen.context.notifier Accounts User"
   end
 
   def long_doc do
@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Pax.Gen.Schema.Notifier.Docs do
 end
 
 if Code.ensure_loaded?(Igniter) do
-  defmodule Mix.Tasks.Pax.Gen.Schema.Notifier do
+  defmodule Mix.Tasks.Pax.Gen.Context.Notifier do
     @shortdoc "#{__MODULE__.Docs.short_doc()}"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -104,7 +104,7 @@ if Code.ensure_loaded?(Igniter) do
     end
   end
 else
-  defmodule Mix.Tasks.Pax.Gen.Schema.Notifier do
+  defmodule Mix.Tasks.Pax.Gen.Context.Notifier do
     @shortdoc "#{__MODULE__.Docs.short_doc()} | Install `igniter` to use"
     @moduledoc __MODULE__.Docs.long_doc()
 
@@ -112,7 +112,7 @@ else
 
     def run(_argv) do
       Mix.shell().error("""
-      The task 'pax.gen.schema.notifier' requires igniter. Please install igniter and try again.
+      The task 'pax.gen.context.notifier' requires igniter. Please install igniter and try again.
 
       For more information, see: https://hexdocs.pm/igniter/readme.html#installation
       """)
