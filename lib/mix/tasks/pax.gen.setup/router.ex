@@ -79,7 +79,7 @@ if Code.ensure_loaded?(Igniter) do
     # Imports
     defp add_user_auth_import(igniter, router_module) do
       web_module = Igniter.Libs.Phoenix.web_module(igniter)
-      user_auth_module = Module.safe_concat([web_module, "UserAuth"])
+      user_auth_module = Module.concat([web_module, "UserAuth"])
       code = "import #{inspect(user_auth_module)}"
 
       {:ok, igniter} = add_import_to_router(igniter, router_module, code)
