@@ -73,6 +73,7 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> Igniter.assign(igniter.args.positional)
       |> assign_base_info()
+      |> generate_auth_module()
       |> maybe_generate_oauth_controller()
       |> generate_session_controller()
     end
@@ -90,6 +91,19 @@ if Code.ensure_loaded?(Igniter) do
       |> Igniter.assign(:app_module, app_module)
       |> Igniter.assign(:app_web_module, app_web_module)
       |> Igniter.assign(:context_module, context_module)
+    end
+
+    defp generate_auth_module(igniter) do
+      assigns = Map.to_list(igniter.assigns)
+      web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web"])
+      file_path = Path.join(web_path, "user_auth.ex")
+
+      igniter
+      |> Igniter.copy_template(
+        "priv/templates/auth/user_auth.eex",
+        file_path,
+        assigns
+      )
     end
 
     defp maybe_generate_oauth_controller(%{assigns: %{auth_options: %{oauth: true}}} = igniter) do
