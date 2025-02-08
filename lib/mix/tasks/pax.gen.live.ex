@@ -60,7 +60,8 @@ if Code.ensure_loaded?(Igniter) do
         positional: [:context_name, :entity_name],
         composes: [
           "pax.gen.live.components.phoenix",
-          "pax.gen.live.components.passkey"
+          "pax.gen.live.components.passkey",
+          "pax.gen.live.controllers"
         ],
         schema: [],
         defaults: [],
@@ -76,6 +77,7 @@ if Code.ensure_loaded?(Igniter) do
       |> assign_base_info()
       |> Igniter.compose_task("pax.gen.live.components.phoenix", igniter.args.argv)
       |> maybe_generate_passkey_components()
+      |> Igniter.compose_task("pax.gen.live.controllers", igniter.args.argv)
     end
 
     defp assign_base_info(igniter) do
