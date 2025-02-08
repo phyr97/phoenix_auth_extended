@@ -1,0 +1,461 @@
+defmodule <%= inspect @context_module %> do
+  @moduledoc """
+  The <%= @context_name %> context.
+  """
+
+  import Ecto.Query, warn: false
+
+  alias <%= inspect @context_module %>.{<%= @entity_name %>, <%= @entity_name %>Token<%= if @auth_options[:passkey], do: ", #{@entity_name}Key" %>}
+  alias <%= inspect @app_module %>.Repo
+  alias <%= inspect @app_module %>.Validation
+
+  ## Database getters
+
+  @doc """
+  Gets a <%= String.downcase(@entity_name) %> by <%= @auth_options[:basic_identifier] %>.
+
+  ## Examples
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>("foo@example.com")
+      %<%= @entity_name %>{}
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>("unknown@example.com")
+      nil
+
+  """
+  def get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>(<%= @auth_options[:basic_identifier] %>) when is_binary(<%= @auth_options[:basic_identifier] %>) do
+    Repo.get_by(<%= @entity_name %>, <%= @auth_options[:basic_identifier] %>: <%= @auth_options[:basic_identifier] %>)
+  end
+
+  <%= if @auth_options[:basic] do %>
+  @doc """
+  Gets a <%= String.downcase(@entity_name) %> by <%= @auth_options[:basic_identifier] %> and password.
+
+  ## Examples
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>_and_password("foo@example.com", "correct_password")
+      %<%= @entity_name %>{}
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>_and_password("foo@example.com", "invalid_password")
+      nil
+
+  """
+  def get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>_and_password(<%= @auth_options[:basic_identifier] %>, password)
+      when is_binary(<%= @auth_options[:basic_identifier] %>) and is_binary(password) do
+    <%= String.downcase(@entity_name) %> = Repo.get_by(<%= @entity_name %>, <%= @auth_options[:basic_identifier] %>: <%= @auth_options[:basic_identifier] %>)
+    if Validation.valid_password?(<%= String.downcase(@entity_name) %>, password), do: <%= String.downcase(@entity_name) %>
+  end
+  <% end %>
+
+  <%= if @auth_options[:oauth] do %>
+  @doc """
+  Gets a <%= String.downcase(@entity_name) %> by provider and provider_uid.
+
+  ## Examples
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_provider("google", "12345")
+      %<%= @entity_name %>{}
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_provider("github", "unknown_uid")
+      nil
+
+  """
+  def get_<%= String.downcase(@entity_name) %>_by_provider(provider, uid) when is_binary(provider) and is_binary(uid) do
+    Repo.get_by(<%= @entity_name %>, provider: provider, provider_uid: uid)
+  end
+
+  @doc """
+  Gets or creates a <%= String.downcase(@entity_name) %> by OAuth credentials.
+
+  ## Examples
+
+      iex> get_or_create_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "user@example", provider: "github", provider_uid: "123"})
+      {:ok, %<%= @entity_name %>{}}
+
+      iex> get_or_create_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "invalid"})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def get_or_create_<%= String.downcase(@entity_name) %>(attrs) do
+    %{provider: provider, provider_uid: uid} = attrs
+
+    case get_<%= String.downcase(@entity_name) %>_by_provider(provider, uid) do
+      nil -> register_<%= String.downcase(@entity_name) %>(attrs)
+      <%= String.downcase(@entity_name) %> -> {:ok, <%= String.downcase(@entity_name) %>}
+    end
+  end
+  <% end %>
+
+  @doc """
+  Gets a single <%= String.downcase(@entity_name) %>.
+
+  Raises `Ecto.NoResultsError` if the <%= @entity_name %> does not exist.
+
+  ## Examples
+
+      iex> get_<%= String.downcase(@entity_name) %>!(123)
+      %<%= @entity_name %>{}
+
+      iex> get_<%= String.downcase(@entity_name) %>!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_<%= String.downcase(@entity_name) %>!(id), do: Repo.get!(<%= @entity_name %>, id)
+
+  ## Registration
+
+  @doc """
+  Registers a <%= String.downcase(@entity_name) %> with either basic credentials or passkeys.
+
+  ## Examples
+
+      iex> register_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "test@example.com", password: "secret"})
+      {:ok, %<%= @entity_name %>{}}
+
+      <%= if @auth_options[:passkey] do %>
+      iex> register_<%= String.downcase(@entity_name) %>(%{keys: [%{credential_id: "abc", public_key: "xyz"}]})
+      {:ok, %<%= @entity_name %>{}}
+      <% end %>
+
+      iex> register_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "invalid"})
+      {:error, %Ecto.Changeset{}}
+  """
+  def register_<%= String.downcase(@entity_name) %>(attrs) do
+    %<%= @entity_name %>{}
+    |> change_<%= String.downcase(@entity_name) %>(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Creates a changeset for a <%= String.downcase(@entity_name) %> based on the provided attributes.
+  <%= if @auth_options[:passkey] do %>Uses passkey_changeset if keys are present, <% end %><%= if @auth_options[:oauth] do %>Uses oauth_changeset if provider is present, <% end %>otherwise basic_changeset.
+
+  ## Examples
+
+      iex> change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{<%= @auth_options[:basic_identifier] %>: "test@example.com"})
+      %Ecto.Changeset{...}
+
+      <%= if @auth_options[:passkey] do %>
+      iex> change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{keys: [%{credential_id: "abc"}]})
+      %Ecto.Changeset{...}
+      <% end %>
+  """
+  def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, attrs, opts \\ [])
+  <%= if @auth_options[:passkey] do %>
+  def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{keys: _} = attrs, opts), do: <%= @entity_name %>.passkey_changeset(<%= String.downcase(@entity_name) %>, attrs, opts)
+  <% end %>
+  <%= if @auth_options[:oauth] do %>
+  def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{provider: _} = attrs, opts), do: <%= @entity_name %>.oauth_changeset(<%= String.downcase(@entity_name) %>, attrs, opts)
+  <% end %>
+  def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, attrs, opts), do: <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, opts)
+
+  <%= if @auth_options[:basic] do %>
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking <%= String.downcase(@entity_name) %> changes.
+
+  ## Examples
+
+      iex> change_<%= String.downcase(@entity_name) %>_registration(<%= String.downcase(@entity_name) %>)
+      %Ecto.Changeset{data: %<%= @entity_name %>{}}
+
+  """
+  def change_<%= String.downcase(@entity_name) %>_registration(%<%= @entity_name %>{} = <%= String.downcase(@entity_name) %>, attrs \\ %{}) do
+    <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, hash_password: false, validate_<%= @auth_options[:basic_identifier] %>: false)
+  end
+  <% end %>
+
+  ## Settings
+
+  <%= if @auth_options[:basic_identifier] == "email" do %>
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the <%= String.downcase(@entity_name) %> email.
+
+  ## Examples
+
+      iex> change_<%= String.downcase(@entity_name) %>_email(<%= String.downcase(@entity_name) %>)
+      %Ecto.Changeset{data: %<%= @entity_name %>{}}
+
+  """
+  def change_<%= String.downcase(@entity_name) %>_email(<%= String.downcase(@entity_name) %>, attrs \\ %{}) do
+    <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, validate_email: false, validate_email_change: true)
+  end
+
+  @doc """
+  Emulates that the email will change without actually changing
+  it in the database.
+
+  ## Examples
+
+      iex> apply_<%= String.downcase(@entity_name) %>_email(<%= String.downcase(@entity_name) %>, "valid password", %{email: ...})
+      {:ok, %<%= @entity_name %>{}}
+
+      iex> apply_<%= String.downcase(@entity_name) %>_email(<%= String.downcase(@entity_name) %>, "invalid password", %{email: ...})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def apply_<%= String.downcase(@entity_name) %>_email(<%= String.downcase(@entity_name) %>, password, attrs) do
+    <%= String.downcase(@entity_name) %>
+    |> <%= @entity_name %>.basic_changeset(attrs, validate_email_change: true, validate_password: false)
+    |> <%= @entity_name %>.validate_current_password(password)
+    |> Ecto.Changeset.apply_action(:update)
+  end
+
+  @doc """
+  Updates the <%= String.downcase(@entity_name) %> email using the given token.
+
+  If the token matches, the <%= String.downcase(@entity_name) %> email is updated and the token is deleted.
+  The confirmed_at date is also updated to the current time.
+  """
+  def update_<%= String.downcase(@entity_name) %>_email(<%= String.downcase(@entity_name) %>, token) do
+    context = "change:#{<%= String.downcase(@entity_name) %>.email}"
+
+    with {:ok, query} <- <%= @entity_name %>Token.verify_change_email_token_query(token, context),
+         %<%= @entity_name %>Token{sent_to: email} <- Repo.one(query),
+         {:ok, _} <- Repo.transaction(<%= String.downcase(@entity_name) %>_email_multi(<%= String.downcase(@entity_name) %>, email, context)) do
+      :ok
+    else
+      _ -> :error
+    end
+  end
+
+  defp <%= String.downcase(@entity_name) %>_email_multi(<%= String.downcase(@entity_name) %>, email, context) do
+    changeset =
+      <%= String.downcase(@entity_name) %>
+      |> <%= @entity_name %>.basic_changeset(%{email: email}, validate_password: false)
+      |> <%= @entity_name %>.confirm_changeset()
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:<%= String.downcase(@entity_name) %>, changeset)
+    |> Ecto.Multi.delete_all(:tokens, <%= @entity_name %>Token.by_<%= String.downcase(@entity_name) %>_and_contexts_query(<%= String.downcase(@entity_name) %>, [context]))
+  end
+
+  @doc ~S"""
+  Delivers the update email instructions to the given <%= String.downcase(@entity_name) %>.
+
+  ## Examples
+
+      iex> deliver_<%= String.downcase(@entity_name) %>_update_email_instructions(<%= String.downcase(@entity_name) %>, current_email, &url(~p"/<%= String.downcase(@entity_name) %>s/settings/confirm_email/#{&1}"))
+      {:ok, %{to: ..., body: ...}}
+
+  """
+  def deliver_<%= String.downcase(@entity_name) %>_update_email_instructions(%<%= @entity_name %>{} = <%= String.downcase(@entity_name) %>, current_email, update_email_url_fun)
+      when is_function(update_email_url_fun, 1) do
+    {encoded_token, <%= String.downcase(@entity_name) %>_token} = <%= @entity_name %>Token.build_email_token(<%= String.downcase(@entity_name) %>, "change:#{current_email}")
+
+    Repo.insert!(<%= String.downcase(@entity_name) %>_token)
+    <%= if @auth_options[:basic_identifier] == "email" do %>
+    <%= @entity_name %>Notifier.deliver_update_email_instructions(<%= String.downcase(@entity_name) %>, update_email_url_fun.(encoded_token))
+    <% end %>
+  end
+  <% end %>
+
+  <%= if @auth_options[:basic] do %>
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the <%= String.downcase(@entity_name) %> password.
+
+  ## Examples
+
+      iex> change_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>)
+      %Ecto.Changeset{data: %<%= @entity_name %>{}}
+
+  """
+  def change_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, attrs \\ %{}) do
+    <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, hash_password: false)
+  end
+
+  @doc """
+  Updates the <%= String.downcase(@entity_name) %> password.
+
+  ## Examples
+
+      iex> update_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, "valid password", %{password: ...})
+      {:ok, %<%= @entity_name %>{}}
+
+      iex> update_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, "invalid password", %{password: ...})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, password, attrs) do
+    changeset =
+      <%= String.downcase(@entity_name) %>
+      |> <%= @entity_name %>.basic_changeset(attrs)
+      |> <%= @entity_name %>.validate_current_password(password)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:<%= String.downcase(@entity_name) %>, changeset)
+    |> Ecto.Multi.delete_all(:tokens, <%= @entity_name %>Token.by_<%= String.downcase(@entity_name) %>_and_contexts_query(<%= String.downcase(@entity_name) %>, :all))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{<%= String.downcase(@entity_name) %>: <%= String.downcase(@entity_name) %>}} -> {:ok, <%= String.downcase(@entity_name) %>}
+      {:error, :<%= String.downcase(@entity_name) %>, changeset, _} -> {:error, changeset}
+    end
+  end
+  <% end %>
+
+  ## Session
+
+  @doc """
+  Generates a session token.
+  """
+  def generate_<%= String.downcase(@entity_name) %>_session_token(<%= String.downcase(@entity_name) %>) do
+    <%= String.downcase(@entity_name) %>
+    |> <%= @entity_name %>Token.build_session_token()
+    |> Repo.insert()
+  end
+
+  @doc """
+  Retrieves a `<%= @entity_name %>` by querying a valid token.
+  """
+  def get_<%= String.downcase(@entity_name) %>_by_token(token, type \\ "session") when is_binary(token) do
+    validity_days = <%= @entity_name %>Token.validity_days(type)
+
+    query =
+      from token in by_token_and_type_query(token, type),
+        join: <%= String.downcase(@entity_name) %> in assoc(token, :<%= String.downcase(@entity_name) %>),
+        where: token.inserted_at > ago(^validity_days, "day"),
+        order_by: [desc: token.inserted_at],
+        limit: 1,
+        select: <%= String.downcase(@entity_name) %>
+
+    Repo.one(query)
+  end
+
+  def by_token_and_type_query(token, type) do
+    from <%= @entity_name %>Token, where: [value: ^token, type: ^type]
+  end
+
+  @doc """
+  Deletes the signed token with the given context.
+  """
+  def delete_<%= String.downcase(@entity_name) %>_session_token(token) do
+    Repo.delete_all(<%= @entity_name %>Token.by_token_and_context_query(token, "session"))
+    :ok
+  end
+
+  <%= if @auth_options[:basic_identifier] == "email" do %>
+  ## Confirmation
+
+  @doc ~S"""
+  Delivers the confirmation email instructions to the given <%= String.downcase(@entity_name) %>.
+
+  ## Examples
+
+      iex> deliver_<%= String.downcase(@entity_name) %>_confirmation_instructions(<%= String.downcase(@entity_name) %>, &url(~p"/<%= String.downcase(@entity_name) %>s/confirm/#{&1}"))
+      {:ok, %{to: ..., body: ...}}
+
+      iex> deliver_<%= String.downcase(@entity_name) %>_confirmation_instructions(confirmed_<%= String.downcase(@entity_name) %>, &url(~p"/<%= String.downcase(@entity_name) %>s/confirm/#{&1}"))
+      {:error, :already_confirmed}
+
+  """
+  def deliver_<%= String.downcase(@entity_name) %>_confirmation_instructions(%<%= @entity_name %>{} = <%= String.downcase(@entity_name) %>, confirmation_url_fun)
+      when is_function(confirmation_url_fun, 1) do
+    if <%= String.downcase(@entity_name) %>.confirmed_at do
+      {:error, :already_confirmed}
+    else
+      {encoded_token, <%= String.downcase(@entity_name) %>_token} = <%= @entity_name %>Token.build_email_token(<%= String.downcase(@entity_name) %>, "confirm")
+      Repo.insert!(<%= String.downcase(@entity_name) %>_token)
+      <%= @entity_name %>Notifier.deliver_confirmation_instructions(<%= String.downcase(@entity_name) %>, confirmation_url_fun.(encoded_token))
+    end
+  end
+
+  @doc """
+  Confirms a <%= String.downcase(@entity_name) %> by the given token.
+
+  If the token matches, the <%= String.downcase(@entity_name) %> account is marked as confirmed
+  and the token is deleted.
+  """
+  def confirm_<%= String.downcase(@entity_name) %>(token) do
+    with {:ok, query} <- <%= @entity_name %>Token.verify_email_token_query(token, "confirm"),
+         %<%= @entity_name %>{} = <%= String.downcase(@entity_name) %> <- Repo.one(query),
+         {:ok, %{<%= String.downcase(@entity_name) %>: <%= String.downcase(@entity_name) %>}} <- Repo.transaction(confirm_<%= String.downcase(@entity_name) %>_multi(<%= String.downcase(@entity_name) %>)) do
+      {:ok, <%= String.downcase(@entity_name) %>}
+    else
+      _ -> :error
+    end
+  end
+
+  defp confirm_<%= String.downcase(@entity_name) %>_multi(<%= String.downcase(@entity_name) %>) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:<%= String.downcase(@entity_name) %>, <%= @entity_name %>.confirm_changeset(<%= String.downcase(@entity_name) %>))
+    |> Ecto.Multi.delete_all(:tokens, <%= @entity_name %>Token.by_<%= String.downcase(@entity_name) %>_and_contexts_query(<%= String.downcase(@entity_name) %>, ["confirm"]))
+  end
+
+  ## Reset password
+
+  @doc ~S"""
+  Delivers the reset password email to the given <%= String.downcase(@entity_name) %>.
+
+  ## Examples
+
+      iex> deliver_<%= String.downcase(@entity_name) %>_reset_password_instructions(<%= String.downcase(@entity_name) %>, &url(~p"/<%= String.downcase(@entity_name) %>s/reset_password/#{&1}"))
+      {:ok, %{to: ..., body: ...}}
+
+  """
+  def deliver_<%= String.downcase(@entity_name) %>_reset_password_instructions(%<%= @entity_name %>{} = <%= String.downcase(@entity_name) %>, reset_password_url_fun)
+      when is_function(reset_password_url_fun, 1) do
+    {encoded_token, <%= String.downcase(@entity_name) %>_token} = <%= @entity_name %>Token.build_email_token(<%= String.downcase(@entity_name) %>, "reset_password")
+    Repo.insert!(<%= String.downcase(@entity_name) %>_token)
+    <%= @entity_name %>Notifier.deliver_reset_password_instructions(<%= String.downcase(@entity_name) %>, reset_password_url_fun.(encoded_token))
+  end
+
+  @doc """
+  Gets the <%= String.downcase(@entity_name) %> by reset password token.
+
+  ## Examples
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_reset_password_token("validtoken")
+      %<%= @entity_name %>{}
+
+      iex> get_<%= String.downcase(@entity_name) %>_by_reset_password_token("invalidtoken")
+      nil
+
+  """
+  def get_<%= String.downcase(@entity_name) %>_by_reset_password_token(token) do
+    with {:ok, query} <- <%= @entity_name %>Token.verify_email_token_query(token, "reset_password"),
+         %<%= @entity_name %>{} = <%= String.downcase(@entity_name) %> <- Repo.one(query) do
+      <%= String.downcase(@entity_name) %>
+    else
+      _ -> nil
+    end
+  end
+
+  @doc """
+  Resets the <%= String.downcase(@entity_name) %> password.
+
+  ## Examples
+
+      iex> reset_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, %{password: "new long password", password_confirmation: "new long password"})
+      {:ok, %<%= @entity_name %>{}}
+
+      iex> reset_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, %{password: "valid", password_confirmation: "not the same"})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def reset_<%= String.downcase(@entity_name) %>_password(<%= String.downcase(@entity_name) %>, attrs) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.update(:<%= String.downcase(@entity_name) %>, <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs))
+    |> Ecto.Multi.delete_all(:tokens, <%= @entity_name %>Token.by_<%= String.downcase(@entity_name) %>_and_contexts_query(<%= String.downcase(@entity_name) %>, :all))
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{<%= String.downcase(@entity_name) %>: <%= String.downcase(@entity_name) %>}} -> {:ok, <%= String.downcase(@entity_name) %>}
+      {:error, :<%= String.downcase(@entity_name) %>, changeset, _} -> {:error, changeset}
+    end
+  end
+  <% end %>
+
+  <%= if @auth_options[:passkey] do %>
+  # Passkeys
+  @doc """
+  Retrieves a `<%= @entity_name %>` by querying an associated `:key_id`.
+  """
+  def get_by_key_id(key_id) when is_binary(key_id) do
+    query =
+      from <%= String.downcase(@entity_name) %> in <%= @entity_name %>,
+        join: key in assoc(<%= String.downcase(@entity_name) %>, :keys),
+        preload: [:keys],
+        where: key.key_id == ^key_id
+
+    Repo.one(query)
+  end
+  <% end %>
+end

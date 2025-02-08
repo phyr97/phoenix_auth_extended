@@ -1,0 +1,146 @@
+defmodule <%= inspect @context_module %>.<%= @entity_name %>Token do
+  use Ecto.Schema
+  import Ecto.Query
+  alias <%= inspect @context_module %>.<%= @entity_name %>Token
+
+  @hash_algorithm :sha256
+  @rand_size 32
+
+  # It is very important to keep the reset password token expiry short,
+  # since someone with access to the email may take over the account.
+  @reset_password_validity_in_days 1
+  @confirm_validity_in_days 7
+  @change_email_validity_in_days 7
+  @session_validity_in_days 60
+
+  @primary_key {:id, Ecto.ULID, autogenerate: true}
+  @foreign_key_type Ecto.ULID
+  schema "<%= String.downcase(@entity_name) %>_tokens" do
+    field :value, :binary
+    field :type, :string, default: "session"
+    <%= if @auth_options[:basic_identifier] == "email" do %>
+    field :sent_to, :string
+    <% end %>
+    belongs_to :<%= String.downcase(@entity_name) %>, <%= inspect @context_module %>.<%= @entity_name %>
+
+    timestamps(type: <%= inspect @timestamp_type %>, updated_at: false)
+  end
+
+  @doc """
+  Generates a token that will be stored in a signed place,
+  such as session or cookie. As they are signed, those
+  tokens do not need to be hashed.
+  """
+  def build_session_token(<%= String.downcase(@entity_name) %>) do
+    token = :crypto.strong_rand_bytes(@rand_size)
+    {token, %<%= @entity_name %>Token{value: token, type: "session", <%= String.downcase(@entity_name) %>_id: <%= String.downcase(@entity_name) %>.id}}
+  end
+
+  @doc """
+  Checks if the token is valid and returns its underlying lookup query.
+
+  The query returns the <%= String.downcase(@entity_name) %> found by the token, if any.
+
+  The token is valid if it matches the value in the database and it has
+  not expired (after @session_validity_in_days).
+  """
+  def verify_session_token_query(token) do
+    query =
+      from token in by_token_and_context_query(token, "session"),
+        join: <%= String.downcase(@entity_name) %> in assoc(token, :<%= String.downcase(@entity_name) %>),
+        where: token.inserted_at > ago(@session_validity_in_days, "day"),
+        select: <%= String.downcase(@entity_name) %>
+
+    {:ok, query}
+  end
+
+  <%= if @auth_options[:basic_identifier] == "email" do %>
+  @doc """
+  Builds a token and its hash to be delivered to the user's email.
+
+  The non-hashed token is sent to the user email while the
+  hashed part is stored in the database. The original token cannot be reconstructed,
+  which means anyone with read-only access to the database cannot directly use
+  the token in the application to gain access.
+  """
+  def build_email_token(<%= String.downcase(@entity_name) %>, context) do
+    build_hashed_token(<%= String.downcase(@entity_name) %>, context, <%= String.downcase(@entity_name) %>.email)
+  end
+
+  defp build_hashed_token(<%= String.downcase(@entity_name) %>, context, sent_to) do
+    token = :crypto.strong_rand_bytes(@rand_size)
+    hashed_token = :crypto.hash(@hash_algorithm, token)
+
+    {Base.url_encode64(token, padding: false),
+     %<%= @entity_name %>Token{
+       value: hashed_token,
+       type: context,
+       sent_to: sent_to,
+       <%= String.downcase(@entity_name) %>_id: <%= String.downcase(@entity_name) %>.id
+     }}
+  end
+
+  @doc """
+  Checks if the token is valid and returns its underlying lookup query.
+
+  The query returns the <%= String.downcase(@entity_name) %> found by the token, if any.
+
+  The given token is valid if it matches its hashed counterpart in the
+  database and the <%= String.downcase(@entity_name) %> email has not changed. This function also checks
+  if the token is being used within a certain period, depending on the
+  context. The default contexts supported by this function are either
+  "confirm", for account confirmation emails, and "reset_password",
+  for resetting the password. For verifying requests to change the email,
+  see `verify_change_email_token_query/2`.
+  """
+  def verify_email_token_query(token, context) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+        days = days_for_context(context)
+
+        query =
+          from token in by_token_and_context_query(hashed_token, context),
+            join: <%= String.downcase(@entity_name) %> in assoc(token, :<%= String.downcase(@entity_name) %>),
+            where: token.inserted_at > ago(^days, "day") and token.sent_to == <%= String.downcase(@entity_name) %>.email,
+            select: <%= String.downcase(@entity_name) %>
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
+
+  defp days_for_context("confirm"), do: @confirm_validity_in_days
+  defp days_for_context("reset_password"), do: @reset_password_validity_in_days
+  <% end %>
+
+  @doc """
+  Returns the validity period in days for a given token type.
+  """
+  def validity_days("session"), do: @session_validity_in_days
+  <%= if @auth_options[:basic_identifier] == "email" do %>
+  def validity_days("confirm"), do: @confirm_validity_in_days
+  def validity_days("reset_password"), do: @reset_password_validity_in_days
+  def validity_days("change:" <> _), do: @change_email_validity_in_days
+  <% end %>
+
+  @doc """
+  Returns the token struct for the given token value and context.
+  """
+  def by_token_and_context_query(token, context) do
+    from <%= @entity_name %>Token, where: [value: ^token, type: ^context]
+  end
+
+  @doc """
+  Gets all tokens for the given <%= String.downcase(@entity_name) %> for the given contexts.
+  """
+  def by_user_and_contexts_query(<%= String.downcase(@entity_name) %>, :all) do
+    from t in <%= @entity_name %>Token, where: t.<%= String.downcase(@entity_name) %>_id == ^<%= String.downcase(@entity_name) %>.id
+  end
+
+  def by_user_and_contexts_query(<%= String.downcase(@entity_name) %>, [_ | _] = contexts) do
+    from t in <%= @entity_name %>Token, where: t.<%= String.downcase(@entity_name) %>_id == ^<%= String.downcase(@entity_name) %>.id and t.type in ^contexts
+  end
+end
