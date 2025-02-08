@@ -48,6 +48,7 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
@@ -85,6 +86,7 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
+      |> prepare_igniter()
       |> Igniter.compose_task("pax.gen.setup.config", [])
       |> Igniter.compose_task("pax.gen.setup.dependencies", [])
       |> Igniter.compose_task("pax.gen.setup.router", [])

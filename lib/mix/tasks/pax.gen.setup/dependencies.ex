@@ -44,6 +44,8 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
+
     @basic_deps [
       {:bcrypt_elixir, "~> 3.0"}
     ]
@@ -76,6 +78,7 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
+      |> prepare_igniter()
       |> maybe_add_dependencies(:basic, @basic_deps)
       |> maybe_add_dependencies(:oauth, @oauth_deps)
       |> maybe_add_dependencies(:passkey, @passkey_deps)

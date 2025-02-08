@@ -8,7 +8,7 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %>Notifier do
     email =
       new()
       |> to(recipient)
-      |> from({"<%= @app_camelized %>", "contact@example.com"})
+      |> from({"<%= @app_module_name %>", "contact@example.com"})
       |> subject(subject)
       |> text_body(body)
 

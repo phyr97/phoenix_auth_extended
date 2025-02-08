@@ -61,6 +61,7 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
@@ -82,6 +83,7 @@ if Code.ensure_loaded?(Igniter) do
       entity_name = igniter.args.positional[:entity_name]
 
       igniter
+      |> prepare_igniter()
       |> Igniter.assign(igniter.args.positional)
       |> assign_base_info()
       |> generate_schema("entity.eex", "#{entity_name}.ex")
@@ -111,13 +113,13 @@ if Code.ensure_loaded?(Igniter) do
 
     defp assign_base_info(igniter) do
       app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_camelized = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_camelized])
+      app_module_name = to_string(app) |> Macro.camelize()
+      app_module = Module.concat([app_module_name])
       context_module = Module.concat([app_module, igniter.assigns.context_name])
 
       igniter
       |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_camelized, app_camelized)
+      |> Igniter.assign(:app_module_name, app_module_name)
       |> Igniter.assign(:app_module, app_module)
       |> Igniter.assign(:context_module, context_module)
       |> Igniter.assign(:timestamp_type, :utc_datetime)

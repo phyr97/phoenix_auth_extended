@@ -53,6 +53,9 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+
+    import PhoenixAuthExtended
+
     alias IgniterJs.Parsers.Javascript.Parser
 
     @default_app_js_path Path.join(["assets", "js", "app.js"])
@@ -82,7 +85,7 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       app_js_path = igniter.args.options[:app_js_path]
-
+      igniter = prepare_igniter(igniter)
       with {:ok, content} <- IgniterJs.Helpers.read_and_validate_file(app_js_path),
            {:ok, _, content} <- Parser.insert_imports(content, @webauthn_import, :content),
            {:ok, _, content} <- Parser.extend_hook_object(content, @webauthn_hooks, :content) do

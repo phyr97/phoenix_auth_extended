@@ -54,6 +54,7 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
@@ -72,6 +73,8 @@ if Code.ensure_loaded?(Igniter) do
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
+      igniter = prepare_igniter(igniter)
+
       with {:ok, layout_path} <- fetch_layout_path(igniter, "root"),
            content when is_binary(content) <- fetch_file_content(igniter, layout_path),
            {:ok, new_content} <- inject_after_body_tag(content, auth_menu_template()),

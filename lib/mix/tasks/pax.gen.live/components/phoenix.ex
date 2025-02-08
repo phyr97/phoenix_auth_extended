@@ -41,6 +41,7 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
@@ -64,6 +65,7 @@ if Code.ensure_loaded?(Igniter) do
       core_components_module = Module.safe_concat([web_module, "CoreComponents"])
 
       igniter
+      |> prepare_igniter()
       |> adjust_spacing_for_simple_form(core_components_module)
       |> then(fn igniter ->
         if passkey? or oauth?,

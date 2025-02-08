@@ -60,6 +60,8 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
+
     @auth_options [
       basic: :boolean,
       passkey: :boolean,
@@ -101,6 +103,7 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
+      |> prepare_igniter()
       |> validate_options()
       |> Igniter.assign(:auth_options, igniter.args.options |> Map.new())
       |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)

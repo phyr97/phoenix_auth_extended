@@ -43,6 +43,7 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
@@ -62,6 +63,7 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
+      |> prepare_igniter()
       |> Igniter.Project.Config.configure("test.exs", :bcrypt_elixir, [:log_rounds], {:code, "1"})
       |> maybe_add_oauth_provider_config()
     end

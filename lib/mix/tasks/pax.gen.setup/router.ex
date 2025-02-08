@@ -50,6 +50,7 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    import PhoenixAuthExtended
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
@@ -71,6 +72,7 @@ if Code.ensure_loaded?(Igniter) do
       {igniter, router_module} = Igniter.Libs.Phoenix.select_router(igniter)
 
       igniter
+      |> prepare_igniter()
       |> add_user_auth_import(router_module)
       |> add_fetch_current_user_plug()
       |> add_routes(router_module)
