@@ -7,7 +7,7 @@ defmodule <%= inspect @app_module %>Web.PasskeyComponents do
   import <%= inspect @app_module %>Web.CoreComponents
   alias Phoenix.LiveView.JS
 
-  embed_templates "/passkeys/*"
+  embed_templates "passkey_components/*"
 
   def guidance(assigns)
 

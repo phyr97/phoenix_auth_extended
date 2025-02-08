@@ -79,45 +79,34 @@ if Code.ensure_loaded?(Igniter) do
 
     defp generate_passkey_components(igniter) do
       web_path = Path.join(["lib", Macro.underscore(igniter.assigns.web_module)])
-
-      igniter
-      |> generate_component(
-        "components/passkey_components.eex",
-        "components/passkey_components.ex",
-        web_path
-      )
-      |> create_passkeys_directory(web_path)
-      |> copy_heex_templates(web_path)
-    end
-
-    defp generate_component(igniter, template, target_path, web_path) do
-      file_path = Path.join(web_path, target_path)
+      components_path = Path.join(web_path, "components")
 
       igniter
       |> Igniter.copy_template(
-        "priv/templates/components/#{template}",
-        file_path,
+        "priv/templates/components/passkey_components.eex",
+        Path.join(components_path, "passkey_components.ex"),
         igniter.assigns |> Map.to_list()
       )
+      |> create_passkeys_directory(components_path)
+      |> copy_heex_templates(components_path)
     end
 
-    defp create_passkeys_directory(igniter, web_path) do
-      passkeys_path = Path.join([web_path, "components", "passkeys"])
+    defp create_passkeys_directory(igniter, components_path) do
+      passkeys_path = Path.join(components_path, "passkey_components")
       Igniter.mkdir(igniter, passkeys_path)
     end
 
-    defp copy_heex_templates(igniter, web_path) do
-      guidance_path = Path.join(web_path, "components/passkeys/guidance.html.heex")
-      token_form_path = Path.join(web_path, "components/passkeys/token_form.html.heex")
+    defp copy_heex_templates(igniter, components_path) do
+      passkeys_path = Path.join(components_path, "passkey_components")
 
       igniter
       |> Igniter.create_new_file(
-        guidance_path,
-        File.read!("priv/templates/components/passkeys/guidance.html.heex")
+        Path.join(passkeys_path, "guidance.html.heex"),
+        File.read!("priv/templates/components/guidance.html.heex")
       )
       |> Igniter.create_new_file(
-        token_form_path,
-        File.read!("priv/templates/components/passkeys/token_form.html.heex")
+        Path.join(passkeys_path, "token_form.html.heex"),
+        File.read!("priv/templates/components/token_form.html.heex")
       )
     end
   end

@@ -7,7 +7,7 @@ defmodule PhoenixAuthExtendedWeb.PasskeyComponents do
   import PhoenixAuthExtendedWeb.CoreComponents
   alias Phoenix.LiveView.JS
 
-  embed_templates "/passkeys/*"
+  embed_templates "passkey_components/*"
 
   def guidance(assigns)
 
