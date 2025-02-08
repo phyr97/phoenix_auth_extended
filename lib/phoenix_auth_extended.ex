@@ -50,6 +50,16 @@ defmodule PhoenixAuthExtended do
     |> Enum.reduce(igniter, &Igniter.assign(&2, &1, igniter.args.positional[&1]))
   end
 
+  @doc """
+  Composes a task if the condition function returns true.
+  """
+  def compose_task_if(igniter, task_name, cond_func) do
+    case cond_func.(igniter) do
+      true -> Igniter.compose_task(igniter, task_name)
+      _ -> igniter
+    end
+  end
+
   def copy_template(igniter, template_path, destination_path, assigns \\ []) do
     Igniter.copy_template(igniter, template_path, destination_path, assigns)
   end

@@ -48,56 +48,27 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    use PhoenixAuthExtended.Info,
+      composes: [
+        "pax.gen.setup.config",
+        "pax.gen.setup.dependencies",
+        "pax.gen.setup.router",
+        "pax.gen.setup.layout",
+        "pax.gen.setup.hooks"
+      ]
+
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        # Groups allow for overlapping arguments for tasks by the same author
-        # See the generators guide for more.
-        group: :phoenix_auth_extended,
-        # dependencies to add
-        adds_deps: [],
-        # dependencies to add and call their associated installers, if they exist
-        installs: [],
-        # An example invocation
-        example: __MODULE__.Docs.example(),
-        # a list of positional arguments, i.e `[:file]`
-        positional: [:context_name, :entity_name],
-        # Other tasks your task composes using `Igniter.compose_task`, passing in the CLI argv
-        # This ensures your option schema includes options from nested tasks
-        composes: [
-          "pax.gen.setup.config",
-          "pax.gen.setup.dependencies",
-          "pax.gen.setup.router",
-          "pax.gen.setup.layout",
-          "pax.gen.setup.hooks"
-        ],
-        # `OptionParser` schema
-        schema: [],
-        # Default values for the options in the `schema`
-        defaults: [],
-        # CLI aliases
-        aliases: [],
-        # A list of options in the schema that are required
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.compose_task("pax.gen.setup.config", [])
-      |> Igniter.compose_task("pax.gen.setup.dependencies", [])
-      |> Igniter.compose_task("pax.gen.setup.router", [])
-      |> Igniter.compose_task("pax.gen.setup.layout", [])
-      |> maybe_add_hooks()
+      |> Igniter.compose_task("pax.gen.setup.config")
+      |> Igniter.compose_task("pax.gen.setup.dependencies")
+      |> Igniter.compose_task("pax.gen.setup.router")
+      |> Igniter.compose_task("pax.gen.setup.layout")
+      |> compose_task_if("pax.gen.setup.hooks", & &1.assigns.options.passkey)
     end
-
-    defp maybe_add_hooks(%{assigns: %{auth_options: %{passkey: true}}} = igniter),
-      do: Igniter.compose_task(igniter, "pax.gen.setup.hooks", [])
-
-    defp maybe_add_hooks(igniter), do: igniter
   end
 else
   defmodule Mix.Tasks.Pax.Gen.Setup do
