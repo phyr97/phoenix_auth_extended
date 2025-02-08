@@ -103,8 +103,8 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> validate_options()
       |> Igniter.assign(:auth_options, igniter.args.options |> Map.new())
-      |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
-      |> Igniter.compose_task("pax.gen.context", igniter.args.argv)
+      # |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
+      # |> Igniter.compose_task("pax.gen.context", igniter.args.argv)
       |> Igniter.compose_task("pax.gen.live", igniter.args.argv)
     end
 

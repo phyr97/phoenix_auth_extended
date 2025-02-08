@@ -75,6 +75,7 @@ if Code.ensure_loaded?(Igniter) do
       igniter
       |> Igniter.assign(igniter.args.positional)
       |> assign_base_info()
+      |> generate_live_views()
       |> Igniter.compose_task("pax.gen.live.components.phoenix", igniter.args.argv)
       |> maybe_generate_passkey_components()
       |> Igniter.compose_task("pax.gen.live.controllers", igniter.args.argv)
@@ -84,13 +85,45 @@ if Code.ensure_loaded?(Igniter) do
       app = Mix.Project.config() |> Keyword.fetch!(:app)
       app_camelized = to_string(app) |> Macro.camelize()
       app_module = Module.concat([app_camelized])
+      app_web_module = Module.concat([app_module, "Web"])
       context_module = Module.concat([app_module, igniter.assigns.context_name])
 
       igniter
       |> Igniter.assign(:app, app)
       |> Igniter.assign(:app_camelized, app_camelized)
       |> Igniter.assign(:app_module, app_module)
+      |> Igniter.assign(:app_web_module, app_web_module)
       |> Igniter.assign(:context_module, context_module)
+    end
+
+    defp generate_live_views(igniter) do
+      live_views = [
+        {"user_registration_live.eex", "user_registration_live.ex"},
+        {"user_login_live.eex", "user_login_live.ex"},
+        {"user_confirmation_live.eex", "user_confirmation_live.ex"},
+        {"user_confirmation_instructions_live.eex", "user_confirmation_instructions_live.ex"},
+        {"user_forgot_password_live.eex", "user_forgot_password_live.ex"},
+        {"user_reset_password_live.eex", "user_reset_password_live.ex"},
+        {"user_settings_live.eex", "user_settings_live.ex"},
+        {"passkey_registration_live.eex", "passkey_registration_live.ex"}
+      ]
+
+      Enum.reduce(live_views, igniter, fn {template, file}, acc ->
+        generate_live_view(acc, template, file)
+      end)
+    end
+
+    defp generate_live_view(igniter, template_name, file_name) do
+      assigns = Map.to_list(igniter.assigns)
+      web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web", "live"])
+      file_path = Path.join(web_path, file_name)
+
+      igniter
+      |> Igniter.copy_template(
+        "priv/templates/live/#{template_name}",
+        file_path,
+        assigns
+      )
     end
 
     defp maybe_generate_passkey_components(
