@@ -69,7 +69,6 @@ if Code.ensure_loaded?(Igniter) do
           "pax.gen.setup.dependencies",
           "pax.gen.setup.router",
           "pax.gen.setup.layout",
-          "pax.gen.setup.components",
           "pax.gen.setup.hooks"
         ],
         # `OptionParser` schema
@@ -90,7 +89,6 @@ if Code.ensure_loaded?(Igniter) do
       |> Igniter.compose_task("pax.gen.setup.dependencies", [])
       |> Igniter.compose_task("pax.gen.setup.router", [])
       |> Igniter.compose_task("pax.gen.setup.layout", [])
-      |> Igniter.compose_task("pax.gen.setup.components", [])
       |> maybe_add_hooks()
     end
 
