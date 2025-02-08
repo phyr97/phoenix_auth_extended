@@ -68,27 +68,15 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
-        # Groups allow for overlapping arguments for tasks by the same author
-        # See the generators guide for more.
         group: :phoenix_auth_extended,
-        # dependencies to add
         adds_deps: [],
-        # dependencies to add and call their associated installers, if they exist
         installs: [],
-        # An example invocation
         example: __MODULE__.Docs.example(),
-        # a list of positional arguments, i.e `[:file]`
         positional: [:entity_name],
-        # Other tasks your task composes using `Igniter.compose_task`, passing in the CLI argv
-        # This ensures your option schema includes options from nested tasks
         composes: [],
-        # `OptionParser` schema
         schema: [],
-        # Default values for the options in the `schema`
         defaults: [],
-        # CLI aliases
         aliases: [],
-        # A list of options in the schema that are required
         required: []
       }
     end
