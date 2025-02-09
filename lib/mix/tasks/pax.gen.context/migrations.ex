@@ -64,78 +64,42 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
 
     @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:entity_name],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
-
-    @impl Igniter.Mix.Task
     def igniter(igniter) do
-      entity_name = igniter.args.positional[:entity_name]
-
       igniter
       |> prepare_igniter()
+      |> generate_migrations()
+    end
+
+    defp generate_migrations(igniter) do
+      entity_name = String.downcase(igniter.assigns.entity_name)
+
+      igniter
       |> Igniter.assign(:entity_name, entity_name)
-      |> assign_base_info()
       |> generate_migration("entities.eex", "create_#{entity_name}_table")
       |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table")
       |> maybe_generate_passkey_migration()
     end
 
-    defp maybe_generate_passkey_migration(%{assigns: %{auth_options: %{passkey: true}}} = igniter) do
+    defp maybe_generate_passkey_migration(%{assigns: %{options: %{passkey: true}}} = igniter) do
       entity_name = igniter.assigns.entity_name
       generate_migration(igniter, "entity_keys.eex", "create_#{entity_name}_keys_table")
     end
 
     defp maybe_generate_passkey_migration(igniter), do: igniter
 
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_repo = Module.concat([app_module_name, "Repo"])
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_repo, app_repo)
-    end
-
     defp generate_migration(igniter, template, migration_name) do
       timestamp = NaiveDateTime.utc_now() |> Calendar.strftime("%Y%m%d%H%M%S")
       file_name_with_timestamp = "#{timestamp}_#{migration_name}.exs"
-      assigns = build_assigns(igniter, migration_name)
+      template_path = Path.join(["migrations", template])
 
-      template_path = Path.join([igniter.assigns.template_path, "migrations", template])
-
-      Igniter.copy_template(
-        igniter,
-        template_path,
-        "priv/repo/migrations/#{file_name_with_timestamp}",
-        assigns
-      )
-    end
-
-    defp build_assigns(igniter, migration_name) do
-      %{
-        timestamp_type: :utc_datetime,
-        migration_name: migration_name |> Macro.camelize()
-      }
-      |> Map.merge(igniter.assigns)
-      |> Map.to_list()
+      igniter
+      |> Igniter.assign(:migration_name, Macro.camelize(migration_name))
+      |> copy_template(template_path, "priv/repo/migrations/#{file_name_with_timestamp}")
     end
   end
 else
