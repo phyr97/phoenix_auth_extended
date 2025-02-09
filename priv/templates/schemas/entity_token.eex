@@ -56,9 +56,9 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
 
   <%= if @options[:basic_identifier] == "email" do %>
   @doc """
-  Builds a token and its hash to be delivered to the user's email.
+  Builds a token and its hash to be delivered to the <%= String.downcase(@entity_name) %>'s email.
 
-  The non-hashed token is sent to the user email while the
+  The non-hashed token is sent to the <%= String.downcase(@entity_name) %> email while the
   hashed part is stored in the database. The original token cannot be reconstructed,
   which means anyone with read-only access to the database cannot directly use
   the token in the application to gain access.

@@ -1,6 +1,6 @@
 defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
   @moduledoc """
-  LiveView for registering **new** users.
+  LiveView for registering **new** <%= @entity_name_downcase %>s.
 
   See `WebauthnComponents` for details on Passkey authentication.
   """
@@ -13,7 +13,7 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
   alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>Token
   alias WebauthnComponents.{RegistrationComponent, SupportComponent, WebauthnUser}
 
-  def mount(_params, _user_id, %{assigns: %{current_<%= String.downcase(@entity_name) %>: %<%= @entity_name %>{}}}) do
+  def mount(_params, _session, %{assigns: %{current_<%= @entity_name_downcase %>: %<%= @entity_name %>{}}}) do
     {
       :ok,
       socket
@@ -50,7 +50,7 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
           Register for an account
           <:subtitle>
             Already registered?
-            <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+            <.link navigate={~p"/<%= @entity_name_downcase %>s/log_in"} class="font-semibold text-brand hover:underline">
               Log in
             </.link>
             to your account now.
@@ -79,6 +79,7 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
             app={<%= @app_module_name %>}
             check_uvpa_available={false}
             display_text="Create an account"
+            webauthn_user={@webauthn_user}
             class={[
               "mt-4 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
               "text-sm font-semibold leading-6 text-white active:text-white/80",
@@ -87,7 +88,7 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
             ]}
           />
           <:actions>
-            <.button_link navigate={~p"/users/register"} class="w-full">
+            <.button_link navigate={~p"/<%= @entity_name_downcase %>s/register"} class="w-full">
               <.icon name="hero-arrow-uturn-left" class="h-4 w-4" /> Back to normal registration
             </.button_link>
           </:actions>
@@ -139,10 +140,10 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
 
   def handle_info({:registration_successful, params}, socket) do
     %{form: form} = socket.assigns
-    user_attrs = %{email: form[:email].value, keys: [params[:key]]}
+    <%= @entity_name_downcase %>_attrs = %{email: form[:email].value, keys: [params[:key]]}
 
-    with {:ok, %<%= @entity_name %>{} = user} <- <%= @context_name %>.register_<%= String.downcase(@entity_name) %>(user_attrs),
-         {:ok, %<%= @entity_name %>Token{value: token}} <- <%= @context_name %>.generate_<%= String.downcase(@entity_name) %>_session_token(user) do
+    with {:ok, %<%= @entity_name %>{} = <%= @entity_name_downcase %>} <- <%= @context_name %>.register_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_attrs),
+         {:ok, %<%= @entity_name %>Token{value: token}} <- <%= @context_name %>.generate_<%= @entity_name_downcase %>_session_token(<%= @entity_name_downcase %>) do
       encoded_token = Base.encode64(token, padding: false)
       token_attrs = %{"value" => encoded_token}
 

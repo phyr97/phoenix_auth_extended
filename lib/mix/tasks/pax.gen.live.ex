@@ -50,63 +50,37 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    use PhoenixAuthExtended.Info,
+      composes: [
+        "pax.gen.live.components.phoenix",
+        "pax.gen.live.components.passkey",
+        "pax.gen.live.controllers"
+      ]
+
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:context_name, :entity_name],
-        composes: [
-          "pax.gen.live.components.phoenix",
-          "pax.gen.live.components.passkey",
-          "pax.gen.live.controllers"
-        ],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
+      argv = igniter.args.argv
+
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(igniter.args.positional)
-      |> assign_base_info()
+      |> Igniter.assign(:entity_name_downcase, String.downcase(igniter.assigns.entity_name))
+      |> Igniter.compose_task("pax.gen.live.components.phoenix", argv)
+      |> Igniter.compose_task("pax.gen.live.controllers", argv)
       |> generate_live_views()
-      |> Igniter.compose_task("pax.gen.live.components.phoenix", igniter.args.argv)
-      |> maybe_generate_passkey_components()
-      |> Igniter.compose_task("pax.gen.live.controllers", igniter.args.argv)
-    end
-
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_module_name])
-      app_web_module = Module.concat([app_module, "Web"])
-      context_module = Module.concat([app_module, igniter.assigns.context_name])
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_module, app_module)
-      |> Igniter.assign(:app_web_module, app_web_module)
-      |> Igniter.assign(:context_module, context_module)
+      |> compose_task_if("pax.gen.live.components.passkey", & &1.assigns.options.passkey, argv)
     end
 
     defp generate_live_views(igniter) do
       live_views = [
-        {"user_registration_live.eex", "user_registration_live.ex"},
-        {"user_login_live.eex", "user_login_live.ex"},
-        {"user_confirmation_live.eex", "user_confirmation_live.ex"},
-        {"user_confirmation_instructions_live.eex", "user_confirmation_instructions_live.ex"},
-        {"user_forgot_password_live.eex", "user_forgot_password_live.ex"},
-        {"user_reset_password_live.eex", "user_reset_password_live.ex"},
-        {"user_settings_live.eex", "user_settings_live.ex"},
+        {"registration_live.eex", "registration_live.ex"},
+        {"login_live.eex", "login_live.ex"},
+        {"confirmation_live.eex", "confirmation_live.ex"},
+        {"confirmation_instructions_live.eex", "confirmation_instructions_live.ex"},
+        {"forgot_password_live.eex", "forgot_password_live.ex"},
+        {"reset_password_live.eex", "reset_password_live.ex"},
+        {"settings_live.eex", "settings_live.ex"},
         {"passkey_registration_live.eex", "passkey_registration_live.ex"}
       ]
 
@@ -116,23 +90,12 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp generate_live_view(igniter, template_name, file_name) do
-      assigns = Map.to_list(igniter.assigns)
-      web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web", "live"])
+      web_path = Path.join([app_web_path(), "live"])
       file_path = Path.join(web_path, file_name)
+      template = Path.join(["live", template_name])
 
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/live/#{template_name}",
-        file_path,
-        assigns
-      )
+      copy_template(igniter, template, file_path)
     end
-
-    defp maybe_generate_passkey_components(%{assigns: %{options: %{passkey: true}}} = igniter) do
-      Igniter.compose_task(igniter, "pax.gen.live.components.passkey", igniter.args.argv)
-    end
-
-    defp maybe_generate_passkey_components(igniter), do: igniter
   end
 else
   defmodule Mix.Tasks.Pax.Gen.Live do

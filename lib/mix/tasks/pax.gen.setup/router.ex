@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Pax.Gen.Setup.Router.Docs do
       - Login/Logout
       - Password reset
       - Email confirmation
-      - User settings
+      - Settings
 
     * OAuth routes (when OAuth enabled)
       - OAuth provider request/callback
@@ -37,7 +37,7 @@ defmodule Mix.Tasks.Pax.Gen.Setup.Router.Docs do
 
     The task will modify:
     * `lib/your_app_web/router.ex`
-      - Adds UserAuth import
+      - Adds Auth import
       - Adds authentication routes
     """
   end
@@ -77,16 +77,16 @@ if Code.ensure_loaded?(Igniter) do
 
       igniter
       |> prepare_igniter()
-      |> add_user_auth_import(router_module)
-      |> add_fetch_current_user_plug()
+      |> add_auth_import(router_module)
+      |> add_fetch_current_plug()
       |> add_routes(router_module)
     end
 
     # Imports
-    defp add_user_auth_import(igniter, router_module) do
+    defp add_auth_import(igniter, router_module) do
       web_module = Igniter.Libs.Phoenix.web_module(igniter)
-      user_auth_module = Module.concat([web_module, "UserAuth"])
-      code = "import #{inspect(user_auth_module)}"
+      auth_module = Module.concat([web_module, "Auth"])
+      code = "import #{inspect(auth_module)}"
 
       {:ok, igniter} = add_import_to_router(igniter, router_module, code)
       igniter
@@ -101,14 +101,18 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     # Pipeline
-    defp add_fetch_current_user_plug(igniter) do
-      Igniter.Libs.Phoenix.append_to_pipeline(igniter, :browser, "plug :fetch_current_user")
+    defp add_fetch_current_plug(igniter) do
+      Igniter.Libs.Phoenix.append_to_pipeline(
+        igniter,
+        :browser,
+        "plug :fetch_current_#{String.downcase(igniter.assigns.entity_name)}"
+      )
     end
 
     # Routes
-    defp add_routes(%{assigns: %{options: options}} = igniter, router_module) do
+    defp add_routes(igniter, router_module) do
       web_module = Igniter.Libs.Phoenix.web_module(igniter)
-      routes = authentication_routes(web_module, options)
+      routes = authentication_routes(igniter, web_module)
 
       {:ok, igniter} = add_code_to_router(igniter, router_module, routes)
       igniter
@@ -120,48 +124,50 @@ if Code.ensure_loaded?(Igniter) do
       end)
     end
 
-    defp authentication_routes(web_module, %{oauth: oauth?, passkey: passkey?}) do
+    defp authentication_routes(%{assigns: %{options: options}} = igniter, web_module) do
+      entity = String.downcase(igniter.assigns.entity_name)
+
       """
       scope "/", #{inspect(web_module)} do
-        pipe_through [:browser, :redirect_if_user_is_authenticated]
+        pipe_through [:browser, :redirect_if_#{entity}_is_authenticated]
 
-        live_session :redirect_if_user_is_authenticated,
-          on_mount: [{#{inspect(web_module)}.UserAuth, :redirect_if_user_is_authenticated}] do
-          live "/users/register", UserRegistrationLive, :new
-          #{if passkey?, do: "live \"/users/register_with_passkey\", PasskeyRegistrationLive, :new"}
-          live "/users/log_in", UserLoginLive, :new
-          live "/users/reset_password", UserForgotPasswordLive, :new
-          live "/users/reset_password/:token", UserResetPasswordLive, :edit
+        live_session :redirect_if_#{entity}_is_authenticated,
+          on_mount: [{#{inspect(web_module)}.Auth, :redirect_if_#{entity}_is_authenticated}] do
+          live "/#{entity}s/register", RegistrationLive, :new
+          #{if options.passkey, do: "live \"/#{entity}s/register_with_passkey\", PasskeyRegistrationLive, :new"}
+          live "/#{entity}s/log_in", LoginLive, :new
+          live "/#{entity}s/reset_password", ForgotPasswordLive, :new
+          live "/#{entity}s/reset_password/:token", ResetPasswordLive, :edit
         end
 
-        #{if oauth? do
+        #{if options.oauth do
         """
         get "/oauth/:provider", OAuthController, :request
         get "/oauth/:provider/callback", OAuthController, :callback
         """
       end}
-        post "/users/log_in", UserSessionController, :create
+        post "/#{entity}s/log_in", SessionController, :create
       end
 
       scope "/", #{inspect(web_module)} do
-        pipe_through [:browser, :require_authenticated_user]
+        pipe_through [:browser, :require_authenticated_#{entity}]
 
-        live_session :require_authenticated_user,
-          on_mount: [{#{inspect(web_module)}.UserAuth, :ensure_authenticated}] do
-          live "/users/settings", UserSettingsLive, :edit
-          live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+        live_session :require_authenticated_#{entity},
+          on_mount: [{#{inspect(web_module)}.Auth, :ensure_authenticated}] do
+          live "/#{entity}s/settings", SettingsLive, :edit
+          live "/#{entity}s/settings/confirm_email/:token", SettingsLive, :confirm_email
         end
       end
 
       scope "/", #{inspect(web_module)} do
         pipe_through [:browser]
 
-        delete "/users/log_out", UserSessionController, :delete
+        delete "/#{entity}s/log_out", SessionController, :delete
 
-        live_session :current_user,
-          on_mount: [{#{inspect(web_module)}.UserAuth, :mount_current_user}] do
-          live "/users/confirm/:token", UserConfirmationLive, :edit
-          live "/users/confirm", UserConfirmationInstructionsLive, :new
+        live_session :current_#{entity},
+          on_mount: [{#{inspect(web_module)}.Auth, :mount_current_#{entity}}] do
+          live "/#{entity}s/confirm/:token", ConfirmationLive, :edit
+          live "/#{entity}s/confirm", ConfirmationInstructionsLive, :new
         end
       end
       """

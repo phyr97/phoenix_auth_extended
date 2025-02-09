@@ -2,7 +2,7 @@ defmodule <%= inspect @app_web_module %>.OAuthController do
   use <%= inspect @app_web_module %>, :controller
 
   alias <%= inspect @app_module_name %>.{Identity, OAuth}
-  alias <%= inspect @app_web_module %>.UserAuth
+  alias <%= inspect @app_web_module %>.Auth
 
   def request(conn, %{"provider" => provider}) do
     case OAuth.request(provider) do
@@ -14,28 +14,28 @@ defmodule <%= inspect @app_web_module %>.OAuthController do
       {:error, _error} ->
         conn
         |> put_flash(:error, "Authentication failed")
-        |> redirect(to: ~p"/users/log_in")
+        |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
     end
   end
 
   def callback(conn, %{"provider" => provider} = params) do
     session_params = get_session(conn, :oauth_session_params)
 
-    with {:ok, %{user: user_info}} <- OAuth.callback(provider, params, session_params),
-         user_params = %{
-           email: user_info["email"],
+    with {:ok, %{<%= @entity_name_downcase %>: <%= @entity_name_downcase %>_info}} <- OAuth.callback(provider, params, session_params),
+         <%= @entity_name_downcase %>_params = %{
+           email: <%= @entity_name_downcase %>_info["email"],
            provider: provider,
-           provider_uid: user_info["sub"]
+           provider_uid: <%= @entity_name_downcase %>_info["sub"]
          },
-         {:ok, user} <- Identity.get_or_create_user(user_params) do
+         {:ok, <%= @entity_name_downcase %>} <- Identity.get_or_create_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_params) do
       conn
       |> delete_session(:oauth_session_params)
-      |> UserAuth.log_in_user(user, %{})
+      |> <%= @entity_name %>Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, %{})
     else
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Authentication failed")
-        |> redirect(to: ~p"/users/log_in")
+        |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
     end
   end
 end

@@ -90,29 +90,6 @@ if Code.ensure_loaded?(Igniter) do
         igniter.assigns |> Map.to_list(),
         on_exists: :warning
       )
-      |> create_passkeys_directory(components_path)
-      |> copy_heex_templates(components_path)
-    end
-
-    defp create_passkeys_directory(igniter, components_path) do
-      passkeys_path = Path.join(components_path, "passkey_components")
-      Igniter.mkdir(igniter, passkeys_path)
-    end
-
-    defp copy_heex_templates(igniter, components_path) do
-      passkeys_path = Path.join(components_path, "passkey_components")
-
-      igniter
-      |> Igniter.create_new_file(
-        Path.join(passkeys_path, "guidance.html.heex"),
-        File.read!("priv/templates/components/guidance.html.heex"),
-        on_exists: :warning
-      )
-      |> Igniter.create_new_file(
-        Path.join(passkeys_path, "token_form.html.heex"),
-        File.read!("priv/templates/components/token_form.html.heex"),
-        on_exists: :warning
-      )
     end
   end
 else

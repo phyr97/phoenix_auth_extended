@@ -1,9 +1,9 @@
-defmodule <%= inspect @app_web_module %>.UserSessionController do
+defmodule <%= inspect @app_web_module %>.<%= @entity_name %>SessionController do
   use <%= inspect @app_web_module %>, :controller
 
   alias <%= inspect @app_module_name %>.Identity.<%= @entity_name %>
   alias <%= inspect @app_module_name %>.Identity
-  alias <%= inspect @app_web_module %>.UserAuth
+  alias <%= inspect @app_web_module %>.Auth
 
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")
@@ -11,7 +11,7 @@ defmodule <%= inspect @app_web_module %>.UserSessionController do
 
   def create(conn, %{"_action" => "password_updated"} = params) do
     conn
-    |> put_session(:user_return_to, ~p"/users/settings")
+    |> put_session(:<%= @entity_name_downcase %>_return_to, ~p"/<%= @entity_name_downcase %>s/settings")
     |> create(params, "Password updated successfully!")
   end
 
@@ -19,19 +19,19 @@ defmodule <%= inspect @app_web_module %>.UserSessionController do
     create(conn, params, "Welcome back!")
   end
 
-  defp create(conn, %{"user" => user_params}, info) do
-    %{"email" => email, "password" => password} = user_params
+  defp create(conn, %{"<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params}, info) do
+    %{"email" => email, "password" => password} = <%= @entity_name_downcase %>_params
 
-    if user = Identity.get_user_by_email_and_password(email, password) do
+    if <%= @entity_name_downcase %> = Identity.get_<%= @entity_name_downcase %>_by_email_and_password(email, password) do
       conn
       |> put_flash(:info, info)
-      |> UserAuth.log_in_user(user, user_params)
+      |> <%= @entity_name %>Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, <%= @entity_name_downcase %>_params)
     else
-      # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
+      # In order to prevent <%= @entity_name_downcase %> enumeration attacks, don't disclose whether the email is registered.
       conn
       |> put_flash(:error, "Invalid email or password")
       |> put_flash(:email, String.slice(email, 0, 160))
-      |> redirect(to: ~p"/users/log_in")
+      |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
     end
   end
 
@@ -39,23 +39,23 @@ defmodule <%= inspect @app_web_module %>.UserSessionController do
     %{"value" => value} = token_params
     decoded_value = Base.decode64!(value, padding: false)
 
-    case Identity.get_user_by_token(decoded_value) do
-      %<%= @entity_name %>{} = user ->
+    case Identity.get_<%= @entity_name_downcase %>_by_token(decoded_value) do
+      %<%= @entity_name %>{} = <%= @entity_name_downcase %> ->
         conn
         |> put_flash(:info, info)
-        |> UserAuth.log_in_user(user)
+        |> <%= @entity_name %>Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>)
 
       nil ->
         conn
-        |> UserAuth.renew_session()
+        |> <%= @entity_name %>Auth.renew_session()
         |> put_flash(:error, "Please sign in.")
-        |> redirect(to: ~p"/users/log_in")
+        |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
     end
   end
 
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "Logged out successfully.")
-    |> UserAuth.log_out_user()
+    |> <%= @entity_name %>Auth.log_out_<%= @entity_name_downcase %>()
   end
 end
