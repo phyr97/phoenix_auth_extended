@@ -42,8 +42,11 @@ if Code.ensure_loaded?(Igniter) do
     use Igniter.Mix.Task
 
     import PhoenixAuthExtended
+
+    alias PhoenixAuthExtended.Info
+
     @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
+    def info(argv, _composing_task) do
       %Igniter.Mix.Task.Info{
         group: :phoenix_auth_extended,
         adds_deps: [],
@@ -51,16 +54,15 @@ if Code.ensure_loaded?(Igniter) do
         example: __MODULE__.Docs.example(),
         positional: [],
         composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
+        schema: Info.options(),
+        defaults: Info.defaults(),
+        aliases: Info.aliases(),
+        required: Info.required_options(argv)
       }
     end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      %{passkey: passkey?, oauth: oauth?} = igniter.assigns.options
       web_module = Igniter.Libs.Phoenix.web_module(igniter)
       core_components_module = Module.safe_concat([web_module, "CoreComponents"])
 
@@ -68,7 +70,7 @@ if Code.ensure_loaded?(Igniter) do
       |> prepare_igniter()
       |> adjust_spacing_for_simple_form(core_components_module)
       |> then(fn igniter ->
-        if passkey? or oauth?,
+        if igniter.assigns.options.passkey or igniter.assigns.options.oauth,
           do: add_button_link_component(igniter, core_components_module),
           else: igniter
       end)

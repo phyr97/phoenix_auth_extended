@@ -42,19 +42,26 @@ defmodule PhoenixAuthExtended do
 
   def prepare_igniter(igniter) do
     {_igniter, app_repo} = Igniter.Libs.Ecto.select_repo(igniter)
-    context_module_name = context_module_name(igniter.args.positional.context_name)
 
     igniter
     |> PhoenixAuthExtended.Info.validate_options()
     |> Igniter.assign(:options, Map.new(igniter.args.options))
     |> Igniter.assign(igniter.args.positional)
-    |> Igniter.assign(:context_module_name, context_module_name)
     |> Igniter.assign(:template_path, template_path())
     |> Igniter.assign(:app_name, app_name())
     |> Igniter.assign(:app_module_name, app_module_name())
     |> Igniter.assign(:app_repo, app_repo)
     |> Igniter.assign(:initialized, true)
+    |> assign_context_module_name()
   end
+
+  defp assign_context_module_name(
+         %Igniter{args: %{positional: %{context_name: context_name}}} = igniter
+       ) do
+    Igniter.assign(igniter, :context_module_name, context_module_name(context_name))
+  end
+
+  defp assign_context_module_name(igniter), do: igniter
 
   @doc """
   Composes a task if the condition function returns true.
