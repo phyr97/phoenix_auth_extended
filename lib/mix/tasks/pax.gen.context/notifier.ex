@@ -44,65 +44,25 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:context_name, :entity_name],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(igniter.args.positional)
-      |> assign_base_info()
       |> generate_notifier()
     end
 
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_module_name])
-      context_module = Module.concat([app_module, igniter.assigns.context_name])
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_module, app_module)
-      |> Igniter.assign(:context_module, context_module)
-    end
-
     defp generate_notifier(igniter) do
-      assigns = igniter.assigns |> Map.to_list()
-
-      context_path =
-        Path.join([
-          "lib",
-          to_string(igniter.assigns.app),
-          String.downcase(igniter.assigns.context_name)
-        ])
+      file_name = "#{String.downcase(igniter.assigns.entity_name)}_notifier.ex"
 
       file_path =
-        Path.join(context_path, "#{String.downcase(igniter.assigns.entity_name)}_notifier.ex")
+        Path.join([app_path(), String.downcase(igniter.assigns.context_name), file_name])
 
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/schemas/entity_notifier.eex",
-        file_path,
-        assigns
-      )
+      template_path = Path.join(["schemas", "entity_notifier.eex"])
+      copy_template(igniter, template_path, file_path)
     end
   end
 else
