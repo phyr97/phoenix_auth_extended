@@ -20,6 +20,21 @@ defmodule PhoenixAuthExtended do
   def app_module_name, do: app_name() |> to_string() |> Macro.camelize()
 
   @doc """
+  Returns the path to the current application.
+  """
+  def app_path, do: Path.join(["lib", to_string(app_name())])
+
+  @doc """
+  Returns the path to the current application's web module.
+  """
+  def app_web_path, do: app_path() <> "_web"
+
+  @doc """
+  Returns the module name of the given context.
+  """
+  def context_module_name(context_name), do: Module.concat([app_module_name(), context_name])
+
+  @doc """
   Prepares an igniter with common assignments and configurations needed across all generators.
   Only runs once.
   """
@@ -27,21 +42,18 @@ defmodule PhoenixAuthExtended do
 
   def prepare_igniter(igniter) do
     {_igniter, app_repo} = Igniter.Libs.Ecto.select_repo(igniter)
+    context_module_name = context_module_name(igniter.args.positional.context_name)
 
     igniter
     |> PhoenixAuthExtended.Info.validate_options()
     |> Igniter.assign(:options, Map.new(igniter.args.options))
-    |> assign_positional_arguments()
+    |> Igniter.assign(igniter.args.positional)
+    |> Igniter.assign(:context_module_name, context_module_name)
     |> Igniter.assign(:template_path, template_path())
     |> Igniter.assign(:app_name, app_name())
     |> Igniter.assign(:app_module_name, app_module_name())
     |> Igniter.assign(:app_repo, app_repo)
     |> Igniter.assign(:initialized, true)
-  end
-
-  defp assign_positional_arguments(igniter) do
-    PhoenixAuthExtended.Info.positional_arguments()
-    |> Enum.reduce(igniter, &Igniter.assign(&2, &1, igniter.args.positional[&1]))
   end
 
   @doc """
@@ -54,7 +66,13 @@ defmodule PhoenixAuthExtended do
     end
   end
 
-  def copy_template(igniter, template_path, destination_path, assigns \\ []) do
+  @doc """
+  Copies a template to a destination path and assigns the given assigns.
+  """
+  def copy_template(igniter, template_file_path, destination_path) do
+    assigns = Map.to_list(igniter.assigns)
+    template_path = Path.join([template_path(), template_file_path])
+
     Igniter.copy_template(igniter, template_path, destination_path, assigns)
   end
 end

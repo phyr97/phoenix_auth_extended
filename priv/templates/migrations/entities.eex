@@ -6,23 +6,23 @@ defmodule <%= inspect @app_repo %>.Migrations.<%= @migration_name %> do
 
     create table(:<%= @entity_name %>s, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :<%= @auth_options[:basic_identifier] %>, :citext, null: false
-      <%= if @auth_options[:basic_identifier] == "email" do %>
+      add :<%= @options[:basic_identifier] %>, :citext, null: false
+      <%= if @options[:basic_identifier] == "email" do %>
       add :confirmed_at, :utc_datetime
       <% end %>
-      <%= if @auth_options[:basic] do %>
+      <%= if @options[:basic] do %>
       add :hashed_password, :string
       <% end %>
-      <%= if @auth_options[:oauth] do %>
+      <%= if @options[:oauth] do %>
       add :provider, :string
       add :provider_uid, :string
       <% end %>
 
-      timestamps(type: <%= inspect @timestamp_type %>)
+      timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:<%= @entity_name %>s, [:<%= @auth_options[:basic_identifier] %>])
-    <%= if @auth_options[:oauth] do %>
+    create unique_index(:<%= @entity_name %>s, [:<%= @options[:basic_identifier] %>])
+    <%= if @options[:oauth] do %>
     create unique_index(:<%= @entity_name %>s, [:provider, :provider_uid])
     <% end %>
   end

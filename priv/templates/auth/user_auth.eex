@@ -4,8 +4,8 @@ defmodule <%= @app_web_module %>.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
-  alias <%= @app_module %>.<%= @context_name %>
-  alias <%= @app_module %>.<%= @context_name %>.<%= @entity_name %>Token
+  alias <%= @app_module_name %>.<%= @context_name %>
+  alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>Token
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change

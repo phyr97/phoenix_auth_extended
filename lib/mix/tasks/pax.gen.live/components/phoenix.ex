@@ -60,7 +60,7 @@ if Code.ensure_loaded?(Igniter) do
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      %{passkey: passkey?, oauth: oauth?} = igniter.assigns.auth_options
+      %{passkey: passkey?, oauth: oauth?} = igniter.assigns.options
       web_module = Igniter.Libs.Phoenix.web_module(igniter)
       core_components_module = Module.safe_concat([web_module, "CoreComponents"])
 

@@ -1,8 +1,8 @@
 defmodule <%= inspect @app_web_module %>.UserSessionController do
   use <%= inspect @app_web_module %>, :controller
 
-  alias <%= inspect @app_module %>.Identity.<%= @entity_name %>
-  alias <%= inspect @app_module %>.Identity
+  alias <%= inspect @app_module_name %>.Identity.<%= @entity_name %>
+  alias <%= inspect @app_module_name %>.Identity
   alias <%= inspect @app_web_module %>.UserAuth
 
   def create(conn, %{"_action" => "registered"} = params) do

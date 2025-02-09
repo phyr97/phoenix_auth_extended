@@ -1,4 +1,4 @@
-defmodule <%= inspect @context_module %>.<%= @entity_name %> do
+defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
   use Ecto.Schema
   import Ecto.Changeset
   import PhoenixAuthExtended.Validation
@@ -6,36 +6,36 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %> do
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
   schema "<%= @entity_name %>s" do
-    field :<%= @auth_options[:basic_identifier] %>, :string
-    <%= if @auth_options[:basic] do %>
+    field :<%= @options[:basic_identifier] %>, :string
+    <%= if @options[:basic] do %>
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     <% end %>
-    <%= if @auth_options[:basic_identifier] == "email" do %>
+    <%= if @options[:basic_identifier] == "email" do %>
     field :confirmed_at, :utc_datetime
     <% end %>
-    <%= if @auth_options[:oauth] do %>
+    <%= if @options[:oauth] do %>
     field :provider, :string
     field :provider_uid, :string
     <% end %>
 
-    <%= if @auth_options[:passkey] do %>
-    has_many :keys, <%= inspect @context_module %>.<%= @entity_name %>Key, preload_order: [desc: :last_used_at]
+    <%= if @options[:passkey] do %>
+    has_many :keys, <%= inspect @context_module_name %>.<%= @entity_name %>Key, preload_order: [desc: :last_used_at]
     <% end %>
-    has_many :tokens, <%= inspect @context_module %>.<%= @entity_name %>Token, preload_order: [desc: :inserted_at]
+    has_many :tokens, <%= inspect @context_module_name %>.<%= @entity_name %>Token, preload_order: [desc: :inserted_at]
 
-    timestamps(type: <%= inspect @timestamp_type %>)
+    timestamps(type: :utc_datetime)
   end
 
-  <%= if @auth_options[:basic] do %>
+  <%= if @options[:basic] do %>
   @doc """
-  Creates a changeset for basic <%= @auth_options[:basic_identifier] %>/password authentication.
+  Creates a changeset for basic <%= @options[:basic_identifier] %>/password authentication.
 
   ## Options
 
-    * `:validate_<%= @auth_options[:basic_identifier] %>` - Validates <%= @auth_options[:basic_identifier] %> uniqueness, defaults to true
-    * `:validate_<%= @auth_options[:basic_identifier] %>_change` - Requires <%= @auth_options[:basic_identifier] %> to change, defaults to false
+    * `:validate_<%= @options[:basic_identifier] %>` - Validates <%= @options[:basic_identifier] %> uniqueness, defaults to true
+    * `:validate_<%= @options[:basic_identifier] %>_change` - Requires <%= @options[:basic_identifier] %> to change, defaults to false
     * `:hash_password` - Hashes the password and stores it in hashed_password, defaults to true
     * `:validate_password` - Validates the password, defaults to true
   """
@@ -46,52 +46,52 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %> do
 
     <%= String.downcase(@entity_name) %>
     |> cast(attrs, fields)
-    |> validate_<%= @auth_options[:basic_identifier] %>(:<%= @auth_options[:basic_identifier] %>, opts)
+    |> validate_<%= @options[:basic_identifier] %>(:<%= @options[:basic_identifier] %>, opts)
     |> maybe_validate_password(:password, opts)
     |> cast_assoc(:tokens)
   end
   <% end %>
 
-  <%= if @auth_options[:passkey] do %>
+  <%= if @options[:passkey] do %>
   @doc """
   Creates a changeset for passkey authentication.
 
   ## Options
 
-    * `:validate_<%= @auth_options[:basic_identifier] %>` - Validates <%= @auth_options[:basic_identifier] %> uniqueness, defaults to true
-    * `:validate_<%= @auth_options[:basic_identifier] %>_change` - Requires <%= @auth_options[:basic_identifier] %> to change, defaults to false
+    * `:validate_<%= @options[:basic_identifier] %>` - Validates <%= @options[:basic_identifier] %> uniqueness, defaults to true
+    * `:validate_<%= @options[:basic_identifier] %>_change` - Requires <%= @options[:basic_identifier] %> to change, defaults to false
   """
   def passkey_changeset(<%= String.downcase(@entity_name) %>, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
     <%= String.downcase(@entity_name) %>
     |> cast(attrs, fields)
-    |> validate_<%= @auth_options[:basic_identifier] %>(:<%= @auth_options[:basic_identifier] %>, opts)
+    |> validate_<%= @options[:basic_identifier] %>(:<%= @options[:basic_identifier] %>, opts)
     |> cast_assoc(:keys)
     |> cast_assoc(:tokens)
   end
   <% end %>
 
-  <%= if @auth_options[:oauth] do %>
+  <%= if @options[:oauth] do %>
   @doc """
   Creates a changeset for OAuth authentication.
 
   ## Options
 
-    * `:validate_<%= @auth_options[:basic_identifier] %>` - Validates <%= @auth_options[:basic_identifier] %> uniqueness, defaults to true
-    * `:validate_<%= @auth_options[:basic_identifier] %>_change` - Requires <%= @auth_options[:basic_identifier] %> to change, defaults to false
+    * `:validate_<%= @options[:basic_identifier] %>` - Validates <%= @options[:basic_identifier] %> uniqueness, defaults to true
+    * `:validate_<%= @options[:basic_identifier] %>_change` - Requires <%= @options[:basic_identifier] %> to change, defaults to false
   """
   def oauth_changeset(<%= String.downcase(@entity_name) %>, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
     <%= String.downcase(@entity_name) %>
     |> cast(attrs, fields)
-    |> validate_<%= @auth_options[:basic_identifier] %>(:<%= @auth_options[:basic_identifier] %>, opts)
+    |> validate_<%= @options[:basic_identifier] %>(:<%= @options[:basic_identifier] %>, opts)
     |> unique_constraint([:provider, :provider_uid])
   end
   <% end %>
 
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   @doc """
   Confirms the account by setting `confirmed_at` to the current time.
   """
@@ -101,7 +101,7 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %> do
   end
   <% end %>
 
-  <%= if @auth_options[:basic] do %>
+  <%= if @options[:basic] do %>
   @doc """
   Validates the current password.
 

@@ -1,8 +1,8 @@
 defmodule <%= @app_web_module %>.UserRegistrationLive do
   use <%= @app_web_module %>, :live_view
 
-  alias <%= @app_module %>.<%= @context_name %>
-  alias <%= @app_module %>.<%= @context_name %>.<%= @entity_name %>
+  alias <%= @app_module_name %>.<%= @context_name %>
+  alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>
 
   def render(assigns) do
     ~H"""
@@ -37,7 +37,7 @@ defmodule <%= @app_web_module %>.UserRegistrationLive do
         <:actions>
           <div class="flex flex-col gap-2 w-full">
             <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
-            <%= if @auth_options[:passkey] do %>
+            <%= if @options[:passkey] do %>
             <.button_link navigate={~p"/users/register_with_passkey"} class="w-full">
               <.icon name="hero-key" class="h-4 w-4" /> Register with passkey
             </.button_link>

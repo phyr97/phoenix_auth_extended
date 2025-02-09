@@ -1,10 +1,10 @@
-defmodule <%= inspect @app_module %>Web.PasskeyComponents do
+defmodule <%= inspect @app_module_name %>Web.PasskeyComponents do
   @moduledoc """
   Components for navigating the application.
   """
   use Phoenix.Component
-  use <%= inspect @app_module %>Web, :verified_routes
-  import <%= inspect @app_module %>Web.CoreComponents
+  use <%= inspect @app_module_name %>Web, :verified_routes
+  import <%= inspect @app_module_name %>Web.CoreComponents
   alias Phoenix.LiveView.JS
 
   embed_templates "passkey_components/*"

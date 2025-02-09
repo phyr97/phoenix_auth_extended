@@ -1,7 +1,7 @@
 defmodule <%= inspect @app_web_module %>.OAuthController do
   use <%= inspect @app_web_module %>, :controller
 
-  alias <%= inspect @app_module %>.{Identity, OAuth}
+  alias <%= inspect @app_module_name %>.{Identity, OAuth}
   alias <%= inspect @app_web_module %>.UserAuth
 
   def request(conn, %{"provider" => provider}) do

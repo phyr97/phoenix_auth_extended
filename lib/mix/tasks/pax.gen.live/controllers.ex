@@ -108,7 +108,7 @@ if Code.ensure_loaded?(Igniter) do
       )
     end
 
-    defp maybe_generate_oauth_controller(%{assigns: %{auth_options: %{oauth: true}}} = igniter) do
+    defp maybe_generate_oauth_controller(%{assigns: %{options: %{oauth: true}}} = igniter) do
       assigns = Map.to_list(igniter.assigns)
       web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web"])
       file_path = Path.join([web_path, "controllers", "oauth_controller.ex"])

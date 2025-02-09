@@ -1,53 +1,53 @@
-defmodule <%= inspect @context_module %> do
+defmodule <%= inspect @context_module_name %> do
   @moduledoc """
   The <%= @context_name %> context.
   """
 
   import Ecto.Query, warn: false
 
-  alias <%= inspect @context_module %>.{<%= @entity_name %>, <%= @entity_name %>Token<%= if @auth_options[:passkey], do: ", #{@entity_name}Key" %>}
-  alias <%= inspect @app_module %>.Repo
-  alias <%= inspect @app_module %>.Validation
+  alias <%= inspect @context_module_name %>.{<%= @entity_name %>, <%= @entity_name %>Token<%= if @options[:passkey], do: ", #{@entity_name}Key" %>}
+  alias <%= inspect @app_module_name %>.Repo
+  alias <%= inspect @app_module_name %>.Validation
 
   ## Database getters
 
   @doc """
-  Gets a <%= String.downcase(@entity_name) %> by <%= @auth_options[:basic_identifier] %>.
+  Gets a <%= String.downcase(@entity_name) %> by <%= @options[:basic_identifier] %>.
 
   ## Examples
 
-      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>("foo@example.com")
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @options[:basic_identifier] %>("foo@example.com")
       %<%= @entity_name %>{}
 
-      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>("unknown@example.com")
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @options[:basic_identifier] %>("unknown@example.com")
       nil
 
   """
-  def get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>(<%= @auth_options[:basic_identifier] %>) when is_binary(<%= @auth_options[:basic_identifier] %>) do
-    Repo.get_by(<%= @entity_name %>, <%= @auth_options[:basic_identifier] %>: <%= @auth_options[:basic_identifier] %>)
+  def get_<%= String.downcase(@entity_name) %>_by_<%= @options[:basic_identifier] %>(<%= @options[:basic_identifier] %>) when is_binary(<%= @options[:basic_identifier] %>) do
+    Repo.get_by(<%= @entity_name %>, <%= @options[:basic_identifier] %>: <%= @options[:basic_identifier] %>)
   end
 
-  <%= if @auth_options[:basic] do %>
+  <%= if @options[:basic] do %>
   @doc """
-  Gets a <%= String.downcase(@entity_name) %> by <%= @auth_options[:basic_identifier] %> and password.
+  Gets a <%= String.downcase(@entity_name) %> by <%= @options[:basic_identifier] %> and password.
 
   ## Examples
 
-      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>_and_password("foo@example.com", "correct_password")
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @options[:basic_identifier] %>_and_password("foo@example.com", "correct_password")
       %<%= @entity_name %>{}
 
-      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>_and_password("foo@example.com", "invalid_password")
+      iex> get_<%= String.downcase(@entity_name) %>_by_<%= @options[:basic_identifier] %>_and_password("foo@example.com", "invalid_password")
       nil
 
   """
-  def get_<%= String.downcase(@entity_name) %>_by_<%= @auth_options[:basic_identifier] %>_and_password(<%= @auth_options[:basic_identifier] %>, password)
-      when is_binary(<%= @auth_options[:basic_identifier] %>) and is_binary(password) do
-    <%= String.downcase(@entity_name) %> = Repo.get_by(<%= @entity_name %>, <%= @auth_options[:basic_identifier] %>: <%= @auth_options[:basic_identifier] %>)
+  def get_<%= String.downcase(@entity_name) %>_by_<%= @options[:basic_identifier] %>_and_password(<%= @options[:basic_identifier] %>, password)
+      when is_binary(<%= @options[:basic_identifier] %>) and is_binary(password) do
+    <%= String.downcase(@entity_name) %> = Repo.get_by(<%= @entity_name %>, <%= @options[:basic_identifier] %>: <%= @options[:basic_identifier] %>)
     if Validation.valid_password?(<%= String.downcase(@entity_name) %>, password), do: <%= String.downcase(@entity_name) %>
   end
   <% end %>
 
-  <%= if @auth_options[:oauth] do %>
+  <%= if @options[:oauth] do %>
   @doc """
   Gets a <%= String.downcase(@entity_name) %> by provider and provider_uid.
 
@@ -69,10 +69,10 @@ defmodule <%= inspect @context_module %> do
 
   ## Examples
 
-      iex> get_or_create_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "user@example", provider: "github", provider_uid: "123"})
+      iex> get_or_create_<%= String.downcase(@entity_name) %>(%{<%= @options[:basic_identifier] %>: "user@example", provider: "github", provider_uid: "123"})
       {:ok, %<%= @entity_name %>{}}
 
-      iex> get_or_create_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "invalid"})
+      iex> get_or_create_<%= String.downcase(@entity_name) %>(%{<%= @options[:basic_identifier] %>: "invalid"})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -109,15 +109,15 @@ defmodule <%= inspect @context_module %> do
 
   ## Examples
 
-      iex> register_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "test@example.com", password: "secret"})
+      iex> register_<%= String.downcase(@entity_name) %>(%{<%= @options[:basic_identifier] %>: "test@example.com", password: "secret"})
       {:ok, %<%= @entity_name %>{}}
 
-      <%= if @auth_options[:passkey] do %>
+      <%= if @options[:passkey] do %>
       iex> register_<%= String.downcase(@entity_name) %>(%{keys: [%{credential_id: "abc", public_key: "xyz"}]})
       {:ok, %<%= @entity_name %>{}}
       <% end %>
 
-      iex> register_<%= String.downcase(@entity_name) %>(%{<%= @auth_options[:basic_identifier] %>: "invalid"})
+      iex> register_<%= String.downcase(@entity_name) %>(%{<%= @options[:basic_identifier] %>: "invalid"})
       {:error, %Ecto.Changeset{}}
   """
   def register_<%= String.downcase(@entity_name) %>(attrs) do
@@ -128,28 +128,28 @@ defmodule <%= inspect @context_module %> do
 
   @doc """
   Creates a changeset for a <%= String.downcase(@entity_name) %> based on the provided attributes.
-  <%= if @auth_options[:passkey] do %>Uses passkey_changeset if keys are present, <% end %><%= if @auth_options[:oauth] do %>Uses oauth_changeset if provider is present, <% end %>otherwise basic_changeset.
+  <%= if @options[:passkey] do %>Uses passkey_changeset if keys are present, <% end %><%= if @options[:oauth] do %>Uses oauth_changeset if provider is present, <% end %>otherwise basic_changeset.
 
   ## Examples
 
-      iex> change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{<%= @auth_options[:basic_identifier] %>: "test@example.com"})
+      iex> change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{<%= @options[:basic_identifier] %>: "test@example.com"})
       %Ecto.Changeset{...}
 
-      <%= if @auth_options[:passkey] do %>
+      <%= if @options[:passkey] do %>
       iex> change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{keys: [%{credential_id: "abc"}]})
       %Ecto.Changeset{...}
       <% end %>
   """
   def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, attrs, opts \\ [])
-  <%= if @auth_options[:passkey] do %>
+  <%= if @options[:passkey] do %>
   def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{keys: _} = attrs, opts), do: <%= @entity_name %>.passkey_changeset(<%= String.downcase(@entity_name) %>, attrs, opts)
   <% end %>
-  <%= if @auth_options[:oauth] do %>
+  <%= if @options[:oauth] do %>
   def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, %{provider: _} = attrs, opts), do: <%= @entity_name %>.oauth_changeset(<%= String.downcase(@entity_name) %>, attrs, opts)
   <% end %>
   def change_<%= String.downcase(@entity_name) %>(<%= String.downcase(@entity_name) %>, attrs, opts), do: <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, opts)
 
-  <%= if @auth_options[:basic] do %>
+  <%= if @options[:basic] do %>
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking <%= String.downcase(@entity_name) %> changes.
 
@@ -160,13 +160,13 @@ defmodule <%= inspect @context_module %> do
 
   """
   def change_<%= String.downcase(@entity_name) %>_registration(%<%= @entity_name %>{} = <%= String.downcase(@entity_name) %>, attrs \\ %{}) do
-    <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, hash_password: false, validate_<%= @auth_options[:basic_identifier] %>: false)
+    <%= @entity_name %>.basic_changeset(<%= String.downcase(@entity_name) %>, attrs, hash_password: false, validate_<%= @options[:basic_identifier] %>: false)
   end
   <% end %>
 
   ## Settings
 
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the <%= String.downcase(@entity_name) %> email.
 
@@ -243,13 +243,13 @@ defmodule <%= inspect @context_module %> do
     {encoded_token, <%= String.downcase(@entity_name) %>_token} = <%= @entity_name %>Token.build_email_token(<%= String.downcase(@entity_name) %>, "change:#{current_email}")
 
     Repo.insert!(<%= String.downcase(@entity_name) %>_token)
-    <%= if @auth_options[:basic_identifier] == "email" do %>
+    <%= if @options[:basic_identifier] == "email" do %>
     <%= @entity_name %>Notifier.deliver_update_email_instructions(<%= String.downcase(@entity_name) %>, update_email_url_fun.(encoded_token))
     <% end %>
   end
   <% end %>
 
-  <%= if @auth_options[:basic] do %>
+  <%= if @options[:basic] do %>
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the <%= String.downcase(@entity_name) %> password.
 
@@ -332,7 +332,7 @@ defmodule <%= inspect @context_module %> do
     :ok
   end
 
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   ## Confirmation
 
   @doc ~S"""
@@ -443,7 +443,7 @@ defmodule <%= inspect @context_module %> do
   end
   <% end %>
 
-  <%= if @auth_options[:passkey] do %>
+  <%= if @options[:passkey] do %>
   # Passkeys
   @doc """
   Retrieves a `<%= @entity_name %>` by querying an associated `:key_id`.

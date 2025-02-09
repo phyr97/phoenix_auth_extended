@@ -10,7 +10,7 @@ defmodule <%= inspect @app_repo %>.Migrations.<%= @migration_name %> do
       add :public_key, :binary, null: false
       add :last_used_at, :utc_datetime, null: false, default: fragment("now()")
 
-      timestamps(type: <%= inspect @timestamp_type %>)
+      timestamps()
     end
 
     create index(:<%= @entity_name %>_keys, [:<%= @entity_name %>_id])

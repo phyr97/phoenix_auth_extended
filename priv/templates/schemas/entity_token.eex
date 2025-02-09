@@ -1,7 +1,7 @@
-defmodule <%= inspect @context_module %>.<%= @entity_name %>Token do
+defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
   use Ecto.Schema
   import Ecto.Query
-  alias <%= inspect @context_module %>.<%= @entity_name %>Token
+  alias <%= inspect @context_module_name %>.<%= @entity_name %>Token
 
   @hash_algorithm :sha256
   @rand_size 32
@@ -18,12 +18,12 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %>Token do
   schema "<%= String.downcase(@entity_name) %>_tokens" do
     field :value, :binary
     field :type, :string, default: "session"
-    <%= if @auth_options[:basic_identifier] == "email" do %>
+    <%= if @options[:basic_identifier] == "email" do %>
     field :sent_to, :string
     <% end %>
-    belongs_to :<%= String.downcase(@entity_name) %>, <%= inspect @context_module %>.<%= @entity_name %>
+    belongs_to :<%= String.downcase(@entity_name) %>, <%= inspect @context_module_name %>.<%= @entity_name %>
 
-    timestamps(type: <%= inspect @timestamp_type %>, updated_at: false)
+    timestamps(type: :utc_datetime, updated_at: false)
   end
 
   @doc """
@@ -54,7 +54,7 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %>Token do
     {:ok, query}
   end
 
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   @doc """
   Builds a token and its hash to be delivered to the user's email.
 
@@ -120,7 +120,7 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %>Token do
   Returns the validity period in days for a given token type.
   """
   def validity_days("session"), do: @session_validity_in_days
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   def validity_days("confirm"), do: @confirm_validity_in_days
   def validity_days("reset_password"), do: @reset_password_validity_in_days
   def validity_days("change:" <> _), do: @change_email_validity_in_days

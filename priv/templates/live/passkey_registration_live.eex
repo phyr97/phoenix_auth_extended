@@ -8,9 +8,9 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
   use <%= @app_web_module %>, :live_view
   require Logger
 
-  alias <%= @app_module %>.<%= @context_name %>
-  alias <%= @app_module %>.<%= @context_name %>.<%= @entity_name %>
-  alias <%= @app_module %>.<%= @context_name %>.<%= @entity_name %>Token
+  alias <%= @app_module_name %>.<%= @context_name %>
+  alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>
+  alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>Token
   alias WebauthnComponents.{RegistrationComponent, SupportComponent, WebauthnUser}
 
   def mount(_params, _user_id, %{assigns: %{current_<%= String.downcase(@entity_name) %>: %<%= @entity_name %>{}}}) do
@@ -76,7 +76,7 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
             disabled={@form.source.valid? == false}
             module={RegistrationComponent}
             id="registration-component"
-            app={<%= @app_module %>}
+            app={<%= @app_module_name %>}
             check_uvpa_available={false}
             display_text="Create an account"
             class={[

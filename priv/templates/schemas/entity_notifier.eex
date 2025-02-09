@@ -1,7 +1,7 @@
-defmodule <%= inspect @context_module %>.<%= @entity_name %>Notifier do
+defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Notifier do
   import Swoosh.Email
 
-  alias <%= inspect @app_module %>.Mailer
+  alias <%= inspect @app_module_name %>.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
@@ -17,7 +17,7 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %>Notifier do
     end
   end
 
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   @doc """
   Deliver instructions to confirm account.
   """

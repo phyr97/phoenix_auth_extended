@@ -1,7 +1,7 @@
-defmodule <%= inspect @app_module %>.Validation do
+defmodule <%= @app_module_name %>.Validation do
   import Ecto.Changeset
 
-  <%= if @auth_options[:basic] do %>
+  <%= if @options[:basic] do %>
   def maybe_validate_password(changeset, field, opts) do
     maybe_validate_password? = Keyword.get(opts, :validate_password, true)
 
@@ -53,7 +53,7 @@ defmodule <%= inspect @app_module %>.Validation do
   end
   <% end %>
 
-  <%= if @auth_options[:basic_identifier] == "email" do %>
+  <%= if @options[:basic_identifier] == "email" do %>
   def validate_email(changeset, field, opts) do
     changeset
     |> validate_required(field)
@@ -66,7 +66,7 @@ defmodule <%= inspect @app_module %>.Validation do
   defp maybe_validate_unique_email(changeset, field, opts) do
     if Keyword.get(opts, :validate_email, true) do
       changeset
-      |> unsafe_validate_unique(field, <%= inspect @app_module %>.Repo)
+      |> unsafe_validate_unique(field, <%= inspect @app_repo %>)
       |> unique_constraint(field)
     else
       changeset

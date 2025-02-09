@@ -1,4 +1,4 @@
-defmodule <%= inspect @context_module %>.<%= @entity_name %>Key do
+defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Key do
   @moduledoc """
   Schema representing a `<%= @entity_name %>`'s Passkey / Webauthn credential.
 
@@ -10,7 +10,7 @@ defmodule <%= inspect @context_module %>.<%= @entity_name %>Key do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  alias <%= inspect @context_module %>.<%= @entity_name %>
+  alias <%= inspect @context_module_name %>.<%= @entity_name %>
   alias WebauthnComponents.CoseKey
 
   @type t :: %__MODULE__{

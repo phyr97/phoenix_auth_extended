@@ -1,4 +1,4 @@
-defmodule <%= @context_module %>.OAuth do
+defmodule <%= @context_module_name %>.OAuth do
   @moduledoc """
   Multi-Provider OAuth Handler für die <%= @context_name %>-Authentifizierung.
   """
@@ -29,6 +29,6 @@ defmodule <%= @context_module %>.OAuth do
   end
 
   defp url(provider) do
-    <%= @app_module %>Web.Endpoint.url() <> "/oauth/#{provider}/callback"
+    <%= @app_module_name %>Web.Endpoint.url() <> "/oauth/#{provider}/callback"
   end
 end
