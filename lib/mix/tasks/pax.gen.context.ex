@@ -78,8 +78,6 @@ if Code.ensure_loaded?(Igniter) do
     defp is_email_basic_identifier(_), do: false
 
     defp generate_context(igniter) do
-      template = Path.join([template_path(), "context.eex"])
-
       file_path =
         Path.join([
           app_path(),
@@ -87,7 +85,7 @@ if Code.ensure_loaded?(Igniter) do
           "#{String.downcase(igniter.assigns.context_name)}.ex"
         ])
 
-      copy_template(igniter, template, file_path)
+      copy_template(igniter, "context.eex", file_path)
     end
   end
 else
