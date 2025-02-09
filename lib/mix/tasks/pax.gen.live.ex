@@ -65,11 +65,11 @@ if Code.ensure_loaded?(Igniter) do
 
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(:entity_name_downcase, String.downcase(igniter.assigns.entity_name))
+      |> then(&Igniter.assign(&1, :entity_name_downcase, String.downcase(&1.assigns.entity_name)))
       |> Igniter.compose_task("pax.gen.live.components.phoenix", argv)
       |> Igniter.compose_task("pax.gen.live.controllers", argv)
-      |> generate_live_views()
       |> compose_task_if("pax.gen.live.components.passkey", & &1.assigns.options.passkey, argv)
+      |> generate_live_views()
     end
 
     defp generate_live_views(igniter) do

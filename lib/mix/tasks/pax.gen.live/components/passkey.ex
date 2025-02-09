@@ -39,57 +39,23 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:context_name, :entity_name],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(igniter.args.positional)
-      |> assign_base_info()
+      |> then(&Igniter.assign(&1, :entity_name_downcase, String.downcase(&1.assigns.entity_name)))
       |> generate_passkey_components()
     end
 
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_module_name])
-      web_module = Igniter.Libs.Phoenix.web_module(igniter)
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_module, app_module)
-      |> Igniter.assign(:web_module, web_module)
-    end
-
     defp generate_passkey_components(igniter) do
-      web_path = Path.join(["lib", Macro.underscore(igniter.assigns.web_module)])
-      components_path = Path.join(web_path, "components")
+      template = Path.join(["components", "passkey_components.eex"])
+      file_path = Path.join([app_web_path(), "components", "passkey_components.ex"])
 
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/components/passkey_components.eex",
-        Path.join(components_path, "passkey_components.ex"),
-        igniter.assigns |> Map.to_list(),
-        on_exists: :warning
-      )
+      copy_template(igniter, template, file_path)
     end
   end
 else

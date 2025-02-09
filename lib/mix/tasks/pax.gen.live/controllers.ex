@@ -51,89 +51,41 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:context_name, :entity_name],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(igniter.args.positional)
-      |> assign_base_info()
+      |> then(&Igniter.assign(&1, :entity_name_downcase, String.downcase(&1.assigns.entity_name)))
       |> generate_auth_module()
-      |> maybe_generate_oauth_controller()
       |> generate_session_controller()
-    end
-
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_module_name])
-      app_web_module = Module.concat([app_module, "Web"])
-      context_module = Module.concat([app_module, igniter.assigns.context_name])
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_module, app_module)
-      |> Igniter.assign(:app_web_module, app_web_module)
-      |> Igniter.assign(:context_module, context_module)
+      |> then(fn igniter ->
+        if igniter.assigns.options.oauth, do: generate_oauth_controller(igniter), else: igniter
+      end)
     end
 
     defp generate_auth_module(igniter) do
-      assigns = Map.to_list(igniter.assigns)
-      web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web"])
-      file_path = Path.join(web_path, "user_auth.ex")
+      file_path = Path.join([app_web_path(), "live", "auth.ex"])
+      template = Path.join(["auth", "auth.eex"])
 
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/auth/user_auth.eex",
-        file_path,
-        assigns
-      )
+      copy_template(igniter, template, file_path)
     end
-
-    defp maybe_generate_oauth_controller(%{assigns: %{options: %{oauth: true}}} = igniter) do
-      assigns = Map.to_list(igniter.assigns)
-      web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web"])
-      file_path = Path.join([web_path, "controllers", "oauth_controller.ex"])
-
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/controllers/oauth_controller.eex",
-        file_path,
-        assigns
-      )
-    end
-
-    defp maybe_generate_oauth_controller(igniter), do: igniter
 
     defp generate_session_controller(igniter) do
-      assigns = Map.to_list(igniter.assigns)
-      web_path = Path.join(["lib", to_string(igniter.assigns.app) <> "_web"])
-      file_path = Path.join([web_path, "controllers", "user_session_controller.ex"])
+      file_path = Path.join([app_web_path(), "live", "controllers", "session_controller.ex"])
+      template = Path.join(["controllers", "session_controller.eex"])
 
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/controllers/user_session_controller.eex",
-        file_path,
-        assigns
-      )
+      copy_template(igniter, template, file_path)
+    end
+
+    defp generate_oauth_controller(igniter) do
+      file_path = Path.join([app_web_path(), "live", "controllers", "oauth_controller.ex"])
+      template = Path.join(["controllers", "oauth_controller.eex"])
+
+      copy_template(igniter, template, file_path)
     end
   end
 else

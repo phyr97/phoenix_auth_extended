@@ -30,6 +30,11 @@ defmodule PhoenixAuthExtended do
   def app_web_path, do: app_path() <> "_web"
 
   @doc """
+  Returns the module name of the current application's web module.
+  """
+  def app_web_module(igniter), do: Igniter.Libs.Phoenix.web_module(igniter)
+
+  @doc """
   Returns the module name of the given context.
   """
   def context_module_name(context_name), do: Module.concat([app_module_name(), context_name])
@@ -50,6 +55,7 @@ defmodule PhoenixAuthExtended do
     |> Igniter.assign(:template_path, template_path())
     |> Igniter.assign(:app_name, app_name())
     |> Igniter.assign(:app_module_name, app_module_name())
+    |> Igniter.assign(:app_web_module, app_web_module(igniter))
     |> Igniter.assign(:app_repo, app_repo)
     |> Igniter.assign(:initialized, true)
     |> assign_context_module_name()

@@ -49,26 +49,9 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
-
-    alias PhoenixAuthExtended.Info
-
-    @impl Igniter.Mix.Task
-    def info(argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [],
-        composes: [],
-        schema: Info.options(),
-        defaults: Info.defaults(),
-        aliases: Info.aliases(),
-        required: Info.required_options(argv)
-      }
-    end
 
     @impl Igniter.Mix.Task
     @spec igniter(Igniter.t()) :: Igniter.t()
@@ -77,6 +60,7 @@ if Code.ensure_loaded?(Igniter) do
 
       igniter
       |> prepare_igniter()
+      |> then(&Igniter.assign(&1, :entity_name_downcase, String.downcase(&1.assigns.entity_name)))
       |> add_auth_import(router_module)
       |> add_fetch_current_plug()
       |> add_routes(router_module)
@@ -105,7 +89,7 @@ if Code.ensure_loaded?(Igniter) do
       Igniter.Libs.Phoenix.append_to_pipeline(
         igniter,
         :browser,
-        "plug :fetch_current_#{String.downcase(igniter.assigns.entity_name)}"
+        "plug :fetch_current_#{igniter.assigns.entity_name_downcase}"
       )
     end
 
@@ -125,7 +109,7 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp authentication_routes(%{assigns: %{options: options}} = igniter, web_module) do
-      entity = String.downcase(igniter.assigns.entity_name)
+      entity = igniter.assigns.entity_name_downcase
 
       """
       scope "/", #{inspect(web_module)} do

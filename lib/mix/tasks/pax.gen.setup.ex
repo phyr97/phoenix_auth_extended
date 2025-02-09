@@ -48,31 +48,16 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    use PhoenixAuthExtended.Info,
+      composes: [
+        "pax.gen.setup.config",
+        "pax.gen.setup.dependencies",
+        "pax.gen.setup.router",
+        "pax.gen.setup.layout",
+        "pax.gen.setup.hooks"
+      ]
+
     import PhoenixAuthExtended
-
-    alias PhoenixAuthExtended.Info
-
-    @impl Igniter.Mix.Task
-    def info(argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [],
-        composes: [
-          "pax.gen.setup.config",
-          "pax.gen.setup.dependencies",
-          "pax.gen.setup.router",
-          "pax.gen.setup.layout",
-          "pax.gen.setup.hooks"
-        ],
-        schema: Info.options(),
-        defaults: Info.defaults(),
-        aliases: Info.aliases(),
-        required: Info.required_options(argv)
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do

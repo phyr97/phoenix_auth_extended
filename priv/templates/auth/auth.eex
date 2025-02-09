@@ -1,4 +1,4 @@
-defmodule <%= @app_web_module %>.<%= @entity_name %>Auth do
+defmodule <%= @app_web_module %>.Auth do
   use <%= @app_web_module %>, :verified_routes
 
   import Plug.Conn
@@ -11,7 +11,7 @@ defmodule <%= @app_web_module %>.<%= @entity_name %>Auth do
   # If you want bump or reduce this value, also change
   # the token expiry itself in <%= @entity_name %>Token.
   @max_age 60 * 60 * 24 * 60
-  @remember_me_cookie "_<%= @app %>_web_<%= @entity_name_downcase %>_remember_me"
+  @remember_me_cookie "_<%= @app_name %>_web_<%= @entity_name_downcase %>_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
   @doc """

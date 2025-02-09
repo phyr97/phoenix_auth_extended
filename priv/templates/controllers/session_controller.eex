@@ -1,4 +1,4 @@
-defmodule <%= inspect @app_web_module %>.<%= @entity_name %>SessionController do
+defmodule <%= inspect @app_web_module %>.SessionController do
   use <%= inspect @app_web_module %>, :controller
 
   alias <%= inspect @app_module_name %>.Identity.<%= @entity_name %>
