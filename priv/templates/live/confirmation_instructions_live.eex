@@ -1,4 +1,4 @@
-defmodule <%= @app_web_module %>.UserConfirmationInstructionsLive do
+defmodule <%= @app_web_module %>.ConfirmationInstructionsLive do
   use <%= @app_web_module %>, :live_view
 
   alias <%= @app_module_name %>.<%= @context_name %>
@@ -21,22 +21,22 @@ defmodule <%= @app_web_module %>.UserConfirmationInstructionsLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/<%= @entity_name_downcase %>s/register"}>Register</.link>
+        | <.link href={~p"/<%= @entity_name_downcase %>s/log_in"}>Log in</.link>
       </p>
     </div>
     """
   end
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, form: to_form(%{}, as: "<%= String.downcase(@entity_name) %>"))}
+    {:ok, assign(socket, form: to_form(%{}, as: "<%= @entity_name_downcase %>"))}
   end
 
-  def handle_event("send_instructions", %{"<%= String.downcase(@entity_name) %>" => %{"email" => email}}, socket) do
-    if user = <%= @context_name %>.get_<%= String.downcase(@entity_name) %>_by_email(email) do
-      <%= @context_name %>.deliver_<%= String.downcase(@entity_name) %>_confirmation_instructions(
-        user,
-        &url(~p"/users/confirm/#{&1}")
+  def handle_event("send_instructions", %{"<%= @entity_name_downcase %>" => %{"email" => email}}, socket) do
+    if <%= @entity_name_downcase %> = <%= @context_name %>.get_<%= @entity_name_downcase %>_by_email(email) do
+      <%= @context_name %>.deliver_<%= @entity_name_downcase %>_confirmation_instructions(
+        <%= @entity_name_downcase %>,
+        &url(~p"/<%= @entity_name_downcase %>s/confirm/#{&1}")
       )
     end
 

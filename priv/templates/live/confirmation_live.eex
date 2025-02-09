@@ -1,4 +1,4 @@
-defmodule <%= @app_web_module %>.UserConfirmationLive do
+defmodule <%= @app_web_module %>.ConfirmationLive do
   use <%= @app_web_module %>, :live_view
 
   alias <%= @app_module_name %>.<%= @context_name %>
@@ -16,22 +16,22 @@ defmodule <%= @app_web_module %>.UserConfirmationLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/users/register"}>Register</.link>
-        | <.link href={~p"/users/log_in"}>Log in</.link>
+        <.link href={~p"/<%= @entity_name_downcase %>s/register"}>Register</.link>
+        | <.link href={~p"/<%= @entity_name_downcase %>s/log_in"}>Log in</.link>
       </p>
     </div>
     """
   end
 
   def mount(%{"token" => token}, _session, socket) do
-    form = to_form(%{"token" => token}, as: "<%= String.downcase(@entity_name) %>")
+    form = to_form(%{"token" => token}, as: "<%= @entity_name_downcase %>")
     {:ok, assign(socket, form: form), temporary_assigns: [form: nil]}
   end
 
-  # Do not log in the user after confirmation to avoid a
-  # leaked token giving the user access to the account.
-  def handle_event("confirm_account", %{"<%= String.downcase(@entity_name) %>" => %{"token" => token}}, socket) do
-    case <%= @context_name %>.confirm_<%= String.downcase(@entity_name) %>(token) do
+  # Do not log in the <%= @entity_name_downcase %> after confirmation to avoid a
+  # leaked token giving the <%= @entity_name_downcase %> access to the account.
+  def handle_event("confirm_account", %{"<%= @entity_name_downcase %>" => %{"token" => token}}, socket) do
+    case <%= @context_name %>.confirm_<%= @entity_name_downcase %>(token) do
       {:ok, _} ->
         {:noreply,
          socket
@@ -39,12 +39,12 @@ defmodule <%= @app_web_module %>.UserConfirmationLive do
          |> redirect(to: ~p"/")}
 
       :error ->
-        # If there is a current user and the account was already confirmed,
+        # If there is a current <%= @entity_name_downcase %> and the account was already confirmed,
         # then odds are that the confirmation link was already visited, either
-        # by some automation or by the user themselves, so we redirect without
+        # by some automation or by the <%= @entity_name_downcase %> themselves, so we redirect without
         # a warning message.
         case socket.assigns do
-          %{current_<%= String.downcase(@entity_name) %>: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
+          %{current_<%= @entity_name_downcase %>: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
             {:noreply, redirect(socket, to: ~p"/")}
 
           %{} ->

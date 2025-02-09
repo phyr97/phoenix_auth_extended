@@ -1,4 +1,4 @@
-defmodule <%= @app_web_module %>.UserSettingsLive do
+defmodule <%= @app_web_module %>.<%= @entity_name %>SettingsLive do
   use <%= @app_web_module %>, :live_view
 
   alias <%= @app_module_name %>.<%= @context_name %>
@@ -20,7 +20,7 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
         >
           <.input field={@email_form[:email]} type="email" label="Email" required />
           <.input
-            :if={not is_nil(@current_<%= String.downcase(@entity_name) %>.hashed_password)}
+            :if={not is_nil(@current_<%= @entity_name_downcase %>.hashed_password)}
             field={@email_form[:current_password]}
             name="current_password"
             id="current_password_for_email"
@@ -38,7 +38,7 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
         <.simple_form
           for={@password_form}
           id="password_form"
-          action={~p"/users/log_in?_action=password_updated"}
+          action={~p"/<%= @entity_name_downcase %>s/log_in?_action=password_updated"}
           method="post"
           phx-change="validate_password"
           phx-submit="update_password"
@@ -47,7 +47,7 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
           <input
             name={@password_form[:email].name}
             type="hidden"
-            id="hidden_user_email"
+            id="hidden_<%= @entity_name_downcase %>_email"
             value={@current_email}
           />
           <.input field={@password_form[:password]} type="password" label="New password" required />
@@ -57,7 +57,7 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
             label="Confirm new password"
           />
           <.input
-            :if={not is_nil(@current_<%= String.downcase(@entity_name) %>.hashed_password)}
+            :if={not is_nil(@current_<%= @entity_name_downcase %>.hashed_password)}
             field={@password_form[:current_password]}
             name="current_password"
             type="password"
@@ -77,7 +77,7 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
 
   def mount(%{"token" => token}, _session, socket) do
     socket =
-      case <%= @context_name %>.update_<%= String.downcase(@entity_name) %>_email(socket.assigns.current_<%= String.downcase(@entity_name) %>, token) do
+      case <%= @context_name %>.update_<%= @entity_name_downcase %>_email(socket.assigns.current_<%= @entity_name_downcase %>, token) do
         :ok ->
           put_flash(socket, :info, "Email changed successfully.")
 
@@ -85,19 +85,19 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
           put_flash(socket, :error, "Email change link is invalid or it has expired.")
       end
 
-    {:ok, push_navigate(socket, to: ~p"/users/settings")}
+    {:ok, push_navigate(socket, to: ~p"/<%= @entity_name_downcase %>s/settings")}
   end
 
   def mount(_params, _session, socket) do
-    user = socket.assigns.current_<%= String.downcase(@entity_name) %>
-    email_changeset = <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_email(user)
-    password_changeset = <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_password(user)
+    <%= @entity_name_downcase %> = socket.assigns.current_<%= @entity_name_downcase %>
+    email_changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_email(<%= @entity_name_downcase %>)
+    password_changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_password(<%= @entity_name_downcase %>)
 
     socket =
       socket
       |> assign(:current_password, nil)
       |> assign(:email_form_current_password, nil)
-      |> assign(:current_email, user.email)
+      |> assign(:current_email, <%= @entity_name_downcase %>.email)
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
@@ -106,11 +106,11 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
   end
 
   def handle_event("validate_email", params, socket) do
-    %{"current_password" => password, "<%= String.downcase(@entity_name) %>" => user_params} = params
+    %{"current_password" => password, "<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params} = params
 
     email_form =
-      socket.assigns.current_<%= String.downcase(@entity_name) %>
-      |> <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_email(user_params)
+      socket.assigns.current_<%= @entity_name_downcase %>
+      |> <%= @context_name %>.change_<%= @entity_name_downcase %>_email(<%= @entity_name_downcase %>_params)
       |> Map.put(:action, :validate)
       |> to_form()
 
@@ -118,15 +118,15 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
   end
 
   def handle_event("update_email", params, socket) do
-    %{"current_password" => password, "<%= String.downcase(@entity_name) %>" => user_params} = params
-    user = socket.assigns.current_<%= String.downcase(@entity_name) %>
+    %{"current_password" => password, "<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params} = params
+    <%= @entity_name_downcase %> = socket.assigns.current_<%= @entity_name_downcase %>
 
-    case <%= @context_name %>.apply_<%= String.downcase(@entity_name) %>_email(user, password, user_params) do
-      {:ok, applied_user} ->
-        <%= @context_name %>.deliver_<%= String.downcase(@entity_name) %>_update_email_instructions(
-          applied_user,
-          user.email,
-          &url(~p"/users/settings/confirm_email/#{&1}")
+    case <%= @context_name %>.apply_<%= @entity_name_downcase %>_email(<%= @entity_name_downcase %>, password, <%= @entity_name_downcase %>_params) do
+      {:ok, applied_<%= @entity_name_downcase %>} ->
+        <%= @context_name %>.deliver_<%= @entity_name_downcase %>_update_email_instructions(
+          applied_<%= @entity_name_downcase %>,
+          <%= @entity_name_downcase %>.email,
+          &url(~p"/<%= @entity_name_downcase %>s/settings/confirm_email/#{&1}")
         )
 
         info = "A link to confirm your email change has been sent to the new address."
@@ -138,11 +138,11 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
   end
 
   def handle_event("validate_password", params, socket) do
-    %{"current_password" => password, "<%= String.downcase(@entity_name) %>" => user_params} = params
+    %{"current_password" => password, "<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params} = params
 
     password_form =
-      socket.assigns.current_<%= String.downcase(@entity_name) %>
-      |> <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_password(user_params)
+      socket.assigns.current_<%= @entity_name_downcase %>
+      |> <%= @context_name %>.change_<%= @entity_name_downcase %>_password(<%= @entity_name_downcase %>_params)
       |> Map.put(:action, :validate)
       |> to_form()
 
@@ -150,14 +150,14 @@ defmodule <%= @app_web_module %>.UserSettingsLive do
   end
 
   def handle_event("update_password", params, socket) do
-    %{"current_password" => password, "<%= String.downcase(@entity_name) %>" => user_params} = params
-    user = socket.assigns.current_<%= String.downcase(@entity_name) %>
+    %{"current_password" => password, "<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params} = params
+    <%= @entity_name_downcase %> = socket.assigns.current_<%= @entity_name_downcase %>
 
-    case <%= @context_name %>.update_<%= String.downcase(@entity_name) %>_password(user, password, user_params) do
-      {:ok, user} ->
+    case <%= @context_name %>.update_<%= @entity_name_downcase %>_password(<%= @entity_name_downcase %>, password, <%= @entity_name_downcase %>_params) do
+      {:ok, <%= @entity_name_downcase %>} ->
         password_form =
-          user
-          |> <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_password(user_params)
+          <%= @entity_name_downcase %>
+          |> <%= @context_name %>.change_<%= @entity_name_downcase %>_password(<%= @entity_name_downcase %>_params)
           |> to_form()
 
         {:noreply, assign(socket, trigger_submit: true, password_form: password_form)}

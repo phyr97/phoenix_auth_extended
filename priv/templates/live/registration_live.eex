@@ -1,4 +1,4 @@
-defmodule <%= @app_web_module %>.UserRegistrationLive do
+defmodule <%= @app_web_module %>.RegistrationLive do
   use <%= @app_web_module %>, :live_view
 
   alias <%= @app_module_name %>.<%= @context_name %>
@@ -11,7 +11,7 @@ defmodule <%= @app_web_module %>.UserRegistrationLive do
         Register for an account
         <:subtitle>
           Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/<%= @entity_name_downcase %>s/log_in"} class="font-semibold text-brand hover:underline">
             Log in
           </.link>
           to your account now.
@@ -24,7 +24,7 @@ defmodule <%= @app_web_module %>.UserRegistrationLive do
         phx-submit="save"
         phx-change="validate"
         phx-trigger-action={@trigger_submit}
-        action={~p"/users/log_in?_action=registered"}
+        action={~p"/<%= @entity_name_downcase %>s/log_in?_action=registered"}
         method="post"
       >
         <.error :if={@check_errors}>
@@ -38,7 +38,7 @@ defmodule <%= @app_web_module %>.UserRegistrationLive do
           <div class="flex flex-col gap-2 w-full">
             <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
             <%= if @options[:passkey] do %>
-            <.button_link navigate={~p"/users/register_with_passkey"} class="w-full">
+            <.button_link navigate={~p"/<%= @entity_name_downcase %>s/register_with_passkey"} class="w-full">
               <.icon name="hero-key" class="h-4 w-4" /> Register with passkey
             </.button_link>
             <% end %>
@@ -60,16 +60,16 @@ defmodule <%= @app_web_module %>.UserRegistrationLive do
     {:ok, socket, temporary_assigns: [form: nil]}
   end
 
-  def handle_event("save", %{"<%= String.downcase(@entity_name) %>" => user_params}, socket) do
-    case <%= @context_name %>.register_<%= String.downcase(@entity_name) %>(user_params) do
-      {:ok, user} ->
+  def handle_event("save", %{"<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params}, socket) do
+    case <%= @context_name %>.register_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_params) do
+      {:ok, <%= @entity_name_downcase %>} ->
         {:ok, _} =
-          <%= @context_name %>.deliver_<%= String.downcase(@entity_name) %>_confirmation_instructions(
-            user,
-            &url(~p"/users/confirm/#{&1}")
+          <%= @context_name %>.deliver_<%= @entity_name_downcase %>_confirmation_instructions(
+            <%= @entity_name_downcase %>,
+            &url(~p"/<%= @entity_name_downcase %>s/confirm/#{&1}")
           )
 
-        changeset = <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_registration(user)
+        changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_registration(<%= @entity_name_downcase %>)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -77,13 +77,13 @@ defmodule <%= @app_web_module %>.UserRegistrationLive do
     end
   end
 
-  def handle_event("validate", %{"<%= String.downcase(@entity_name) %>" => user_params}, socket) do
-    changeset = <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_registration(%<%= @entity_name %>{}, user_params)
+  def handle_event("validate", %{"<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params}, socket) do
+    changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_registration(%<%= @entity_name %>{}, <%= @entity_name_downcase %>_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
-    form = to_form(changeset, as: "<%= String.downcase(@entity_name) %>")
+    form = to_form(changeset, as: "<%= @entity_name_downcase %>")
 
     if changeset.valid? do
       assign(socket, form: form, check_errors: false)
