@@ -60,89 +60,45 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:context_name, :entity_name],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      entity_name = igniter.args.positional[:entity_name]
-
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(igniter.args.positional)
-      |> assign_base_info()
-      |> generate_schema("entity.eex", "#{entity_name}.ex")
-      |> generate_schema("entity_token.eex", "#{entity_name}_token.ex")
+      |> generate_schemas()
+    end
+
+    def generate_schemas(igniter) do
+      igniter
+      |> generate_schema("entity.eex", "#{igniter.assigns.entity_name}.ex")
+      |> generate_schema("entity_token.eex", "#{igniter.assigns.entity_name}_token.ex")
       |> maybe_generate_key_schema()
       |> maybe_generate_validation()
     end
 
-    defp maybe_generate_key_schema(%{assigns: %{auth_options: %{passkey: true}}} = igniter) do
-      %{entity_name: entity_name} = igniter.assigns
-      generate_schema(igniter, "entity_key.eex", "#{entity_name}_key.ex")
+    defp maybe_generate_key_schema(%{assigns: %{options: %{passkey: true}}} = igniter) do
+      generate_schema(igniter, "entity_key.eex", "#{igniter.assigns.entity_name}_key.ex")
     end
 
     defp maybe_generate_key_schema(igniter), do: igniter
 
-    defp maybe_generate_validation(%{assigns: %{auth_options: %{basic: true}}} = igniter) do
-      generate_schema(igniter, "validation.eex", "validation.ex")
+    defp maybe_generate_validation(igniter) do
+      if igniter.assigns.options.basic or igniter.assigns.options.basic_identifier == "email" do
+        generate_schema(igniter, "validation.eex", "validation.ex")
+      else
+        igniter
+      end
     end
 
-    defp maybe_generate_validation(
-           %{assigns: %{auth_options: %{basic_identifier: "email"}}} = igniter
-         ) do
-      generate_schema(igniter, "validation.eex", "validation.ex")
-    end
+    defp generate_schema(igniter, template, file_name) do
+      file_path =
+        Path.join([app_path(), String.downcase(igniter.assigns.context_name), file_name])
 
-    defp maybe_generate_validation(igniter), do: igniter
-
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_module_name])
-      context_module = Module.concat([app_module, igniter.assigns.context_name])
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_module, app_module)
-      |> Igniter.assign(:context_module, context_module)
-      |> Igniter.assign(:timestamp_type, :utc_datetime)
-    end
-
-    defp generate_schema(igniter, template_name, file_name) do
-      assigns = igniter.assigns |> Map.to_list()
-
-      context_path =
-        Path.join([
-          "lib",
-          to_string(igniter.assigns.app),
-          String.downcase(igniter.assigns.context_name)
-        ])
-
-      file_path = Path.join(context_path, file_name)
-
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/schemas/#{template_name}",
-        file_path,
-        assigns
-      )
+      template_path = Path.join(["schemas", template])
+      copy_template(igniter, template_path, file_path)
     end
   end
 else
