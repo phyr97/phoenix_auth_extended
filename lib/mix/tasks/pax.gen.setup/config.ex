@@ -44,8 +44,11 @@ if Code.ensure_loaded?(Igniter) do
     use Igniter.Mix.Task
 
     import PhoenixAuthExtended
+
+    alias PhoenixAuthExtended.Info
+
     @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
+    def info(argv, _composing_task) do
       %Igniter.Mix.Task.Info{
         group: :phoenix_auth_extended,
         adds_deps: [],
@@ -53,10 +56,10 @@ if Code.ensure_loaded?(Igniter) do
         example: __MODULE__.Docs.example(),
         positional: [],
         composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
+        schema: Info.options(),
+        defaults: Info.defaults(),
+        aliases: Info.aliases(),
+        required: Info.required_options(argv)
       }
     end
 
@@ -64,31 +67,37 @@ if Code.ensure_loaded?(Igniter) do
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.Project.Config.configure("test.exs", :bcrypt_elixir, [:log_rounds], {:code, "1"})
-      |> maybe_add_oauth_provider_config()
+      |> add_oauth_provider_config()
+
+      # Currently no tests implemented
+      # |> Igniter.Project.Config.configure("test.exs", :bcrypt_elixir, [:log_rounds], {:code, "1"})
     end
 
-    defp maybe_add_oauth_provider_config(%{assigns: %{auth_options: %{oauth: true}}} = igniter) do
-      provider = get_in(igniter.assigns, [:auth_options, :oauth_provider])
-      strategy = get_oauth_strategy(provider)
+    defp add_oauth_provider_config(%{assigns: %{options: %{oauth: true}}} = igniter) do
+      provider = get_in(igniter.assigns, [:options, :oauth_provider])
 
       Igniter.Project.Config.configure(
         igniter,
         "config.exs",
         :phoenix_auth_extended,
         [OAuthProviders, String.to_atom(provider)],
-        {:code,
-         Sourceror.parse_string!("""
-          [
-          #{strategy}
-          client_id: System.get_env("#{String.upcase(provider)}_CLIENT_ID", "your_client_id"),
-          client_secret: System.get_env("#{String.upcase(provider)}_CLIENT_SECRET", "your_secret")
-         ]
-         """)}
+        {:code, oauth_config(provider)}
       )
     end
 
-    defp maybe_add_oauth_provider_config(igniter), do: igniter
+    defp add_oauth_provider_config(igniter), do: igniter
+
+    defp oauth_config(provider) do
+      strategy = get_oauth_strategy(provider)
+
+      Sourceror.parse_string!("""
+       [
+       #{strategy}
+       client_id: System.get_env("#{String.upcase(provider)}_CLIENT_ID", "your_client_id"),
+       client_secret: System.get_env("#{String.upcase(provider)}_CLIENT_SECRET", "your_secret")
+      ]
+      """)
+    end
 
     # Returns the appropriate Assent strategy module for known providers
     defp get_oauth_strategy(provider) do

@@ -68,9 +68,9 @@ if Code.ensure_loaded?(Igniter) do
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.compose_task("pax.gen.setup")
-      |> Igniter.compose_task("pax.gen.context")
-      |> Igniter.compose_task("pax.gen.live")
+      |> Igniter.compose_task("pax.gen.setup", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.context", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.live", igniter.args.argv)
     end
   end
 else

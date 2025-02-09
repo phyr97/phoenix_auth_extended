@@ -71,12 +71,8 @@ if Code.ensure_loaded?(Igniter) do
         example: __MODULE__.Docs.example(),
         positional: [],
         composes: [],
-        schema: [
-          app_js_path: :string
-        ],
-        defaults: [
-          app_js_path: @default_app_js_path
-        ],
+        schema: [app_js_path: :string],
+        defaults: [app_js_path: @default_app_js_path],
         aliases: [],
         required: []
       }
@@ -86,6 +82,7 @@ if Code.ensure_loaded?(Igniter) do
     def igniter(igniter) do
       app_js_path = igniter.args.options[:app_js_path]
       igniter = prepare_igniter(igniter)
+
       with {:ok, content} <- IgniterJs.Helpers.read_and_validate_file(app_js_path),
            {:ok, _, content} <- Parser.insert_imports(content, @webauthn_import, :content),
            {:ok, _, content} <- Parser.extend_hook_object(content, @webauthn_hooks, :content) do

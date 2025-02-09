@@ -8,9 +8,7 @@ defmodule PhoenixAuthExtended.Info do
       passkey: :boolean,
       oauth: :boolean,
       basic_identifier: :string,
-      oauth_provider: :string,
-      oauth_scopes: :string,
-      oauth_callback_path: :string
+      oauth_provider: :string
     ]
   end
 
@@ -34,7 +32,7 @@ defmodule PhoenixAuthExtended.Info do
 
     []
     |> add_if(Keyword.get(opts, :basic), [:basic_identifier])
-    |> add_if(Keyword.get(opts, :oauth), [:oauth_provider, :oauth_scopes])
+    |> add_if(Keyword.get(opts, :oauth), [:oauth_provider])
   end
 
   defp add_if(list, true, value), do: list ++ value
@@ -53,16 +51,21 @@ defmodule PhoenixAuthExtended.Info do
       b: :basic,
       p: :passkey,
       o: :oauth,
-      identifier: :basic_identifier,
-      provider: :oauth_provider,
-      scopes: :oauth_scopes,
-      callback: :oauth_callback_path
+      i: :basic_identifier,
+      s: :oauth_provider
     ]
   end
 
   def validate_options(igniter) do
-    if Keyword.get(igniter.args.options, :basic_identifier) not in ["email", "username"] do
+    basic_identifier = Keyword.get(igniter.args.options, :basic_identifier)
+    oauth_provider = Keyword.get(igniter.args.options, :oauth_provider)
+
+    if basic_identifier != nil and basic_identifier not in ["email", "username"] do
       Mix.raise("Invalid option: basic-identifier must be either 'email' or 'username'")
+    end
+
+    if oauth_provider != nil and not is_binary(oauth_provider) do
+      Mix.raise("Invalid option: oauth-provider not of type string")
     end
 
     igniter

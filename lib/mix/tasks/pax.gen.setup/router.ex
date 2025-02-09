@@ -51,8 +51,11 @@ if Code.ensure_loaded?(Igniter) do
     use Igniter.Mix.Task
 
     import PhoenixAuthExtended
+
+    alias PhoenixAuthExtended.Info
+
     @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
+    def info(argv, _composing_task) do
       %Igniter.Mix.Task.Info{
         group: :phoenix_auth_extended,
         adds_deps: [],
@@ -60,14 +63,15 @@ if Code.ensure_loaded?(Igniter) do
         example: __MODULE__.Docs.example(),
         positional: [],
         composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
+        schema: Info.options(),
+        defaults: Info.defaults(),
+        aliases: Info.aliases(),
+        required: Info.required_options(argv)
       }
     end
 
     @impl Igniter.Mix.Task
+    @spec igniter(Igniter.t()) :: Igniter.t()
     def igniter(igniter) do
       {igniter, router_module} = Igniter.Libs.Phoenix.select_router(igniter)
 
@@ -102,9 +106,9 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     # Routes
-    defp add_routes(%{assigns: %{auth_options: auth_options}} = igniter, router_module) do
+    defp add_routes(%{assigns: %{options: options}} = igniter, router_module) do
       web_module = Igniter.Libs.Phoenix.web_module(igniter)
-      routes = authentication_routes(web_module, auth_options)
+      routes = authentication_routes(web_module, options)
 
       {:ok, igniter} = add_code_to_router(igniter, router_module, routes)
       igniter

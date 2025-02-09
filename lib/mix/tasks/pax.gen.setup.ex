@@ -48,26 +48,41 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
-    use PhoenixAuthExtended.Info,
-      composes: [
-        "pax.gen.setup.config",
-        "pax.gen.setup.dependencies",
-        "pax.gen.setup.router",
-        "pax.gen.setup.layout",
-        "pax.gen.setup.hooks"
-      ]
-
     import PhoenixAuthExtended
+
+    alias PhoenixAuthExtended.Info
+
+    @impl Igniter.Mix.Task
+    def info(argv, _composing_task) do
+      %Igniter.Mix.Task.Info{
+        group: :phoenix_auth_extended,
+        adds_deps: [],
+        installs: [],
+        example: __MODULE__.Docs.example(),
+        positional: [],
+        composes: [
+          "pax.gen.setup.config",
+          "pax.gen.setup.dependencies",
+          "pax.gen.setup.router",
+          "pax.gen.setup.layout",
+          "pax.gen.setup.hooks"
+        ],
+        schema: Info.options(),
+        defaults: Info.defaults(),
+        aliases: Info.aliases(),
+        required: Info.required_options(argv)
+      }
+    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
-      |> Igniter.compose_task("pax.gen.setup.config")
-      |> Igniter.compose_task("pax.gen.setup.dependencies")
-      |> Igniter.compose_task("pax.gen.setup.router")
-      |> Igniter.compose_task("pax.gen.setup.layout")
-      |> compose_task_if("pax.gen.setup.hooks", & &1.assigns.options.passkey)
+      |> Igniter.compose_task("pax.gen.setup.config", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.setup.dependencies", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.setup.router", igniter.args.argv)
+      |> Igniter.compose_task("pax.gen.setup.layout", igniter.args.argv)
+      |> compose_task_if("pax.gen.setup.hooks", & &1.assigns.options.passkey, igniter.args.argv)
     end
   end
 else

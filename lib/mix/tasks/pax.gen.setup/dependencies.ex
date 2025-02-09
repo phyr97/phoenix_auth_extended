@@ -46,6 +46,24 @@ if Code.ensure_loaded?(Igniter) do
 
     import PhoenixAuthExtended
 
+    alias PhoenixAuthExtended.Info
+
+    @impl Igniter.Mix.Task
+    def info(argv, _composing_task) do
+      %Igniter.Mix.Task.Info{
+        group: :phoenix_auth_extended,
+        adds_deps: [],
+        installs: [],
+        example: __MODULE__.Docs.example(),
+        positional: [],
+        composes: [],
+        schema: Info.options(),
+        defaults: Info.defaults(),
+        aliases: Info.aliases(),
+        required: Info.required_options(argv)
+      }
+    end
+
     @basic_deps [
       {:bcrypt_elixir, "~> 3.0"}
     ]
@@ -60,22 +78,6 @@ if Code.ensure_loaded?(Igniter) do
     ]
 
     @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
-
-    @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
       |> prepare_igniter()
@@ -85,7 +87,7 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp maybe_add_dependencies(igniter, auth_type, deps) do
-      if get_in(igniter.assigns, [:auth_options, auth_type]) do
+      if get_in(igniter.assigns, [:options, auth_type]) do
         Enum.reduce(deps, igniter, &Igniter.Project.Deps.add_dep(&2, &1))
       else
         igniter
