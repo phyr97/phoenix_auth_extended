@@ -128,9 +128,7 @@ if Code.ensure_loaded?(Igniter) do
       )
     end
 
-    defp maybe_generate_passkey_components(
-           %{assigns: %{auth_options: %{passkey: true}}} = igniter
-         ) do
+    defp maybe_generate_passkey_components(%{assigns: %{options: %{passkey: true}}} = igniter) do
       Igniter.compose_task(igniter, "pax.gen.live.components.passkey", igniter.args.argv)
     end
 

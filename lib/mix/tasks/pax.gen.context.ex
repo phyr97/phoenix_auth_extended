@@ -51,83 +51,44 @@ if Code.ensure_loaded?(Igniter) do
 
     use Igniter.Mix.Task
 
+    use PhoenixAuthExtended.Info,
+      composes: [
+        "pax.gen.context.migrations",
+        "pax.gen.context.schemas",
+        "pax.gen.context.notifier",
+        "pax.gen.context.o_auth"
+      ]
+
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [:context_name, :entity_name],
-        composes: ["pax.gen.context.migrations"],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
+      argv = igniter.args.argv
+
       igniter
       |> prepare_igniter()
-      |> Igniter.assign(igniter.args.positional)
-      |> assign_base_info()
-      |> Igniter.compose_task("pax.gen.context.migrations", igniter.args.argv)
-      |> Igniter.compose_task("pax.gen.context.schemas", igniter.args.argv)
       |> generate_context()
-      |> maybe_generate_notifier()
-      |> maybe_generate_oauth()
+      |> Igniter.compose_task("pax.gen.context.migrations", argv)
+      |> Igniter.compose_task("pax.gen.context.schemas", argv)
+      |> compose_task_if("pax.gen.context.o_auth", & &1.assigns.options.oauth, argv)
+      |> compose_task_if("pax.gen.context.notifier", &is_email_basic_identifier/1, argv)
     end
 
-    defp assign_base_info(igniter) do
-      app = Mix.Project.config() |> Keyword.fetch!(:app)
-      app_module_name = to_string(app) |> Macro.camelize()
-      app_module = Module.concat([app_module_name])
-      context_module = Module.concat([app_module, igniter.assigns.context_name])
-
-      igniter
-      |> Igniter.assign(:app, app)
-      |> Igniter.assign(:app_module_name, app_module_name)
-      |> Igniter.assign(:app_module, app_module)
-      |> Igniter.assign(:context_module, context_module)
-      |> Igniter.assign(:timestamp_type, :utc_datetime)
-    end
+    defp is_email_basic_identifier(%{assigns: %{options: %{basic_identifier: "email"}}}), do: true
+    defp is_email_basic_identifier(_), do: false
 
     defp generate_context(igniter) do
-      assigns = igniter.assigns |> Map.to_list()
+      template = Path.join([template_path(), "context.eex"])
 
-      context_path =
+      file_path =
         Path.join([
-          "lib",
-          to_string(igniter.assigns.app),
-          String.downcase(igniter.assigns.context_name)
+          app_path(),
+          String.downcase(igniter.assigns.context_name),
+          "#{String.downcase(igniter.assigns.context_name)}.ex"
         ])
 
-      file_path = Path.join(context_path, "#{String.downcase(igniter.assigns.context_name)}.ex")
-
-      igniter
-      |> Igniter.copy_template(
-        "priv/templates/context.eex",
-        file_path,
-        assigns
-      )
+      copy_template(igniter, template, file_path)
     end
-
-    defp maybe_generate_notifier(
-           %{assigns: %{auth_options: %{basic_identifier: "email"}}} = igniter
-         ) do
-      Igniter.compose_task(igniter, "pax.gen.context.notifier", igniter.args.argv)
-    end
-
-    defp maybe_generate_notifier(igniter), do: igniter
-
-    defp maybe_generate_oauth(%{assigns: %{auth_options: %{oauth: true}}} = igniter) do
-      Igniter.compose_task(igniter, "pax.gen.context.o_auth", igniter.args.argv)
-    end
-
-    defp maybe_generate_oauth(igniter), do: igniter
   end
 else
   defmodule Mix.Tasks.Pax.Gen.Context do
