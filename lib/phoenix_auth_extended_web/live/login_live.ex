@@ -82,8 +82,8 @@ defmodule PhoenixAuthExtendedWeb.LoginLive do
           Log in with GitHub
         </.link>
 
-        <PhoenixAuthExtendedWeb.PasskeyComponents.guidance />
-        <PhoenixAuthExtendedWeb.PasskeyComponents.token_form form={@token_form} />
+        <PhoenixAuthExtendedWeb.Components.PasskeyComponents.guidance />
+        <PhoenixAuthExtendedWeb.Components.PasskeyComponents.token_form form={@token_form} />
       </div>
     </div>
     """

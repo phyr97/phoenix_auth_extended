@@ -93,8 +93,8 @@ defmodule PhoenixAuthExtendedWeb.PasskeyRegistrationLive do
           </:actions>
         </.simple_form>
       </div>
-      <PhoenixAuthExtendedWeb.PasskeyComponents.guidance />
-      <PhoenixAuthExtendedWeb.PasskeyComponents.token_form form={@token_form} />
+      <PhoenixAuthExtendedWeb.Components.PasskeyComponents.guidance />
+      <PhoenixAuthExtendedWeb.Components.PasskeyComponents.token_form form={@token_form} />
     </section>
     """
   end
