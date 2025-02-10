@@ -74,21 +74,24 @@ if Code.ensure_loaded?(Igniter) do
 
     def generate_schemas(igniter) do
       igniter
-      |> generate_schema("entity.eex", "#{igniter.assigns.entity_name}.ex")
-      |> generate_schema("entity_token.eex", "#{igniter.assigns.entity_name}_token.ex")
+      |> generate_schema("entity.eex", "#{igniter.assigns.entity_name_downcase}.ex")
+      |> generate_schema("entity_token.eex", "#{igniter.assigns.entity_name_downcase}_token.ex")
       |> maybe_generate_key_schema()
       |> maybe_generate_validation()
     end
 
     defp maybe_generate_key_schema(%{assigns: %{options: %{passkey: true}}} = igniter) do
-      generate_schema(igniter, "entity_key.eex", "#{igniter.assigns.entity_name}_key.ex")
+      generate_schema(igniter, "entity_key.eex", "#{igniter.assigns.entity_name_downcase}_key.ex")
     end
 
     defp maybe_generate_key_schema(igniter), do: igniter
 
     defp maybe_generate_validation(igniter) do
       if igniter.assigns.options.basic or igniter.assigns.options.basic_identifier == "email" do
-        generate_schema(igniter, "validation.eex", "validation.ex")
+        file_path = Path.join([app_path(), "validation.ex"])
+        template_path = Path.join(["schemas", "validation.eex"])
+
+        copy_template(igniter, template_path, file_path)
       else
         igniter
       end

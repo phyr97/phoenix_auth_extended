@@ -94,8 +94,8 @@ defmodule <%= @app_web_module %>.<%= @entity_name %>LoginLive do
         <.button_link navigate={~p"/<%= @entity_name_downcase %>s/register_with_passkey"} class="w-full">
           <.icon name="hero-key" class="h-4 w-4" /> Register with passkey
         </.button_link>
-        <PhoenixAuthExtendedWeb.PasskeyComponents.guidance />
-        <PhoenixAuthExtendedWeb.PasskeyComponents.token_form form={@token_form} />
+        <PhoenixAuthExtendedWeb.Components.PasskeyComponents.guidance />
+        <PhoenixAuthExtendedWeb.Components.PasskeyComponents.token_form form={@token_form} />
         <% end %>
       </div>
       <% end %>

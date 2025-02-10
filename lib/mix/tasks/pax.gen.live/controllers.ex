@@ -68,21 +68,21 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp generate_auth_module(igniter) do
-      file_path = Path.join([app_web_path(), "live", "auth.ex"])
+      file_path = Path.join([app_web_path(), "auth.ex"])
       template = Path.join(["auth", "auth.eex"])
 
       copy_template(igniter, template, file_path)
     end
 
     defp generate_session_controller(igniter) do
-      file_path = Path.join([app_web_path(), "live", "controllers", "session_controller.ex"])
+      file_path = Path.join([app_web_path(), "controllers", "session_controller.ex"])
       template = Path.join(["controllers", "session_controller.eex"])
 
       copy_template(igniter, template, file_path)
     end
 
     defp generate_oauth_controller(igniter) do
-      file_path = Path.join([app_web_path(), "live", "controllers", "oauth_controller.ex"])
+      file_path = Path.join([app_web_path(), "controllers", "oauth_controller.ex"])
       template = Path.join(["controllers", "oauth_controller.eex"])
 
       copy_template(igniter, template, file_path)
