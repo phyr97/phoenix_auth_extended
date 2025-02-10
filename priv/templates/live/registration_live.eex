@@ -1,5 +1,5 @@
-defmodule <%= @app_web_module %>.RegistrationLive do
-  use <%= @app_web_module %>, :live_view
+defmodule <%= inspect @app_web_module %>.RegistrationLive do
+  use <%= inspect @app_web_module %>, :live_view
 
   alias <%= @app_module_name %>.<%= @context_name %>
   alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>

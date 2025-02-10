@@ -1,6 +1,6 @@
-defmodule <%= @app_web_module %>.<%= @entity_name %>LoginLive do
+defmodule <%= inspect @app_web_module %>.LoginLive do
   alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>
-  use <%= @app_web_module %>, :live_view
+  use <%= inspect @app_web_module %>, :live_view
 
   require Logger
 
@@ -94,8 +94,8 @@ defmodule <%= @app_web_module %>.<%= @entity_name %>LoginLive do
         <.button_link navigate={~p"/<%= @entity_name_downcase %>s/register_with_passkey"} class="w-full">
           <.icon name="hero-key" class="h-4 w-4" /> Register with passkey
         </.button_link>
-        <PhoenixAuthExtendedWeb.Components.PasskeyComponents.guidance />
-        <PhoenixAuthExtendedWeb.Components.PasskeyComponents.token_form form={@token_form} />
+        <<%= inspect @app_web_module %>.Components.PasskeyComponents.guidance />
+        <<%= inspect @app_web_module %>.Components.PasskeyComponents.token_form form={@token_form} />
         <% end %>
       </div>
       <% end %>

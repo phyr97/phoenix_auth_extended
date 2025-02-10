@@ -1,7 +1,7 @@
 defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Notifier do
   import Swoosh.Email
 
-  alias <%= inspect @app_module_name %>.Mailer
+  alias <%= @app_module_name %>.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do

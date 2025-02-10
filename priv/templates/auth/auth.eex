@@ -1,5 +1,5 @@
-defmodule <%= @app_web_module %>.Auth do
-  use <%= @app_web_module %>, :verified_routes
+defmodule <%= inspect @app_web_module %>.Auth do
+  use <%= inspect @app_web_module %>, :verified_routes
 
   import Plug.Conn
   import Phoenix.Controller
@@ -78,7 +78,7 @@ defmodule <%= @app_web_module %>.Auth do
     <%= @entity_name_downcase %>_token && <%= @context_name %>.delete_<%= @entity_name_downcase %>_session_token(<%= @entity_name_downcase %>_token)
 
     if live_socket_id = get_session(conn, :live_socket_id) do
-      <%= @app_web_module %>.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+      <%= inspect @app_web_module %>.Endpoint.broadcast(live_socket_id, "disconnect", %{})
     end
 
     conn
@@ -133,16 +133,16 @@ defmodule <%= @app_web_module %>.Auth do
   Use the `on_mount` lifecycle macro in LiveViews to mount or authenticate
   the current_<%= @entity_name_downcase %>:
 
-      defmodule <%= @app_web_module %>.PageLive do
-        use <%= @app_web_module %>, :live_view
+      defmodule <%= inspect @app_web_module %>.PageLive do
+        use <%= inspect @app_web_module %>, :live_view
 
-        on_mount {<%= @app_web_module %>.<%= @entity_name %>Auth, :mount_current_<%= @entity_name_downcase %>}
+        on_mount {<%= inspect @app_web_module %>.<%= @entity_name %>Auth, :mount_current_<%= @entity_name_downcase %>}
         ...
       end
 
   Or use the `live_session` of your router to invoke the on_mount callback:
 
-      live_session :authenticated, on_mount: [{<%= @app_web_module %>.<%= @entity_name %>Auth, :ensure_authenticated}] do
+      live_session :authenticated, on_mount: [{<%= inspect @app_web_module %>.<%= @entity_name %>Auth, :ensure_authenticated}] do
         live "/profile", ProfileLive, :index
       end
   """

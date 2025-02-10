@@ -1,11 +1,11 @@
-defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
+defmodule <%= inspect @app_web_module %>.PasskeyRegistrationLive do
   @moduledoc """
   LiveView for registering **new** <%= @entity_name_downcase %>s.
 
   See `WebauthnComponents` for details on Passkey authentication.
   """
 
-  use <%= @app_web_module %>, :live_view
+  use <%= inspect @app_web_module %>, :live_view
   require Logger
 
   alias <%= @app_module_name %>.<%= @context_name %>
@@ -94,8 +94,8 @@ defmodule <%= @app_web_module %>.PasskeyRegistrationLive do
           </:actions>
         </.simple_form>
       </div>
-      <PhoenixAuthExtendedWeb.Components.PasskeyComponents.guidance />
-      <PhoenixAuthExtendedWeb.Components.PasskeyComponents.token_form form={@token_form} />
+      <<%= inspect @app_web_module %>.Components.PasskeyComponents.guidance />
+      <<%= inspect @app_web_module %>.Components.PasskeyComponents.token_form form={@token_form} />
     </section>
     """
   end
