@@ -1,12 +1,12 @@
-defmodule PhoenixAuthExtendedWeb do
+defmodule PhoenixAuthExtendedTestWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
-      use PhoenixAuthExtendedWeb, :controller
-      use PhoenixAuthExtendedWeb, :html
+      use PhoenixAuthExtendedTestWeb, :controller
+      use PhoenixAuthExtendedTestWeb, :html
 
   The definitions below will be executed for every controller,
   component, etc, so keep them short and clean, focused
@@ -40,9 +40,9 @@ defmodule PhoenixAuthExtendedWeb do
     quote do
       use Phoenix.Controller,
         formats: [:html, :json],
-        layouts: [html: PhoenixAuthExtendedWeb.Layouts]
+        layouts: [html: PhoenixAuthExtendedTestWeb.Layouts]
 
-      use Gettext, backend: PhoenixAuthExtendedWeb.Gettext
+      use Gettext, backend: PhoenixAuthExtendedTestWeb.Gettext
 
       import Plug.Conn
 
@@ -53,7 +53,7 @@ defmodule PhoenixAuthExtendedWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {PhoenixAuthExtendedWeb.Layouts, :app}
+        layout: {PhoenixAuthExtendedTestWeb.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -83,12 +83,12 @@ defmodule PhoenixAuthExtendedWeb do
   defp html_helpers do
     quote do
       # Translation
-      use Gettext, backend: PhoenixAuthExtendedWeb.Gettext
+      use Gettext, backend: PhoenixAuthExtendedTestWeb.Gettext
 
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import PhoenixAuthExtendedWeb.CoreComponents
+      import PhoenixAuthExtendedTestWeb.CoreComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
@@ -101,9 +101,9 @@ defmodule PhoenixAuthExtendedWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: PhoenixAuthExtendedWeb.Endpoint,
-        router: PhoenixAuthExtendedWeb.Router,
-        statics: PhoenixAuthExtendedWeb.static_paths()
+        endpoint: PhoenixAuthExtendedTestWeb.Endpoint,
+        router: PhoenixAuthExtendedTestWeb.Router,
+        statics: PhoenixAuthExtendedTestWeb.static_paths()
     end
   end
 

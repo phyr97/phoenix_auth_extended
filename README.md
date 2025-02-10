@@ -1,4 +1,4 @@
-# PhoenixAuthExtended
+# PhoenixAuthExtendedTest
 
 To start your Phoenix server:
 

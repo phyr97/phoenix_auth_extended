@@ -7,19 +7,22 @@
 # General application configuration
 import Config
 
-config :phoenix_auth_extended,
-  ecto_repos: [PhoenixAuthExtended.Repo],
+config :phoenix_auth_extended_test,
+  ecto_repos: [PhoenixAuthExtendedTest.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :phoenix_auth_extended, PhoenixAuthExtendedWeb.Endpoint,
+config :phoenix_auth_extended_test, PhoenixAuthExtendedTestWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: PhoenixAuthExtendedWeb.ErrorHTML, json: PhoenixAuthExtendedWeb.ErrorJSON],
+    formats: [
+      html: PhoenixAuthExtendedTestWeb.ErrorHTML,
+      json: PhoenixAuthExtendedTestWeb.ErrorJSON
+    ],
     layout: false
   ],
-  pubsub_server: PhoenixAuthExtended.PubSub,
+  pubsub_server: PhoenixAuthExtendedTest.PubSub,
   live_view: [signing_salt: "Mx2pgCEx"]
 
 # Configures the mailer
@@ -29,12 +32,12 @@ config :phoenix_auth_extended, PhoenixAuthExtendedWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :phoenix_auth_extended, PhoenixAuthExtended.Mailer, adapter: Swoosh.Adapters.Local
+config :phoenix_auth_extended_test, PhoenixAuthExtendedTest.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
-  phoenix_auth_extended: [
+  phoenix_auth_extended_test: [
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
@@ -44,7 +47,7 @@ config :esbuild,
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "3.4.3",
-  phoenix_auth_extended: [
+  phoenix_auth_extended_test: [
     args: ~w(
       --config=tailwind.config.js
       --input=css/app.css

@@ -1,12 +1,12 @@
-defmodule PhoenixAuthExtendedWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :phoenix_auth_extended
+defmodule PhoenixAuthExtendedTestWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :phoenix_auth_extended_test
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_phoenix_auth_extended_key",
+    key: "_phoenix_auth_extended_test_key",
     signing_salt: "o0DcSmwq",
     same_site: "Lax"
   ]
@@ -21,9 +21,9 @@ defmodule PhoenixAuthExtendedWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/",
-    from: :phoenix_auth_extended,
+    from: :phoenix_auth_extended_test,
     gzip: false,
-    only: PhoenixAuthExtendedWeb.static_paths()
+    only: PhoenixAuthExtendedTestWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -31,7 +31,7 @@ defmodule PhoenixAuthExtendedWeb.Endpoint do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
-    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :phoenix_auth_extended
+    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :phoenix_auth_extended_test
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,
@@ -49,5 +49,5 @@ defmodule PhoenixAuthExtendedWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug PhoenixAuthExtendedWeb.Router
+  plug PhoenixAuthExtendedTestWeb.Router
 end

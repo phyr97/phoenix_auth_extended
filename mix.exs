@@ -1,9 +1,9 @@
-defmodule PhoenixAuthExtended.MixProject do
+defmodule PhoenixAuthExtendedTest.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :phoenix_auth_extended,
+      app: :phoenix_auth_extended_test,
       version: "0.1.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -18,7 +18,7 @@ defmodule PhoenixAuthExtended.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {PhoenixAuthExtended.Application, []},
+      mod: {PhoenixAuthExtendedTest.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -57,7 +57,8 @@ defmodule PhoenixAuthExtended.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:phoenix_auth_extended_test, path: "../../phoenix_auth_extended_test"}
     ]
   end
 
@@ -74,10 +75,13 @@ defmodule PhoenixAuthExtended.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind phoenix_auth_extended", "esbuild phoenix_auth_extended"],
+      "assets.build": [
+        "tailwind phoenix_auth_extended_test",
+        "esbuild phoenix_auth_extended_test"
+      ],
       "assets.deploy": [
-        "tailwind phoenix_auth_extended --minify",
-        "esbuild phoenix_auth_extended --minify",
+        "tailwind phoenix_auth_extended_test --minify",
+        "esbuild phoenix_auth_extended_test --minify",
         "phx.digest"
       ]
     ]

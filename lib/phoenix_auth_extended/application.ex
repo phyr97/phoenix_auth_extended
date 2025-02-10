@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtended.Application do
+defmodule PhoenixAuthExtendedTest.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,22 +8,22 @@ defmodule PhoenixAuthExtended.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      PhoenixAuthExtendedWeb.Telemetry,
-      PhoenixAuthExtended.Repo,
+      PhoenixAuthExtendedTestWeb.Telemetry,
+      PhoenixAuthExtendedTest.Repo,
       {DNSCluster,
-       query: Application.get_env(:phoenix_auth_extended, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: PhoenixAuthExtended.PubSub},
+       query: Application.get_env(:phoenix_auth_extended_test, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: PhoenixAuthExtendedTest.PubSub},
       # Start the Finch HTTP client for sending emails
-      {Finch, name: PhoenixAuthExtended.Finch},
-      # Start a worker by calling: PhoenixAuthExtended.Worker.start_link(arg)
-      # {PhoenixAuthExtended.Worker, arg},
+      {Finch, name: PhoenixAuthExtendedTest.Finch},
+      # Start a worker by calling: PhoenixAuthExtendedTest.Worker.start_link(arg)
+      # {PhoenixAuthExtendedTest.Worker, arg},
       # Start to serve requests, typically the last entry
-      PhoenixAuthExtendedWeb.Endpoint
+      PhoenixAuthExtendedTestWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: PhoenixAuthExtended.Supervisor]
+    opts = [strategy: :one_for_one, name: PhoenixAuthExtendedTest.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
@@ -31,7 +31,7 @@ defmodule PhoenixAuthExtended.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
-    PhoenixAuthExtendedWeb.Endpoint.config_change(changed, removed)
+    PhoenixAuthExtendedTestWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

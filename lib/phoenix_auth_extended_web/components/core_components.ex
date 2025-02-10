@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtendedWeb.CoreComponents do
+defmodule PhoenixAuthExtendedTestWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
 
@@ -15,7 +15,7 @@ defmodule PhoenixAuthExtendedWeb.CoreComponents do
   Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
-  use Gettext, backend: PhoenixAuthExtendedWeb.Gettext
+  use Gettext, backend: PhoenixAuthExtendedTestWeb.Gettext
 
   alias Phoenix.LiveView.JS
 
@@ -661,9 +661,9 @@ defmodule PhoenixAuthExtendedWeb.CoreComponents do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(PhoenixAuthExtendedWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(PhoenixAuthExtendedTestWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(PhoenixAuthExtendedWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(PhoenixAuthExtendedTestWeb.Gettext, "errors", msg, opts)
     end
   end
 
