@@ -1,6 +1,6 @@
-defmodule <%= @context_module_name %>.OAuth do
+defmodule <%= @app_module_name %>.OAuth do
   @moduledoc """
-  Multi-Provider OAuth Handler für die <%= @context_name %>-Authentifizierung.
+  Multi-Provider OAuth Handler for <%= @context_name %> authentication.
   """
 
   @spec request(String.t()) :: {:ok, map()} | {:error, term()}
@@ -23,7 +23,7 @@ defmodule <%= @context_module_name %>.OAuth do
 
     config =
       Application.get_env(:phoenix_auth_extended, :oauth_providers)[provider] ||
-        raise "Keine Provider-Konfiguration für #{provider}"
+        raise "No provider configuration found for #{provider}"
 
     Keyword.put(config, :redirect_uri, url(provider))
   end

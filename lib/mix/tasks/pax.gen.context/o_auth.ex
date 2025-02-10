@@ -57,8 +57,7 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp generate_oauth(igniter) do
-      file_path =
-        Path.join([app_path(), String.downcase(igniter.assigns.context_name), "oauth.ex"])
+      file_path = Path.join([app_path(), "oauth.ex"])
 
       template_path = Path.join(["schemas", "oauth.eex"])
       copy_template(igniter, template_path, file_path)

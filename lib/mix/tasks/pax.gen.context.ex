@@ -78,12 +78,7 @@ if Code.ensure_loaded?(Igniter) do
     defp is_email_basic_identifier(_), do: false
 
     defp generate_context(igniter) do
-      file_path =
-        Path.join([
-          app_path(),
-          String.downcase(igniter.assigns.context_name),
-          "#{String.downcase(igniter.assigns.context_name)}.ex"
-        ])
+      file_path = Path.join([app_path(), "#{String.downcase(igniter.assigns.context_name)}.ex"])
 
       copy_template(igniter, "context.eex", file_path)
     end
