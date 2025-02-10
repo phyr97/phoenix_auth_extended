@@ -1,8 +1,8 @@
 defmodule <%= inspect @app_web_module %>.SessionController do
   use <%= inspect @app_web_module %>, :controller
 
-  alias <%=  @app_module_name %>.Identity.<%= @entity_name %>
-  alias <%=  @app_module_name %>.Identity
+  alias <%=  @app_module_name %>.<%= @context_name %>.<%= @entity_name %>
+  alias <%=  @app_module_name %>.<%= @context_name %>
   alias <%= inspect @app_web_module %>.Auth
 
   def create(conn, %{"_action" => "registered"} = params) do
@@ -22,7 +22,7 @@ defmodule <%= inspect @app_web_module %>.SessionController do
   defp create(conn, %{"<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params}, info) do
     %{"email" => email, "password" => password} = <%= @entity_name_downcase %>_params
 
-    if <%= @entity_name_downcase %> = Identity.get_<%= @entity_name_downcase %>_by_email_and_password(email, password) do
+    if <%= @entity_name_downcase %> = <%= @context_name %>.get_<%= @entity_name_downcase %>_by_email_and_password(email, password) do
       conn
       |> put_flash(:info, info)
       |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, <%= @entity_name_downcase %>_params)
@@ -39,7 +39,7 @@ defmodule <%= inspect @app_web_module %>.SessionController do
     %{"value" => value} = token_params
     decoded_value = Base.decode64!(value, padding: false)
 
-    case Identity.get_<%= @entity_name_downcase %>_by_token(decoded_value) do
+    case <%= @context_name %>.get_<%= @entity_name_downcase %>_by_token(decoded_value) do
       %<%= @entity_name %>{} = <%= @entity_name_downcase %> ->
         conn
         |> put_flash(:info, info)

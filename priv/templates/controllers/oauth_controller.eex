@@ -1,7 +1,7 @@
 defmodule <%= inspect @app_web_module %>.OAuthController do
   use <%= inspect @app_web_module %>, :controller
 
-  alias <%= @app_module_name %>.{Identity, OAuth}
+  alias <%= @app_module_name %>.{<%= @context_name %>, OAuth}
   alias <%= inspect @app_web_module %>.Auth
 
   def request(conn, %{"provider" => provider}) do
@@ -27,7 +27,7 @@ defmodule <%= inspect @app_web_module %>.OAuthController do
            provider: provider,
            provider_uid: <%= @entity_name_downcase %>_info["sub"]
          },
-         {:ok, <%= @entity_name_downcase %>} <- Identity.get_or_create_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_params) do
+         {:ok, <%= @entity_name_downcase %>} <- <%= @context_name %>.get_or_create_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_params) do
       conn
       |> delete_session(:oauth_session_params)
       |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, %{})
