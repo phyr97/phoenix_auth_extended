@@ -23,7 +23,7 @@ config :phoenix_auth_extended_test, PhoenixAuthExtendedTestWeb.Endpoint,
     layout: false
   ],
   pubsub_server: PhoenixAuthExtendedTest.PubSub,
-  live_view: [signing_salt: "Mx2pgCEx"]
+  live_view: [signing_salt: "sRDd8NOi"]
 
 # Configures the mailer
 #

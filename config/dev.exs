@@ -16,14 +16,14 @@ config :phoenix_auth_extended_test, PhoenixAuthExtendedTest.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
+# Binding to loopback ipv4 address prevents access from other machines.
 config :phoenix_auth_extended_test, PhoenixAuthExtendedTestWeb.Endpoint,
-  # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "yjILHquPWKkGtTUt8aAFdfFBwfcSYY3+QcBb3elLbSrFmtbvZ1j4L+brImHiPfD2",
+  secret_key_base: "6GXDeIgGfUgDIJUq8t8zjB94XwGcf3KGNyHGZu9xMK3Ui6IR++eN+n0VFZaZHpcO",
   watchers: [
     esbuild:
       {Esbuild, :install_and_run, [:phoenix_auth_extended_test, ~w(--sourcemap=inline --watch)]},

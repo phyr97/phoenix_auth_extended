@@ -7,7 +7,7 @@ defmodule PhoenixAuthExtendedTestWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_phoenix_auth_extended_test_key",
-    signing_salt: "o0DcSmwq",
+    signing_salt: "kt929TF8",
     same_site: "Lax"
   ]
 

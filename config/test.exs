@@ -17,7 +17,7 @@ config :phoenix_auth_extended_test, PhoenixAuthExtendedTest.Repo,
 # you can enable the server option below.
 config :phoenix_auth_extended_test, PhoenixAuthExtendedTestWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "sx0x35CrQvofZzVNQFCuJi7zvcxcuLSDcVCnpo7pgJQzE/9NSENISNM5YMmLkgmy",
+  secret_key_base: "w6V5zCFAHN+lSE8Xh9j2UoI28uBsw4G3NhTCHyk66hv76TB5EITerSoe5xX+V+1a",
   server: false
 
 # In test we don't send emails
