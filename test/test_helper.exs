@@ -1,2 +1,2 @@
 ExUnit.start()
-Ecto.Adapters.SQL.Sandbox.mode(PhoenixAuthExtended.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(AuthShowcase.Repo, :manual)

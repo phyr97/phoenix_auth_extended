@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtended.DataCase do
+defmodule AuthShowcase.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule PhoenixAuthExtended.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use PhoenixAuthExtended.DataCase, async: true`, although
+  by setting `use AuthShowcase.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -18,17 +18,17 @@ defmodule PhoenixAuthExtended.DataCase do
 
   using do
     quote do
-      alias PhoenixAuthExtended.Repo
+      alias AuthShowcase.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import PhoenixAuthExtended.DataCase
+      import AuthShowcase.DataCase
     end
   end
 
   setup tags do
-    PhoenixAuthExtended.DataCase.setup_sandbox(tags)
+    AuthShowcase.DataCase.setup_sandbox(tags)
     :ok
   end
 
@@ -36,9 +36,7 @@ defmodule PhoenixAuthExtended.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid =
-      Ecto.Adapters.SQL.Sandbox.start_owner!(PhoenixAuthExtended.Repo, shared: not tags[:async])
-
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(AuthShowcase.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

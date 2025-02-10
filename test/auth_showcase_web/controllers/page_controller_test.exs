@@ -1,5 +1,5 @@
-defmodule PhoenixAuthExtendedWeb.PageControllerTest do
-  use PhoenixAuthExtendedWeb.ConnCase
+defmodule AuthShowcaseWeb.PageControllerTest do
+  use AuthShowcaseWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")

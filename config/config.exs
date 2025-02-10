@@ -64,10 +64,3 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
-
-config :phoenix_auth_extended, OAuthProviders,
-  github: [
-    strategy: Assent.Strategy.Github,
-    client_id: System.get_env("GITHUB_CLIENT_ID", "your_client_id"),
-    client_secret: System.get_env("GITHUB_CLIENT_SECRET", "your_secret")
-  ]
