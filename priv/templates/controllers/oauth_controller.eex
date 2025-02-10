@@ -30,7 +30,7 @@ defmodule <%= inspect @app_web_module %>.OAuthController do
          {:ok, <%= @entity_name_downcase %>} <- Identity.get_or_create_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_params) do
       conn
       |> delete_session(:oauth_session_params)
-      |> <%= @entity_name %>Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, %{})
+      |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, %{})
     else
       {:error, _reason} ->
         conn

@@ -4,7 +4,7 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Key do
 
   ## Considerations
 
-  - A <%= String.downcase(@entity_name) %> may have multiple keys.
+  - A <%= @entity_name_downcase %> may have multiple keys.
   - Each key must have a unique label.
   - `:last_used_at` is set when the key is created and updated, and this value cannot be cast through the changesets.
   """
@@ -26,41 +26,41 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Key do
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
   @derive {Jason.Encoder, only: [:key_id, :public_key, :label, :last_used_at]}
-  schema "<%= String.downcase(@entity_name) %>_keys" do
+  schema "<%= @entity_name_downcase %>_keys" do
     field :label, :string, default: "default"
     field :key_id, :binary
     field :public_key, CoseKey
-    belongs_to :<%= String.downcase(@entity_name) %>, <%= @entity_name %>
+    belongs_to :<%= @entity_name_downcase %>, <%= @entity_name %>
     field :last_used_at, :naive_datetime
 
     timestamps()
   end
 
   @doc false
-  def changeset(%__MODULE__{} = <%= String.downcase(@entity_name) %>_key, attrs \\ %{}) do
-    <%= String.downcase(@entity_name) %>_key
-    |> cast(attrs, [:<%= String.downcase(@entity_name) %>_id, :key_id, :public_key, :label])
+  def changeset(%__MODULE__{} = <%= @entity_name_downcase %>_key, attrs \\ %{}) do
+    <%= @entity_name_downcase %>_key
+    |> cast(attrs, [:<%= @entity_name_downcase %>_id, :key_id, :public_key, :label])
   end
 
   @doc false
-  def new_changeset(%__MODULE__{} = <%= String.downcase(@entity_name) %>_key, attrs) do
+  def new_changeset(%__MODULE__{} = <%= @entity_name_downcase %>_key, attrs) do
     fields = __MODULE__.__schema__(:fields) -- [:last_used_at]
 
-    <%= String.downcase(@entity_name) %>_key
+    <%= @entity_name_downcase %>_key
     |> cast(attrs, fields)
-    |> validate_required([:<%= String.downcase(@entity_name) %>_id, :key_id, :public_key, :label])
-    |> foreign_key_constraint(:<%= String.downcase(@entity_name) %>_id)
-    |> unique_constraint([:<%= String.downcase(@entity_name) %>_id, :label], message: "label already taken")
+    |> validate_required([:<%= @entity_name_downcase %>_id, :key_id, :public_key, :label])
+    |> foreign_key_constraint(:<%= @entity_name_downcase %>_id)
+    |> unique_constraint([:<%= @entity_name_downcase %>_id, :label], message: "label already taken")
     |> unique_constraint([:key_id], message: "key already registered")
     |> put_last_used_at()
   end
 
   @doc false
-  def update_changeset(%__MODULE__{} = <%= String.downcase(@entity_name) %>_key, attrs) do
-    <%= String.downcase(@entity_name) %>_key
+  def update_changeset(%__MODULE__{} = <%= @entity_name_downcase %>_key, attrs) do
+    <%= @entity_name_downcase %>_key
     |> cast(attrs, [:label])
     |> validate_required([:label])
-    |> unique_constraint([:<%= String.downcase(@entity_name) %>_id, :label], message: "label already taken")
+    |> unique_constraint([:<%= @entity_name_downcase %>_id, :label], message: "label already taken")
     |> put_last_used_at()
   end
 

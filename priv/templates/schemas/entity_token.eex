@@ -15,13 +15,13 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
 
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
-  schema "<%= String.downcase(@entity_name) %>_tokens" do
+  schema "<%= @entity_name_downcase %>_tokens" do
     field :value, :binary
     field :type, :string, default: "session"
     <%= if @options[:basic_identifier] == "email" do %>
     field :sent_to, :string
     <% end %>
-    belongs_to :<%= String.downcase(@entity_name) %>, <%= inspect @context_module_name %>.<%= @entity_name %>
+    belongs_to :<%= @entity_name_downcase %>, <%= inspect @context_module_name %>.<%= @entity_name %>
 
     timestamps(type: :utc_datetime, updated_at: false)
   end
@@ -31,15 +31,15 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
   such as session or cookie. As they are signed, those
   tokens do not need to be hashed.
   """
-  def build_session_token(<%= String.downcase(@entity_name) %>) do
+  def build_session_token(<%= @entity_name_downcase %>) do
     token = :crypto.strong_rand_bytes(@rand_size)
-    {token, %<%= @entity_name %>Token{value: token, type: "session", <%= String.downcase(@entity_name) %>_id: <%= String.downcase(@entity_name) %>.id}}
+    {token, %<%= @entity_name %>Token{value: token, type: "session", <%= @entity_name_downcase %>_id: <%= @entity_name_downcase %>.id}}
   end
 
   @doc """
   Checks if the token is valid and returns its underlying lookup query.
 
-  The query returns the <%= String.downcase(@entity_name) %> found by the token, if any.
+  The query returns the <%= @entity_name_downcase %> found by the token, if any.
 
   The token is valid if it matches the value in the database and it has
   not expired (after @session_validity_in_days).
@@ -47,27 +47,27 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
   def verify_session_token_query(token) do
     query =
       from token in by_token_and_context_query(token, "session"),
-        join: <%= String.downcase(@entity_name) %> in assoc(token, :<%= String.downcase(@entity_name) %>),
+        join: <%= @entity_name_downcase %> in assoc(token, :<%= @entity_name_downcase %>),
         where: token.inserted_at > ago(@session_validity_in_days, "day"),
-        select: <%= String.downcase(@entity_name) %>
+        select: <%= @entity_name_downcase %>
 
     {:ok, query}
   end
 
   <%= if @options[:basic_identifier] == "email" do %>
   @doc """
-  Builds a token and its hash to be delivered to the <%= String.downcase(@entity_name) %>'s email.
+  Builds a token and its hash to be delivered to the <%= @entity_name_downcase %>'s email.
 
-  The non-hashed token is sent to the <%= String.downcase(@entity_name) %> email while the
+  The non-hashed token is sent to the <%= @entity_name_downcase %> email while the
   hashed part is stored in the database. The original token cannot be reconstructed,
   which means anyone with read-only access to the database cannot directly use
   the token in the application to gain access.
   """
-  def build_email_token(<%= String.downcase(@entity_name) %>, context) do
-    build_hashed_token(<%= String.downcase(@entity_name) %>, context, <%= String.downcase(@entity_name) %>.email)
+  def build_email_token(<%= @entity_name_downcase %>, context) do
+    build_hashed_token(<%= @entity_name_downcase %>, context, <%= @entity_name_downcase %>.email)
   end
 
-  defp build_hashed_token(<%= String.downcase(@entity_name) %>, context, sent_to) do
+  defp build_hashed_token(<%= @entity_name_downcase %>, context, sent_to) do
     token = :crypto.strong_rand_bytes(@rand_size)
     hashed_token = :crypto.hash(@hash_algorithm, token)
 
@@ -76,17 +76,17 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
        value: hashed_token,
        type: context,
        sent_to: sent_to,
-       <%= String.downcase(@entity_name) %>_id: <%= String.downcase(@entity_name) %>.id
+       <%= @entity_name_downcase %>_id: <%= @entity_name_downcase %>.id
      }}
   end
 
   @doc """
   Checks if the token is valid and returns its underlying lookup query.
 
-  The query returns the <%= String.downcase(@entity_name) %> found by the token, if any.
+  The query returns the <%= @entity_name_downcase %> found by the token, if any.
 
   The given token is valid if it matches its hashed counterpart in the
-  database and the <%= String.downcase(@entity_name) %> email has not changed. This function also checks
+  database and the <%= @entity_name_downcase %> email has not changed. This function also checks
   if the token is being used within a certain period, depending on the
   context. The default contexts supported by this function are either
   "confirm", for account confirmation emails, and "reset_password",
@@ -101,9 +101,9 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
 
         query =
           from token in by_token_and_context_query(hashed_token, context),
-            join: <%= String.downcase(@entity_name) %> in assoc(token, :<%= String.downcase(@entity_name) %>),
-            where: token.inserted_at > ago(^days, "day") and token.sent_to == <%= String.downcase(@entity_name) %>.email,
-            select: <%= String.downcase(@entity_name) %>
+            join: <%= @entity_name_downcase %> in assoc(token, :<%= @entity_name_downcase %>),
+            where: token.inserted_at > ago(^days, "day") and token.sent_to == <%= @entity_name_downcase %>.email,
+            select: <%= @entity_name_downcase %>
 
         {:ok, query}
 
@@ -134,13 +134,13 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
   end
 
   @doc """
-  Gets all tokens for the given <%= String.downcase(@entity_name) %> for the given contexts.
+  Gets all tokens for the given <%= @entity_name_downcase %> for the given contexts.
   """
-  def by_user_and_contexts_query(<%= String.downcase(@entity_name) %>, :all) do
-    from t in <%= @entity_name %>Token, where: t.<%= String.downcase(@entity_name) %>_id == ^<%= String.downcase(@entity_name) %>.id
+  def by_<%= @entity_name_downcase %>_and_contexts_query(<%= @entity_name_downcase %>, :all) do
+    from t in <%= @entity_name %>Token, where: t.<%= @entity_name_downcase %>_id == ^<%= @entity_name_downcase %>.id
   end
 
-  def by_user_and_contexts_query(<%= String.downcase(@entity_name) %>, [_ | _] = contexts) do
-    from t in <%= @entity_name %>Token, where: t.<%= String.downcase(@entity_name) %>_id == ^<%= String.downcase(@entity_name) %>.id and t.type in ^contexts
+  def by_<%= @entity_name_downcase %>_and_contexts_query(<%= @entity_name_downcase %>, [_ | _] = contexts) do
+    from t in <%= @entity_name %>Token, where: t.<%= @entity_name_downcase %>_id == ^<%= @entity_name_downcase %>.id and t.type in ^contexts
   end
 end

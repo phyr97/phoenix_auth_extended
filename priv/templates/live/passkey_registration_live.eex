@@ -13,7 +13,7 @@ defmodule <%= inspect @app_web_module %>.PasskeyRegistrationLive do
   alias <%= @app_module_name %>.<%= @context_name %>.<%= @entity_name %>Token
   alias WebauthnComponents.{RegistrationComponent, SupportComponent, WebauthnUser}
 
-  def mount(_params, _session, %{assigns: %{current_<%= @entity_name_downcase %>: %<%= @entity_name %>{}}}) do
+  def mount(_params, _session, %{assigns: %{current_<%= @entity_name_downcase %>: %<%= @entity_name %>{}}} = socket) do
     {
       :ok,
       socket

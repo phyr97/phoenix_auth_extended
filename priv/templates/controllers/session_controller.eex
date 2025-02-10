@@ -25,7 +25,7 @@ defmodule <%= inspect @app_web_module %>.SessionController do
     if <%= @entity_name_downcase %> = Identity.get_<%= @entity_name_downcase %>_by_email_and_password(email, password) do
       conn
       |> put_flash(:info, info)
-      |> <%= @entity_name %>Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, <%= @entity_name_downcase %>_params)
+      |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, <%= @entity_name_downcase %>_params)
     else
       # In order to prevent <%= @entity_name_downcase %> enumeration attacks, don't disclose whether the email is registered.
       conn
@@ -43,11 +43,11 @@ defmodule <%= inspect @app_web_module %>.SessionController do
       %<%= @entity_name %>{} = <%= @entity_name_downcase %> ->
         conn
         |> put_flash(:info, info)
-        |> <%= @entity_name %>Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>)
+        |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>)
 
       nil ->
         conn
-        |> <%= @entity_name %>Auth.renew_session()
+        |> Auth.renew_session()
         |> put_flash(:error, "Please sign in.")
         |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
     end
@@ -56,6 +56,6 @@ defmodule <%= inspect @app_web_module %>.SessionController do
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "Logged out successfully.")
-    |> <%= @entity_name %>Auth.log_out_<%= @entity_name_downcase %>()
+    |> Auth.log_out_<%= @entity_name_downcase %>()
   end
 end

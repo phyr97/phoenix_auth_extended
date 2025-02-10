@@ -80,20 +80,24 @@ if Code.ensure_loaded?(Igniter) do
       entity_name = String.downcase(igniter.assigns.entity_name)
 
       igniter
-      |> generate_migration("entities.eex", "create_#{entity_name}_table")
-      |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table")
+      |> generate_migration("entities.eex", "create_#{entity_name}_table", 0)
+      |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table", 1)
       |> maybe_generate_passkey_migration()
     end
 
     defp maybe_generate_passkey_migration(%{assigns: %{options: %{passkey: true}}} = igniter) do
       entity_name = igniter.assigns.entity_name
-      generate_migration(igniter, "entity_keys.eex", "create_#{entity_name}_keys_table")
+      generate_migration(igniter, "entity_keys.eex", "create_#{entity_name}_keys_table", 2)
     end
 
     defp maybe_generate_passkey_migration(igniter), do: igniter
 
-    defp generate_migration(igniter, template, migration_name) do
-      timestamp = NaiveDateTime.utc_now() |> Calendar.strftime("%Y%m%d%H%M%S")
+    defp generate_migration(igniter, template, migration_name, offset) do
+      timestamp =
+        NaiveDateTime.utc_now()
+        |> NaiveDateTime.add(offset, :second)
+        |> Calendar.strftime("%Y%m%d%H%M%S")
+
       file_name_with_timestamp = "#{timestamp}_#{migration_name}.exs"
       template_path = Path.join(["migrations", template])
 

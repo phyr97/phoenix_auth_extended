@@ -5,7 +5,7 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
 
   @primary_key {:id, Ecto.ULID, autogenerate: true}
   @foreign_key_type Ecto.ULID
-  schema "<%= String.downcase(@entity_name) %>s" do
+  schema "<%= @entity_name_downcase %>s" do
     field :<%= @options[:basic_identifier] %>, :string
     <%= if @options[:basic] do %>
     field :password, :string, virtual: true, redact: true
@@ -39,12 +39,12 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
     * `:hash_password` - Hashes the password and stores it in hashed_password, defaults to true
     * `:validate_password` - Validates the password, defaults to true
   """
-  def basic_changeset(<%= String.downcase(@entity_name) %>, attrs, opts \\ []) do
+  def basic_changeset(<%= @entity_name_downcase %>, attrs, opts \\ []) do
     regular_fields = __MODULE__.__schema__(:fields) -- [:hashed_password]
     virtual_fields = __MODULE__.__schema__(:virtual_fields)
     fields = regular_fields ++ virtual_fields
 
-    <%= String.downcase(@entity_name) %>
+    <%= @entity_name_downcase %>
     |> cast(attrs, fields)
     |> validate_<%= @options[:basic_identifier] %>(:<%= @options[:basic_identifier] %>, opts)
     |> maybe_validate_password(:password, opts)
@@ -61,10 +61,10 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
     * `:validate_<%= @options[:basic_identifier] %>` - Validates <%= @options[:basic_identifier] %> uniqueness, defaults to true
     * `:validate_<%= @options[:basic_identifier] %>_change` - Requires <%= @options[:basic_identifier] %> to change, defaults to false
   """
-  def passkey_changeset(<%= String.downcase(@entity_name) %>, attrs, opts \\ []) do
+  def passkey_changeset(<%= @entity_name_downcase %>, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
-    <%= String.downcase(@entity_name) %>
+    <%= @entity_name_downcase %>
     |> cast(attrs, fields)
     |> validate_<%= @options[:basic_identifier] %>(:<%= @options[:basic_identifier] %>, opts)
     |> cast_assoc(:keys)
@@ -81,10 +81,10 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
     * `:validate_<%= @options[:basic_identifier] %>` - Validates <%= @options[:basic_identifier] %> uniqueness, defaults to true
     * `:validate_<%= @options[:basic_identifier] %>_change` - Requires <%= @options[:basic_identifier] %> to change, defaults to false
   """
-  def oauth_changeset(<%= String.downcase(@entity_name) %>, attrs, opts \\ []) do
+  def oauth_changeset(<%= @entity_name_downcase %>, attrs, opts \\ []) do
     fields = __MODULE__.__schema__(:fields)
 
-    <%= String.downcase(@entity_name) %>
+    <%= @entity_name_downcase %>
     |> cast(attrs, fields)
     |> validate_<%= @options[:basic_identifier] %>(:<%= @options[:basic_identifier] %>, opts)
     |> unique_constraint([:provider, :provider_uid])
@@ -95,9 +95,9 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
   @doc """
   Confirms the account by setting `confirmed_at` to the current time.
   """
-  def confirm_changeset(<%= String.downcase(@entity_name) %>) do
+  def confirm_changeset(<%= @entity_name_downcase %>) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    change(<%= String.downcase(@entity_name) %>, confirmed_at: now)
+    change(<%= @entity_name_downcase %>, confirmed_at: now)
   end
   <% end %>
 
@@ -109,13 +109,13 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %> do
   """
   def validate_current_password(changeset, password) do
     changeset = cast(changeset, %{current_password: password}, [:current_password])
-    <%= String.downcase(@entity_name) %> = changeset.data
+    <%= @entity_name_downcase %> = changeset.data
 
     cond do
-      is_nil(<%= String.downcase(@entity_name) %>.hashed_password) ->
+      is_nil(<%= @entity_name_downcase %>.hashed_password) ->
         changeset
 
-      valid_password?(<%= String.downcase(@entity_name) %>, password) ->
+      valid_password?(<%= @entity_name_downcase %>, password) ->
         changeset
 
       true ->

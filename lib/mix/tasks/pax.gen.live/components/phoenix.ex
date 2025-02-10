@@ -117,10 +117,7 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp find_and_insert_button_link(zipper) do
-      with :error <- Igniter.Code.Function.move_to_def(zipper, :button_link, 1),
-           {:ok, zipper} <- Igniter.Code.Function.move_to_def(zipper, :button, 1) do
-        {:ok, Igniter.Code.Common.add_code(zipper, button_link_code(), placement: :after)}
-      else
+      case Igniter.Code.Function.move_to_def(zipper, :button_link, 1) do
         {:ok, zipper} ->
           {:ok, zipper}
 

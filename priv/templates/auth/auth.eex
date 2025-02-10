@@ -136,13 +136,13 @@ defmodule <%= inspect @app_web_module %>.Auth do
       defmodule <%= inspect @app_web_module %>.PageLive do
         use <%= inspect @app_web_module %>, :live_view
 
-        on_mount {<%= inspect @app_web_module %>.<%= @entity_name %>Auth, :mount_current_<%= @entity_name_downcase %>}
+        on_mount {<%= inspect @app_web_module %>.Auth, :mount_current_<%= @entity_name_downcase %>}
         ...
       end
 
   Or use the `live_session` of your router to invoke the on_mount callback:
 
-      live_session :authenticated, on_mount: [{<%= inspect @app_web_module %>.<%= @entity_name %>Auth, :ensure_authenticated}] do
+      live_session :authenticated, on_mount: [{<%= inspect @app_web_module %>.Auth, :ensure_authenticated}] do
         live "/profile", ProfileLive, :index
       end
   """

@@ -50,7 +50,7 @@ defmodule <%= inspect @app_web_module %>.RegistrationLive do
   end
 
   def mount(_params, _session, socket) do
-    changeset = <%= @context_name %>.change_<%= String.downcase(@entity_name) %>_registration(%<%= @entity_name %>{})
+    changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_registration(%<%= @entity_name %>{})
 
     socket =
       socket
