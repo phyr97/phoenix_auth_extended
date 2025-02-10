@@ -49,6 +49,7 @@ defmodule PhoenixAuthExtended do
     {_igniter, app_repo} = Igniter.Libs.Ecto.select_repo(igniter)
 
     igniter
+    |> configure_igniter_exs()
     |> PhoenixAuthExtended.Info.validate_options()
     |> Igniter.assign(:options, Map.new(igniter.args.options))
     |> Igniter.assign(igniter.args.positional)
@@ -59,6 +60,13 @@ defmodule PhoenixAuthExtended do
     |> Igniter.assign(:app_repo, app_repo)
     |> Igniter.assign(:initialized, true)
     |> assign_context_module_name()
+  end
+
+  defp configure_igniter_exs(igniter) do
+    igniter_exs =
+      Keyword.put_new(igniter.assigns[:igniter_exs], :module_location, :inside_matching_folder)
+
+    Igniter.assign(igniter, :igniter_exs, igniter_exs)
   end
 
   defp assign_context_module_name(
