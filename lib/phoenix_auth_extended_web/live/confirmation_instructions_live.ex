@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtendedWeb.UserConfirmationInstructionsLive do
+defmodule PhoenixAuthExtendedWeb.ConfirmationInstructionsLive do
   use PhoenixAuthExtendedWeb, :live_view
 
   alias PhoenixAuthExtended.Identity

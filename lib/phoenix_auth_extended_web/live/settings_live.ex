@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtendedWeb.UserSettingsLive do
+defmodule PhoenixAuthExtendedWeb.SettingsLive do
   use PhoenixAuthExtendedWeb, :live_view
 
   alias PhoenixAuthExtended.Identity

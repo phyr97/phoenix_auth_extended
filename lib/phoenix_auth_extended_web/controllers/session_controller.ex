@@ -1,9 +1,9 @@
-defmodule PhoenixAuthExtendedWeb.UserSessionController do
+defmodule PhoenixAuthExtendedWeb.SessionController do
   use PhoenixAuthExtendedWeb, :controller
 
   alias PhoenixAuthExtended.Identity.User
   alias PhoenixAuthExtended.Identity
-  alias PhoenixAuthExtendedWeb.UserAuth
+  alias PhoenixAuthExtendedWeb.Auth
 
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")
@@ -25,7 +25,7 @@ defmodule PhoenixAuthExtendedWeb.UserSessionController do
     if user = Identity.get_user_by_email_and_password(email, password) do
       conn
       |> put_flash(:info, info)
-      |> UserAuth.log_in_user(user, user_params)
+      |> Auth.log_in_user(user, user_params)
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
       conn
@@ -43,11 +43,11 @@ defmodule PhoenixAuthExtendedWeb.UserSessionController do
       %User{} = user ->
         conn
         |> put_flash(:info, info)
-        |> UserAuth.log_in_user(user)
+        |> Auth.log_in_user(user)
 
       nil ->
         conn
-        |> UserAuth.renew_session()
+        |> Auth.renew_session()
         |> put_flash(:error, "Please sign in.")
         |> redirect(to: ~p"/users/log_in")
     end
@@ -56,6 +56,6 @@ defmodule PhoenixAuthExtendedWeb.UserSessionController do
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "Logged out successfully.")
-    |> UserAuth.log_out_user()
+    |> Auth.log_out_user()
   end
 end

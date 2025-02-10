@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtendedWeb.UserAuth do
+defmodule PhoenixAuthExtendedWeb.Auth do
   use PhoenixAuthExtendedWeb, :verified_routes
 
   import Plug.Conn
@@ -136,13 +136,13 @@ defmodule PhoenixAuthExtendedWeb.UserAuth do
       defmodule PhoenixAuthExtendedWeb.PageLive do
         use PhoenixAuthExtendedWeb, :live_view
 
-        on_mount {PhoenixAuthExtendedWeb.UserAuth, :mount_current_user}
+        on_mount {PhoenixAuthExtendedWeb.Auth, :mount_current_user}
         ...
       end
 
   Or use the `live_session` of your router to invoke the on_mount callback:
 
-      live_session :authenticated, on_mount: [{PhoenixAuthExtendedWeb.UserAuth, :ensure_authenticated}] do
+      live_session :authenticated, on_mount: [{PhoenixAuthExtendedWeb.Auth, :ensure_authenticated}] do
         live "/profile", ProfileLive, :index
       end
   """

@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtendedWeb.UserResetPasswordLive do
+defmodule PhoenixAuthExtendedWeb.ResetPasswordLive do
   use PhoenixAuthExtendedWeb, :live_view
 
   alias PhoenixAuthExtended.Identity

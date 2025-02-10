@@ -1,4 +1,4 @@
-defmodule PhoenixAuthExtendedWeb.UserForgotPasswordLive do
+defmodule PhoenixAuthExtendedWeb.ForgotPasswordLive do
   use PhoenixAuthExtendedWeb, :live_view
 
   alias PhoenixAuthExtended.Identity

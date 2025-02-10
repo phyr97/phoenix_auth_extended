@@ -2,7 +2,7 @@ defmodule PhoenixAuthExtendedWeb.OAuthController do
   use PhoenixAuthExtendedWeb, :controller
 
   alias PhoenixAuthExtended.{Identity, OAuth}
-  alias PhoenixAuthExtendedWeb.UserAuth
+  alias PhoenixAuthExtendedWeb.Auth
 
   def request(conn, %{"provider" => provider}) do
     case OAuth.request(provider) do
@@ -30,7 +30,7 @@ defmodule PhoenixAuthExtendedWeb.OAuthController do
          {:ok, user} <- Identity.get_or_create_user(user_params) do
       conn
       |> delete_session(:oauth_session_params)
-      |> UserAuth.log_in_user(user, %{})
+      |> Auth.log_in_user(user, %{})
     else
       {:error, _reason} ->
         conn

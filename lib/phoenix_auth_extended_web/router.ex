@@ -1,7 +1,7 @@
 defmodule PhoenixAuthExtendedWeb.Router do
   use PhoenixAuthExtendedWeb, :router
 
-  import PhoenixAuthExtendedWeb.UserAuth
+  import PhoenixAuthExtendedWeb.Auth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -51,38 +51,38 @@ defmodule PhoenixAuthExtendedWeb.Router do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     live_session :redirect_if_user_is_authenticated,
-      on_mount: [{PhoenixAuthExtendedWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live "/users/register", UserRegistrationLive, :new
+      on_mount: [{PhoenixAuthExtendedWeb.Auth, :redirect_if_user_is_authenticated}] do
+      live "/users/register", RegistrationLive, :new
       live "/users/register_with_passkey", PasskeyRegistrationLive, :new
-      live "/users/log_in", UserLoginLive, :new
-      live "/users/reset_password", UserForgotPasswordLive, :new
-      live "/users/reset_password/:token", UserResetPasswordLive, :edit
+      live "/users/log_in", LoginLive, :new
+      live "/users/reset_password", ForgotPasswordLive, :new
+      live "/users/reset_password/:token", ResetPasswordLive, :edit
     end
 
     get "/oauth/:provider", OAuthController, :request
     get "/oauth/:provider/callback", OAuthController, :callback
-    post "/users/log_in", UserSessionController, :create
+    post "/users/log_in", SessionController, :create
   end
 
   scope "/", PhoenixAuthExtendedWeb do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{PhoenixAuthExtendedWeb.UserAuth, :ensure_authenticated}] do
-      live "/users/settings", UserSettingsLive, :edit
-      live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+      on_mount: [{PhoenixAuthExtendedWeb.Auth, :ensure_authenticated}] do
+      live "/users/settings", SettingsLive, :edit
+      live "/users/settings/confirm_email/:token", SettingsLive, :confirm_email
     end
   end
 
   scope "/", PhoenixAuthExtendedWeb do
     pipe_through [:browser]
 
-    delete "/users/log_out", UserSessionController, :delete
+    delete "/users/log_out", SessionController, :delete
 
     live_session :current_user,
-      on_mount: [{PhoenixAuthExtendedWeb.UserAuth, :mount_current_user}] do
-      live "/users/confirm/:token", UserConfirmationLive, :edit
-      live "/users/confirm", UserConfirmationInstructionsLive, :new
+      on_mount: [{PhoenixAuthExtendedWeb.Auth, :mount_current_user}] do
+      live "/users/confirm/:token", ConfirmationLive, :edit
+      live "/users/confirm", ConfirmationInstructionsLive, :new
     end
   end
 end
