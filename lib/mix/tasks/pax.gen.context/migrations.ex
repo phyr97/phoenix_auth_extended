@@ -80,7 +80,6 @@ if Code.ensure_loaded?(Igniter) do
       entity_name = String.downcase(igniter.assigns.entity_name)
 
       igniter
-      |> Igniter.assign(:entity_name, entity_name)
       |> generate_migration("entities.eex", "create_#{entity_name}_table")
       |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table")
       |> maybe_generate_passkey_migration()
