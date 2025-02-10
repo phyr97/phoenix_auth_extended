@@ -33,7 +33,7 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
   """
   def build_session_token(<%= @entity_name_downcase %>) do
     token = :crypto.strong_rand_bytes(@rand_size)
-    {token, %<%= @entity_name %>Token{value: token, type: "session", <%= @entity_name_downcase %>_id: <%= @entity_name_downcase %>.id}}
+    %<%= @entity_name %>Token{value: token, type: "session", <%= @entity_name_downcase %>_id: <%= @entity_name_downcase %>.id}
   end
 
   @doc """

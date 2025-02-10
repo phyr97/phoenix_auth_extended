@@ -77,17 +77,27 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp generate_migrations(igniter) do
-      entity_name = String.downcase(igniter.assigns.entity_name)
-
       igniter
-      |> generate_migration("entities.eex", "create_#{entity_name}_table", 0)
-      |> generate_migration("entity_tokens.eex", "create_#{entity_name}_tokens_table", 1)
+      |> generate_migration(
+        "entities.eex",
+        "create_#{igniter.assigns.entity_name_downcase}_table",
+        0
+      )
+      |> generate_migration(
+        "entity_tokens.eex",
+        "create_#{igniter.assigns.entity_name_downcase}_tokens_table",
+        1
+      )
       |> maybe_generate_passkey_migration()
     end
 
     defp maybe_generate_passkey_migration(%{assigns: %{options: %{passkey: true}}} = igniter) do
-      entity_name = igniter.assigns.entity_name
-      generate_migration(igniter, "entity_keys.eex", "create_#{entity_name}_keys_table", 2)
+      generate_migration(
+        igniter,
+        "entity_keys.eex",
+        "create_#{igniter.assigns.entity_name_downcase}_keys_table",
+        2
+      )
     end
 
     defp maybe_generate_passkey_migration(igniter), do: igniter

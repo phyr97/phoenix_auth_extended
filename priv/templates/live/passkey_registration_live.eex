@@ -79,7 +79,6 @@ defmodule <%= inspect @app_web_module %>.PasskeyRegistrationLive do
             app={<%= @app_module_name %>}
             check_uvpa_available={false}
             display_text="Create an account"
-            webauthn_user={@webauthn_user}
             class={[
               "mt-4 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
               "text-sm font-semibold leading-6 text-white active:text-white/80",

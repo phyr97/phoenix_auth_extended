@@ -2,19 +2,19 @@ defmodule <%= inspect @app_repo %>.Migrations.<%= @migration_name %> do
   use Ecto.Migration
 
   def change do
-    create table(:<%= @entity_name %>_tokens, primary_key: false) do
+    create table(:<%= @entity_name_downcase %>_tokens, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :value, :binary, null: false
       add :type, :string, null: false
       <%= if @options[:basic_identifier] == "email" do %>
       add :sent_to, :string
       <% end %>
-      add :<%= @entity_name %>_id, references(:<%= @entity_name %>s, on_delete: :delete_all, type: :binary_id), null: false
+      add :<%= @entity_name_downcase %>_id, references(:<%= @entity_name_downcase %>s, on_delete: :delete_all, type: :binary_id), null: false
 
       timestamps(type: :utc_datetime, updated_at: false)
     end
 
-    create index(:<%= @entity_name %>_tokens, [:<%= @entity_name %>_id])
-    create unique_index(:<%= @entity_name %>_tokens, [:type, :value])
+    create index(:<%= @entity_name_downcase %>_tokens, [:<%= @entity_name_downcase %>_id])
+    create unique_index(:<%= @entity_name_downcase %>_tokens, [:type, :value])
   end
 end

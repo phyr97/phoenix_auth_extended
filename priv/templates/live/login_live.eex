@@ -78,7 +78,7 @@ defmodule <%= inspect @app_web_module %>.LoginLive do
 
         <%= if @options[:oauth] do %>
         <.link
-          navigate={~p"/oauth/github"}
+          navigate={~p"/oauth/<%= @options[:oauth_provider] %>"}
           class={[
             "mt-4 rounded-lg border border-zinc-900 hover:bg-zinc-100 py-2 px-3",
             "text-sm font-semibold leading-6 text-zinc-900 active:text-zinc-700",
