@@ -51,7 +51,7 @@ defmodule <%= inspect @app_web_module %>.Components.PasskeyComponents do
   # - This is a bit hacky, but it works.
 
   attr :form, Phoenix.HTML.Form,
-    required: true,
+    required: false,
     doc: "Form used to create a session upon successful registration or authentication."
 
   def token_form(assigns) do

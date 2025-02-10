@@ -53,36 +53,34 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     use Igniter.Mix.Task
+    use PhoenixAuthExtended.Info
 
     import PhoenixAuthExtended
-    @impl Igniter.Mix.Task
-    def info(_argv, _composing_task) do
-      %Igniter.Mix.Task.Info{
-        group: :phoenix_auth_extended,
-        adds_deps: [],
-        installs: [],
-        example: __MODULE__.Docs.example(),
-        positional: [],
-        composes: [],
-        schema: [],
-        defaults: [],
-        aliases: [],
-        required: []
-      }
-    end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
-      igniter = prepare_igniter(igniter)
+      igniter =
+        igniter
+        |> prepare_igniter()
+        |> then(
+          &Igniter.assign(&1, :entity_name_downcase, String.downcase(&1.assigns.entity_name))
+        )
 
       with {:ok, layout_path} <- fetch_layout_path(igniter, "root"),
            content when is_binary(content) <- fetch_file_content(igniter, layout_path),
-           {:ok, new_content} <- inject_after_body_tag(content, auth_menu_template()),
+           {:ok, new_content} <-
+             inject_after_body_tag(
+               content,
+               auth_menu_template(igniter.assigns.entity_name_downcase)
+             ),
            updated_igniter <- inject_auth_menu(igniter, layout_path, new_content) do
         updated_igniter
       else
-        :already_exists -> Igniter.add_notice(igniter, "A menu already exists in root.html.heex")
-        _error -> Igniter.add_issue(igniter, warning_message())
+        :already_exists ->
+          Igniter.add_notice(igniter, "A menu already exists in root.html.heex")
+
+        _error ->
+          Igniter.add_issue(igniter, warning_message(igniter.assigns.entity_name_downcase))
       end
     end
 
@@ -130,25 +128,25 @@ if Code.ensure_loaded?(Igniter) do
       end
     end
 
-    defp warning_message do
+    defp warning_message(entity_name) do
       """
       Could not automatically inject the auth menu into root.html.heex.
       Please add the following menu items manually to your navigation:
 
-      #{auth_menu_template()}
+      #{auth_menu_template(entity_name)}
       """
     end
 
-    defp auth_menu_template do
+    defp auth_menu_template(entity_name) do
       """
       <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
-        <%= if @current_user do %>
+        <%= if @current_#{entity_name} do %>
           <li class="text-[0.8125rem] leading-6 text-zinc-900">
-            {@current_user.email}
+            {@current_#{entity_name}.email}
           </li>
           <li>
             <.link
-              href={~p"/users/settings"}
+              href={~p"/#{entity_name}s/settings"}
               class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
             >
               Settings
@@ -156,7 +154,7 @@ if Code.ensure_loaded?(Igniter) do
           </li>
           <li>
             <.link
-              href={~p"/users/log_out"}
+              href={~p"/#{entity_name}s/log_out"}
               method="delete"
               class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
             >
@@ -166,7 +164,7 @@ if Code.ensure_loaded?(Igniter) do
         <% else %>
           <li>
             <.link
-              href={~p"/users/register"}
+              href={~p"/#{entity_name}s/register"}
               class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
             >
               Register
@@ -174,7 +172,7 @@ if Code.ensure_loaded?(Igniter) do
           </li>
           <li>
             <.link
-              href={~p"/users/log_in"}
+              href={~p"/#{entity_name}s/log_in"}
               class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
             >
               Log in

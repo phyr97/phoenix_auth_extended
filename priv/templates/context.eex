@@ -5,7 +5,7 @@ defmodule <%= inspect @context_module_name %> do
 
   import Ecto.Query, warn: false
 
-  alias <%= inspect @context_module_name %>.{<%= @entity_name %>, <%= @entity_name %>Token<%= if @options[:passkey], do: ", #{@entity_name}Key" %>}
+  alias <%= inspect @context_module_name %>.{<%= @entity_name %>, <%= @entity_name %>Token<%= if @options[:basic_identifier] == "email", do: ", #{@entity_name}Notifier" %>}
   alias <%= @app_module_name %>.Repo
   alias <%= @app_module_name %>.Validation
 
