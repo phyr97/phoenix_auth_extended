@@ -202,7 +202,7 @@ defmodule PhoenixAuthExtendedTestWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="mt-10 space-y-4 bg-white">
         {render_slot(@inner_block, f)}
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           {render_slot(action, f)}
@@ -672,5 +672,37 @@ defmodule PhoenixAuthExtendedTestWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  Renders a link that looks like a button.
+
+  ## Examples
+
+      <.button_link navigate={~p"/some/path"}>Next</.button_link>
+      <.button_link href="https://example.com" class="ml-2">External link</.button_link>
+  """
+  attr :navigate, :string, default: nil
+  attr :href, :string, default: nil
+  attr :class, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  def button_link(assigns) do
+    ~H"""
+    <.link
+      navigate={@navigate}
+      href={@href}
+      class={[
+        "rounded-lg hover:bg-zinc-100 py-2 px-3 border border-zinc-900",
+        "text-sm font-semibold leading-6 text-zinc-900 active:text-zinc-700",
+        "flex items-center justify-center gap-1",
+        @class
+      ]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </.link>
+    """
   end
 end

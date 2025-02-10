@@ -1,6 +1,8 @@
 defmodule PhoenixAuthExtendedTestWeb.Router do
   use PhoenixAuthExtendedTestWeb, :router
 
+  import PhoenixAuthExtendedTestWeb.Auth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule PhoenixAuthExtendedTestWeb.Router do
     plug :put_root_layout, html: {PhoenixAuthExtendedTestWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -39,6 +42,46 @@ defmodule PhoenixAuthExtendedTestWeb.Router do
 
       live_dashboard "/dashboard", metrics: PhoenixAuthExtendedTestWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  scope "/", PhoenixAuthExtendedTestWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    live_session :redirect_if_user_is_authenticated,
+      on_mount: [{PhoenixAuthExtendedTestWeb.Auth, :redirect_if_user_is_authenticated}] do
+      live "/users/register", RegistrationLive, :new
+      live "/users/register_with_passkey", PasskeyRegistrationLive, :new
+      live "/users/log_in", LoginLive, :new
+      live "/users/reset_password", ForgotPasswordLive, :new
+      live "/users/reset_password/:token", ResetPasswordLive, :edit
+    end
+
+    get "/oauth/:provider", OAuthController, :request
+    get "/oauth/:provider/callback", OAuthController, :callback
+
+    post "/users/log_in", SessionController, :create
+  end
+
+  scope "/", PhoenixAuthExtendedTestWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_authenticated_user,
+      on_mount: [{PhoenixAuthExtendedTestWeb.Auth, :ensure_authenticated}] do
+      live "/users/settings", SettingsLive, :edit
+      live "/users/settings/confirm_email/:token", SettingsLive, :confirm_email
+    end
+  end
+
+  scope "/", PhoenixAuthExtendedTestWeb do
+    pipe_through [:browser]
+
+    delete "/users/log_out", SessionController, :delete
+
+    live_session :current_user,
+      on_mount: [{PhoenixAuthExtendedTestWeb.Auth, :mount_current_user}] do
+      live "/users/confirm/:token", ConfirmationLive, :edit
+      live "/users/confirm", ConfirmationInstructionsLive, :new
     end
   end
 end

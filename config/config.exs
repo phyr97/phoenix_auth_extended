@@ -7,6 +7,15 @@
 # General application configuration
 import Config
 
+config :phoenix_auth_extended, OAuthProviders,
+  github: [
+    # TODO: Add your own custom strategy with Assent for github.
+    # See: https://hexdocs.pm/assent/Assent.Strategy.html
+
+    client_id: System.get_env("GITHUB_CLIENT_ID", "your_client_id"),
+    client_secret: System.get_env("GITHUB_CLIENT_SECRET", "your_secret")
+  ]
+
 config :phoenix_auth_extended_test,
   ecto_repos: [PhoenixAuthExtendedTest.Repo],
   generators: [timestamp_type: :utc_datetime]

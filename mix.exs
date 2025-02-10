@@ -32,6 +32,10 @@ defmodule PhoenixAuthExtendedTest.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:webauthn_components, "~> 0.8.0"},
+      {:req, "~> 0.5.8"},
+      {:assent, "~> 0.3.0"},
+      {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.19"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
@@ -75,7 +79,10 @@ defmodule PhoenixAuthExtendedTest.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind phoenix_auth_extended_test", "esbuild phoenix_auth_extended_test"],
+      "assets.build": [
+        "tailwind phoenix_auth_extended_test",
+        "esbuild phoenix_auth_extended_test"
+      ],
       "assets.deploy": [
         "tailwind phoenix_auth_extended_test --minify",
         "esbuild phoenix_auth_extended_test --minify",
