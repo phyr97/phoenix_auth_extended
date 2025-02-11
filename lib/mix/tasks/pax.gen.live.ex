@@ -76,13 +76,23 @@ if Code.ensure_loaded?(Igniter) do
       live_views = [
         {"registration_live.eex", "registration_live.ex"},
         {"login_live.eex", "login_live.ex"},
-        {"confirmation_live.eex", "confirmation_live.ex"},
-        {"confirmation_instructions_live.eex", "confirmation_instructions_live.ex"},
-        {"forgot_password_live.eex", "forgot_password_live.ex"},
-        {"reset_password_live.eex", "reset_password_live.ex"},
-        {"settings_live.eex", "settings_live.ex"},
         {"passkey_registration_live.eex", "passkey_registration_live.ex"}
       ]
+
+      email_live_views =
+        if igniter.assigns.options.basic_identifier == "email" do
+          [
+            {"confirmation_live.eex", "confirmation_live.ex"},
+            {"settings_live.eex", "settings_live.ex"},
+            {"confirmation_instructions_live.eex", "confirmation_instructions_live.ex"},
+            {"forgot_password_live.eex", "forgot_password_live.ex"},
+            {"reset_password_live.eex", "reset_password_live.ex"}
+          ]
+        else
+          []
+        end
+
+      live_views = live_views ++ email_live_views
 
       Enum.reduce(live_views, igniter, fn {template, file}, acc ->
         generate_live_view(acc, template, file)

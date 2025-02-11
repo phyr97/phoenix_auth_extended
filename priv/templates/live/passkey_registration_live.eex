@@ -65,9 +65,9 @@ defmodule <%= inspect @app_web_module %>.PasskeyRegistrationLive do
           phx-submit={JS.dispatch("click", to: "#registration-component")}
         >
           <.input
-            type="email"
-            field={form[:email]}
-            label="Email"
+            <%= if @options[:basic_identifier] == "email" do %>type="email"<% end %>
+            field={form[:<%= @options[:basic_identifier] %>]}
+            label="<%= String.capitalize(@options[:basic_identifier]) %>"
             phx-debounce="250"
             autocomplete="username webauthn"
             required
@@ -99,13 +99,13 @@ defmodule <%= inspect @app_web_module %>.PasskeyRegistrationLive do
     """
   end
 
-  def handle_event("update-form", %{"email" => email} = params, socket) do
+  def handle_event("update-form", %{"<%= @options[:basic_identifier] %>" => <%= @options[:basic_identifier] %>} = params, socket) do
     %{webauthn_user: webauthn_user} = socket.assigns
 
     webauthn_user =
       webauthn_user
-      |> Map.put(:name, email)
-      |> Map.put(:display_name, email)
+      |> Map.put(:name, <%= @options[:basic_identifier] %>)
+      |> Map.put(:display_name, <%= @options[:basic_identifier] %>)
 
     send_update(RegistrationComponent,
       id: "registration-component",
@@ -139,7 +139,7 @@ defmodule <%= inspect @app_web_module %>.PasskeyRegistrationLive do
 
   def handle_info({:registration_successful, params}, socket) do
     %{form: form} = socket.assigns
-    <%= @entity_name_downcase %>_attrs = %{email: form[:email].value, keys: [params[:key]]}
+    <%= @entity_name_downcase %>_attrs = %{<%= @options[:basic_identifier] %>: form[:<%= @options[:basic_identifier] %>].value, keys: [params[:key]]}
 
     with {:ok, %<%= @entity_name %>{} = <%= @entity_name_downcase %>} <- <%= @context_name %>.register_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_attrs),
          {:ok, %<%= @entity_name %>Token{value: token}} <- <%= @context_name %>.generate_<%= @entity_name_downcase %>_session_token(<%= @entity_name_downcase %>) do

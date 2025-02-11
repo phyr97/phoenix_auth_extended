@@ -12,8 +12,8 @@ defmodule <%= inspect @app_web_module %>.LoginLive do
   <% end %>
 
   def mount(_params, _session, socket) do
-    email = Phoenix.Flash.get(socket.assigns.flash, :email)
-    form = to_form(%{"email" => email}, as: "<%= @entity_name_downcase %>")
+    <%= @options[:basic_identifier] %> = Phoenix.Flash.get(socket.assigns.flash, :<%= @options[:basic_identifier] %>)
+    form = to_form(%{<%= @options[:basic_identifier] %> => <%= @options[:basic_identifier] %>}, as: "<%= @entity_name_downcase %>")
 
     {
       :ok,
@@ -40,15 +40,17 @@ defmodule <%= inspect @app_web_module %>.LoginLive do
       </.header>
 
       <.simple_form for={@form} id="login_form" action={~p"/<%= @entity_name_downcase %>s/log_in"} phx-update="ignore">
-        <.input field={@form[:email]} type="email" label="Email" required />
+        <.input field={@form[:<%= @options[:basic_identifier] %>]} <%= if @options[:basic_identifier] == "email" do %>type="email"<% end %> label="<%= String.capitalize(@options[:basic_identifier]) %>" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
+        <%= if @options[:basic_identifier] == "email" do %>
         <:actions>
           <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
           <.link href={~p"/<%= @entity_name_downcase %>s/reset_password"} class="text-sm font-semibold">
             Forgot your password?
           </.link>
         </:actions>
+        <% end %>
         <:actions>
           <div class="flex flex-col gap-2 w-full">
             <.button phx-disable-with="Logging in..." class="w-full">

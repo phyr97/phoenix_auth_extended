@@ -120,8 +120,8 @@ if Code.ensure_loaded?(Igniter) do
           live "/#{entity}s/register", RegistrationLive, :new
           #{if options.passkey, do: "live \"/#{entity}s/register_with_passkey\", PasskeyRegistrationLive, :new"}
           live "/#{entity}s/log_in", LoginLive, :new
-          live "/#{entity}s/reset_password", ForgotPasswordLive, :new
-          live "/#{entity}s/reset_password/:token", ResetPasswordLive, :edit
+          #{if options.basic_identifier == "email", do: "live \"/#{entity}s/reset_password\", ForgotPasswordLive, :new"}
+          #{if options.basic_identifier == "email", do: "live \"/#{entity}s/reset_password/:token\", ResetPasswordLive, :edit"}
         end
 
         #{if options.oauth do
@@ -150,8 +150,8 @@ if Code.ensure_loaded?(Igniter) do
 
         live_session :current_#{entity},
           on_mount: [{#{inspect(web_module)}.Auth, :mount_current_#{entity}}] do
-          live "/#{entity}s/confirm/:token", ConfirmationLive, :edit
-          live "/#{entity}s/confirm", ConfirmationInstructionsLive, :new
+          #{if options.basic_identifier == "email", do: "live \"/#{entity}s/confirm/:token\", ConfirmationLive, :edit"}
+          #{if options.basic_identifier == "email", do: "live \"/#{entity}s/confirm\", ConfirmationInstructionsLive, :new"}
         end
       end
       """

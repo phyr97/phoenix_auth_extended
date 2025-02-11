@@ -3,14 +3,17 @@ defmodule <%= inspect @context_module_name %>.<%= @entity_name %>Token do
   import Ecto.Query
   alias <%= inspect @context_module_name %>.<%= @entity_name %>Token
 
+  <%= if @options[:basic_identifier] == "email" do %>
   @hash_algorithm :sha256
+  <% end %>
   @rand_size 32
-
+  <%= if @options[:basic_identifier] == "email" do %>
   # It is very important to keep the reset password token expiry short,
   # since someone with access to the email may take over the account.
   @reset_password_validity_in_days 1
   @confirm_validity_in_days 7
   @change_email_validity_in_days 7
+  <% end %>
   @session_validity_in_days 60
 
   @primary_key {:id, Ecto.ULID, autogenerate: true}

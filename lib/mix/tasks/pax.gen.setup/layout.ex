@@ -71,7 +71,10 @@ if Code.ensure_loaded?(Igniter) do
            {:ok, new_content} <-
              inject_after_body_tag(
                content,
-               auth_menu_template(igniter.assigns.entity_name_downcase)
+               auth_menu_template(
+                 igniter.assigns.entity_name_downcase,
+                 igniter.assigns.options.basic_identifier
+               )
              ),
            updated_igniter <- inject_auth_menu(igniter, layout_path, new_content) do
         updated_igniter
@@ -80,7 +83,13 @@ if Code.ensure_loaded?(Igniter) do
           Igniter.add_notice(igniter, "A menu already exists in root.html.heex")
 
         _error ->
-          Igniter.add_issue(igniter, warning_message(igniter.assigns.entity_name_downcase))
+          Igniter.add_issue(
+            igniter,
+            warning_message(
+              igniter.assigns.entity_name_downcase,
+              igniter.assigns.options.basic_identifier
+            )
+          )
       end
     end
 
@@ -128,30 +137,34 @@ if Code.ensure_loaded?(Igniter) do
       end
     end
 
-    defp warning_message(entity_name) do
+    defp warning_message(entity_name, basic_identifier) do
       """
       Could not automatically inject the auth menu into root.html.heex.
       Please add the following menu items manually to your navigation:
 
-      #{auth_menu_template(entity_name)}
+      #{auth_menu_template(entity_name, basic_identifier)}
       """
     end
 
-    defp auth_menu_template(entity_name) do
+    defp auth_menu_template(entity_name, basic_identifier) do
       """
       <ul class="relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
         <%= if @current_#{entity_name} do %>
           <li class="text-[0.8125rem] leading-6 text-zinc-900">
-            {@current_#{entity_name}.email}
+            {@current_#{entity_name}.#{basic_identifier}}
           </li>
-          <li>
-            <.link
-              href={~p"/#{entity_name}s/settings"}
-              class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-            >
-              Settings
-            </.link>
-          </li>
+          #{if basic_identifier == "email" do
+        """
+        <li>
+        <.link
+          href={~p"/#{entity_name}s/settings"}
+          class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+        >
+          Settings
+          </.link>
+        </li>
+        """
+      end}
           <li>
             <.link
               href={~p"/#{entity_name}s/log_out"}

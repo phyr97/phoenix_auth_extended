@@ -23,7 +23,7 @@ defmodule <%= inspect @app_web_module %>.OAuthController do
 
     with {:ok, %{<%= @entity_name_downcase %>: <%= @entity_name_downcase %>_info}} <- OAuth.callback(provider, params, session_params),
          <%= @entity_name_downcase %>_params = %{
-           email: <%= @entity_name_downcase %>_info["email"],
+           <%= @options[:basic_identifier] %>: <%= @entity_name_downcase %>_info["email"],
            provider: provider,
            provider_uid: <%= @entity_name_downcase %>_info["sub"]
          },

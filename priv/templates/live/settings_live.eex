@@ -75,6 +75,7 @@ defmodule <%= inspect @app_web_module %>.SettingsLive do
     """
   end
 
+  <%= if @options[:basic_identifier] == "email" do %>
   def mount(%{"token" => token}, _session, socket) do
     socket =
       case <%= @context_name %>.update_<%= @entity_name_downcase %>_email(socket.assigns.current_<%= @entity_name_downcase %>, token) do
@@ -87,10 +88,10 @@ defmodule <%= inspect @app_web_module %>.SettingsLive do
 
     {:ok, push_navigate(socket, to: ~p"/<%= @entity_name_downcase %>s/settings")}
   end
-
+  <% end %>
   def mount(_params, _session, socket) do
     <%= @entity_name_downcase %> = socket.assigns.current_<%= @entity_name_downcase %>
-    email_changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_email(<%= @entity_name_downcase %>)
+    <%= if @options[:basic_identifier] == "email" do %> email_changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_email(<%= @entity_name_downcase %>) <% end %>
     password_changeset = <%= @context_name %>.change_<%= @entity_name_downcase %>_password(<%= @entity_name_downcase %>)
 
     socket =
