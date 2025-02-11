@@ -1,0 +1,61 @@
+defmodule <%= inspect @app_web_module %>.SessionController do
+  use <%= inspect @app_web_module %>, :controller
+
+  alias <%=  @app_module_name %>.<%= @context_name %>.<%= @entity_name %>
+  alias <%=  @app_module_name %>.<%= @context_name %>
+  alias <%= inspect @app_web_module %>.Auth
+
+  def create(conn, %{"_action" => "registered"} = params) do
+    create(conn, params, "Account created successfully!")
+  end
+
+  def create(conn, %{"_action" => "password_updated"} = params) do
+    conn
+    |> put_session(:<%= @entity_name_downcase %>_return_to, ~p"/<%= @entity_name_downcase %>s/settings")
+    |> create(params, "Password updated successfully!")
+  end
+
+  def create(conn, params) do
+    create(conn, params, "Welcome back!")
+  end
+
+  defp create(conn, %{"<%= @entity_name_downcase %>" => <%= @entity_name_downcase %>_params}, info) do
+    %{"<%= @options[:basic_identifier] %>" => <%= @options[:basic_identifier] %>, "password" => password} = <%= @entity_name_downcase %>_params
+
+    if <%= @entity_name_downcase %> = <%= @context_name %>.get_<%= @entity_name_downcase %>_by_<%= @options[:basic_identifier] %>_and_password(<%= @options[:basic_identifier] %>, password) do
+      conn
+      |> put_flash(:info, info)
+      |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, <%= @entity_name_downcase %>_params)
+    else
+      # In order to prevent <%= @entity_name_downcase %> enumeration attacks, don't disclose whether the email is registered.
+      conn
+      |> put_flash(:error, "Invalid <%= @options[:basic_identifier] %> or password")
+      |> put_flash(:<%= @options[:basic_identifier] %>, String.slice(<%= @options[:basic_identifier] %>, 0, 160))
+      |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
+    end
+  end
+
+  defp create(conn, %{"token" => token_params}, info) do
+    %{"value" => value} = token_params
+    decoded_value = Base.decode64!(value, padding: false)
+
+    case <%= @context_name %>.get_<%= @entity_name_downcase %>_by_token(decoded_value) do
+      %<%= @entity_name %>{} = <%= @entity_name_downcase %> ->
+        conn
+        |> put_flash(:info, info)
+        |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>)
+
+      nil ->
+        conn
+        |> Auth.renew_session()
+        |> put_flash(:error, "Please sign in.")
+        |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
+    end
+  end
+
+  def delete(conn, _params) do
+    conn
+    |> put_flash(:info, "Logged out successfully.")
+    |> Auth.log_out_<%= @entity_name_downcase %>()
+  end
+end

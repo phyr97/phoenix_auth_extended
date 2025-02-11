@@ -1,0 +1,58 @@
+defmodule <%= inspect @app_web_module %>.ConfirmationLive do
+  use <%= inspect @app_web_module %>, :live_view
+
+  alias <%= @app_module_name %>.<%= @context_name %>
+
+  def render(%{live_action: :edit} = assigns) do
+    ~H"""
+    <div class="mx-auto max-w-sm">
+      <.header class="text-center">Confirm Account</.header>
+
+      <.simple_form for={@form} id="confirmation_form" phx-submit="confirm_account">
+        <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
+        <:actions>
+          <.button phx-disable-with="Confirming..." class="w-full">Confirm my account</.button>
+        </:actions>
+      </.simple_form>
+
+      <p class="text-center mt-4">
+        <.link href={~p"/<%= @entity_name_downcase %>s/register"}>Register</.link>
+        | <.link href={~p"/<%= @entity_name_downcase %>s/log_in"}>Log in</.link>
+      </p>
+    </div>
+    """
+  end
+
+  def mount(%{"token" => token}, _session, socket) do
+    form = to_form(%{"token" => token}, as: "<%= @entity_name_downcase %>")
+    {:ok, assign(socket, form: form), temporary_assigns: [form: nil]}
+  end
+
+  # Do not log in the <%= @entity_name_downcase %> after confirmation to avoid a
+  # leaked token giving the <%= @entity_name_downcase %> access to the account.
+  def handle_event("confirm_account", %{"<%= @entity_name_downcase %>" => %{"token" => token}}, socket) do
+    case <%= @context_name %>.confirm_<%= @entity_name_downcase %>(token) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "<%= @entity_name %> confirmed successfully.")
+         |> redirect(to: ~p"/")}
+
+      :error ->
+        # If there is a current <%= @entity_name_downcase %> and the account was already confirmed,
+        # then odds are that the confirmation link was already visited, either
+        # by some automation or by the <%= @entity_name_downcase %> themselves, so we redirect without
+        # a warning message.
+        case socket.assigns do
+          %{current_<%= @entity_name_downcase %>: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
+            {:noreply, redirect(socket, to: ~p"/")}
+
+          %{} ->
+            {:noreply,
+             socket
+             |> put_flash(:error, "<%= @entity_name %> confirmation link is invalid or it has expired.")
+             |> redirect(to: ~p"/")}
+        end
+    end
+  end
+end
