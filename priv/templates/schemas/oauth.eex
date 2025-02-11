@@ -22,7 +22,7 @@ defmodule <%= @app_module_name %>.OAuth do
     provider = String.to_existing_atom(provider)
 
     config =
-      Application.get_env(:phoenix_auth_extended, :oauth_providers)[provider] ||
+      Application.get_env(:phoenix_auth_extended, OAuthProviders)[provider] ||
         raise "No provider configuration found for #{provider}"
 
     Keyword.put(config, :redirect_uri, url(provider))

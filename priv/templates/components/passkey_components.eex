@@ -16,12 +16,12 @@ defmodule <%= inspect @app_web_module %>.Components.PasskeyComponents do
         "rounded-lg",
         "group-open:border-gray-300"
       ]}>
-        Where's the password?
+        What is a passkey?
       </summary>
 
       <div class=" px-2text-justify grid gap-2">
         <p>
-          This application uses a new technology that replaces passwords and temporary codes.
+          This application offers the use of a new technology that replaces passwords and temporary codes.
         </p>
 
         <p>
