@@ -9,8 +9,11 @@ defmodule PhoenixAuthExtended.Application do
   def start(_type, _args) do
     children = [
       PhoenixAuthExtendedWeb.Telemetry,
+      # Start the UserTokenCleaner
       PhoenixAuthExtended.Repo,
-      {DNSCluster, query: Application.get_env(:phoenix_auth_extended, :dns_cluster_query) || :ignore},
+      {PhoenixAuthExtended.UserTokenCleaner, interval_minutes: 10},
+      {DNSCluster,
+       query: Application.get_env(:phoenix_auth_extended, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhoenixAuthExtended.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: PhoenixAuthExtended.Finch},
