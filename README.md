@@ -78,6 +78,10 @@ def deps do
 end
 ```
 
+### Important Note on WebAuthn Compatibility
+
+Please note that the current version of `webauthn_components` (0.8.0) is not directly compatible with Phoenix LiveView 1.0.0. If you encounter compatibility issues, you can modify the dependency in your `mix.exs` to use a version adapted for LiveView 1.0.0.
+
 ## Future Development
 
 While this project originated as part of my Master's thesis, i want to develop the generator further. The thesis work has established a solid foundation for future enhancements and improvements.
