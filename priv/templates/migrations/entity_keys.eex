@@ -1,0 +1,20 @@
+defmodule <%= inspect @app_repo %>.Migrations.<%= @migration_name %> do
+  use Ecto.Migration
+
+  def change do
+    create table(:<%= @entity_name_downcase %>_keys, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :<%= @entity_name_downcase %>_id, references(:<%= @entity_name_downcase %>s, on_delete: :delete_all, type: :binary_id), null: false
+      add :label, :string, null: false
+      add :key_id, :binary, null: false
+      add :public_key, :binary, null: false
+      add :last_used_at, :utc_datetime, null: false, default: fragment("now()")
+
+      timestamps()
+    end
+
+    create index(:<%= @entity_name_downcase %>_keys, [:<%= @entity_name_downcase %>_id])
+    create unique_index(:<%= @entity_name_downcase %>_keys, [:key_id])
+    create unique_index(:<%= @entity_name_downcase %>_keys, [:<%= @entity_name_downcase %>_id, :label])
+  end
+end

@@ -1,0 +1,41 @@
+defmodule <%= inspect @app_web_module %>.OAuthController do
+  use <%= inspect @app_web_module %>, :controller
+
+  alias <%= @app_module_name %>.{<%= @context_name %>, OAuth}
+  alias <%= inspect @app_web_module %>.Auth
+
+  def request(conn, %{"provider" => provider}) do
+    case OAuth.request(provider) do
+      {:ok, %{url: url, session_params: session_params}} ->
+        conn
+        |> put_session(:oauth_session_params, session_params)
+        |> redirect(external: url)
+
+      {:error, _error} ->
+        conn
+        |> put_flash(:error, "Authentication failed")
+        |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
+    end
+  end
+
+  def callback(conn, %{"provider" => provider} = params) do
+    session_params = get_session(conn, :oauth_session_params)
+
+    with {:ok, %{<%= @entity_name_downcase %>: <%= @entity_name_downcase %>_info}} <- OAuth.callback(provider, params, session_params),
+         <%= @entity_name_downcase %>_params = %{
+           <%= @options[:basic_identifier] %>: <%= @entity_name_downcase %>_info["email"],
+           provider: provider,
+           provider_uid: <%= @entity_name_downcase %>_info["sub"]
+         },
+         {:ok, <%= @entity_name_downcase %>} <- <%= @context_name %>.get_or_create_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>_params) do
+      conn
+      |> delete_session(:oauth_session_params)
+      |> Auth.log_in_<%= @entity_name_downcase %>(<%= @entity_name_downcase %>, %{})
+    else
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Authentication failed")
+        |> redirect(to: ~p"/<%= @entity_name_downcase %>s/log_in")
+    end
+  end
+end
