@@ -59,7 +59,7 @@ defmodule PhoenixAuthExtended.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:webauthn_components, path: "deps/webauthn_components"},
+      {:webauthn_components, "~>0.8.0"},
       {:assent, "~> 0.3.0"},
       {:req, "~> 0.5.8"}
     ]
